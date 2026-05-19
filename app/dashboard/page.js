@@ -213,8 +213,8 @@ export default function Dashboard() {
   // Show loading state while checking authentication
   if (status === 'loading') {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-600">Loading...</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-400">Loading...</p>
       </div>
     )
   }
@@ -225,7 +225,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-4">
+    <div className="min-h-screen bg-gray-200 p-4 md:p-4">
       <div className="max-w-2xl mx-auto">
 
         <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-4">

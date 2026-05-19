@@ -14,7 +14,7 @@ const paymentSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    oid: {
+    order_id: {
         type: String,
         required: true
     },

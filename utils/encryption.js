@@ -62,11 +62,3 @@ export function decrypt(encryptedData) {
     throw new Error('Decryption failed: Data may be corrupted or tampered')
   }
 }
-
-/**
- * Generate a random encryption key for .env
- * Run this once to generate your ENCRYPTION_KEY
- */
-export function generateEncryptionKey() {
-  return crypto.randomBytes(32).toString('hex')
-}
