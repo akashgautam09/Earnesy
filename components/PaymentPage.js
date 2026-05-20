@@ -2,21 +2,37 @@
 
 import React from 'react'
 import Script from 'next/script'
-import { useSession, status } from "next-auth/react"
+import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-import { initiate } from '@/actions/userAction'
+import { creatorPayments, initiate, fetchCreator } from '@/actions/userAction'
+import { userAgentFromString } from 'next/server'
 
 export const PaymentPage = ({ username }) => {
     const { data: session, status } = useSession()
     const router = useRouter()
     const [paymentform, setPaymentform] = useState({ name: '', amount: '' })
+    const [currentCreator, setcurrentCreator] = useState()
+    const [paymentReceived, setPaymentReceived] = useState([])
+
+    const fetchCurrentCreator = async () => {
+        let user = await fetchCreator(username)
+        setcurrentCreator(user)
+        let payments = await creatorPayments(username)
+        setPaymentReceived(payments)
+        // console.log(`Payments received for ${username}:`, payments)
+        // console.log(`Creator details for ${username}:`, user)
+    }
 
     useEffect(() => {
         if (status === "unauthenticated") {
             router.push("/login")
         }
     }, [status, router])
+
+    useEffect(() => {
+        fetchCurrentCreator()
+    }, [username])
 
     // Show loading state while checking authentication
     if (status === 'loading') {
@@ -105,16 +121,10 @@ export const PaymentPage = ({ username }) => {
                 <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg p-6 max-h-[450px] shadow-lg border border-gray-700">
                     <h2 className="text-2xl font-bold text-white mb-6">Top Supporters</h2>
                     <ul className="space-y-3">
-                        {[
-                            { name: 'Shivam', amount: 100 },
-                            { name: 'Alice', amount: 550 },
-                            { name: 'Bob', amount: 200 },
-                            { name: 'Charlie', amount: 150 },
-                            { name: 'Rohan', amount: 250 },
-                        ].map((supporter, index) => (
+                        {paymentReceived.map((supporter, index) => (
                             <li key={index} className="flex justify-between items-center p-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors">
-                                <span className="text-gray-100 font-medium">{supporter.name}</span>
-                                <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">₹{supporter.amount}</span>
+                                <span className="text-gray-100 font-medium">{supporter.from_user}</span>
+                                <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">₹{supporter.amount/100}</span>
                             </li>
                         ))}
                     </ul>
@@ -163,5 +173,5 @@ export const PaymentPage = ({ username }) => {
     )
 }
 
-
+// https://razorpay.com/docs/payments/payment-gateway/web-integration/standard/integration-steps/
 export default PaymentPage

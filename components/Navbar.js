@@ -61,16 +61,18 @@ const Navbar = () => {
         <li className="hover:text-gray-300 cursor-pointer transition-colors">Contact</li>
       </ul>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         {!session && <>  <Link href="/login">
           <button className="px-4 py-2 text-sm font-medium text-white hover:text-gray-300 transition-colors">
             Login
           </button>
         </Link>
 
-          <button className="px-5 py-2 text-sm font-semibold text-black bg-white rounded-full hover:bg-gray-200 transition-all active:scale-95 shadow-lg shadow-white/5">
-            Sign Up
-          </button>
+          <Link href="/login">
+            <button className="px-5 py-2 text-sm font-semibold text-black bg-white rounded-full hover:bg-gray-200 transition-all active:scale-95 shadow-lg shadow-white/5">
+              Sign Up
+            </button>
+          </Link>
         </>
         }
         {session && <>
