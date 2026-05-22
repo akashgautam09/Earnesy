@@ -4,25 +4,31 @@ import React from 'react'
 import Script from 'next/script'
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback, useRef } from "react"
 import { creatorPayments, initiate, fetchCreator } from '@/actions/userAction'
-import { userAgentFromString } from 'next/server'
+import { ToastContainer, toast, Bounce } from 'react-toastify'
+import { useSearchParams } from 'next/navigation'
 
 export const PaymentPage = ({ username }) => {
     const { data: session, status } = useSession()
     const router = useRouter()
+    const isMounted = useRef(true)
     const [paymentform, setPaymentform] = useState({ name: '', amount: '' })
-    const [currentCreator, setcurrentCreator] = useState()
+    const [currentCreator, setcurrentCreator] = useState({})
     const [paymentReceived, setPaymentReceived] = useState([])
+    const searchParams = useSearchParams()
 
-    const fetchCurrentCreator = async () => {
-        let user = await fetchCreator(username)
-        setcurrentCreator(user)
-        let payments = await creatorPayments(username)
-        setPaymentReceived(payments)
-        // console.log(`Payments received for ${username}:`, payments)
-        // console.log(`Creator details for ${username}:`, user)
-    }
+    const fetchCurrentCreator = useCallback(async () => {
+        if (!isMounted.current) return
+        try {
+            let user = await fetchCreator(username)
+            if (isMounted.current) setcurrentCreator(user);
+            let payments = await creatorPayments(username)
+            if (isMounted.current) setPaymentReceived(payments);
+        } catch (error) {
+            console.error('Error fetching creator:', error)
+        }
+    }, [username])
 
     useEffect(() => {
         if (status === "unauthenticated") {
@@ -32,7 +38,14 @@ export const PaymentPage = ({ username }) => {
 
     useEffect(() => {
         fetchCurrentCreator()
-    }, [username])
+    }, [fetchCurrentCreator])
+
+    useEffect(() => {
+        if (searchParams.get("paymentdone") === "true" && isMounted.current) {
+            toast.success("Payment done successfully")
+            router.replace(`/${username}`)
+        }
+    }, [searchParams, username])
 
     // Show loading state while checking authentication
     if (status === 'loading') {
@@ -55,7 +68,7 @@ export const PaymentPage = ({ username }) => {
     const pay = async (amount) => {
         try {
             if (!paymentform.name || !amount) {
-                alert('Please fill in all fields');
+                toast.error('Please fill in all fields');
                 return;
             }
 
@@ -71,35 +84,50 @@ export const PaymentPage = ({ username }) => {
                 "image": "https://example.com/your_logo",
                 "order_id": order_id, // This is a sample Order ID. Pass the id obtained in the response of Step 1
                 "callback_url": `${process.env.NEXT_PUBLIC_URL}/api/razorpay/`,
-            "prefill": { //We recommend using the prefill parameter to auto-fill customer's contact information especially their phone number
-                "name": paymentform.name, //your customer's name
-                "email": session?.user.email,
-                "contact": "+919876543210" //Provide the customer's phone number for better conversion rates 
-            },
-            "notes": {
-                "address": "Razorpay Corporate Office"
-            },
-            "theme": {
-                "color": "#3399cc"
-            }
-        };
+                "prefill": { //We recommend using the prefill parameter to auto-fill customer's contact information especially their phone number
+                    "name": paymentform.name, //your customer's name
+                    "email": session?.user.email,
+                    "contact": "+919876543210" //Provide the customer's phone number for better conversion rates 
+                },
+                "notes": {
+                    "address": "Razorpay Corporate Office"
+                },
+                "theme": {
+                    "color": "#3399cc"
+                }
+            };
             var rzp1 = new window.Razorpay(options);
             rzp1.open();
         } catch (error) {
             console.error('Payment error:', error.message || error);
-            alert(`Error: ${error.message || 'Payment failed. Please try again.'}`);
+            toast.error(`Error: ${error.message || 'Payment failed. Please try again.'}`);
         }
     }
+
     return (
         <>
             <Script src="https://checkout.razorpay.com/v1/checkout.js"></Script>
+            <ToastContainer
+                position="bottom-left"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick={false}
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="dark"
+                transition={Bounce}
+            />
 
             <div className="relative mb-12">
-                <div className="w-full bg-gray-500">
-                    <img src="/EC.jpg" alt="cover image" className="w-full h-full object-cover" />
+                <div className="coverImage w-full bg-gray-500">
+                    {/* Get the cover image url from the currentCreator */}
+                    <img src={currentCreator.coverUrl} alt="cover image" className="w-full h-full object-cover" />
                 </div>
-                <span className="absolute w-28 -bottom-12 left-[46%] overflow-hidden aspect-square rounded-full bg-gray-500">
-                    <img src="/profile.jpg" alt="cover image" className="w-full h-full object-cover object-center" />
+                <span className="profileImage absolute w-28 -bottom-12 left-[46%] overflow-hidden aspect-square rounded-full bg-gray-500">
+                    <img src={currentCreator.profileUrl} alt="profile image" className="w-full h-full object-cover object-center" />
                 </span>
             </div>
             <div>
@@ -110,7 +138,7 @@ export const PaymentPage = ({ username }) => {
                 </div>
                 <div className="flex flex-col gap-3 justify-center items-center">
                     <button className="bg-[#047cfc] hover:bg-[#1e84f1] px-5 py-2 w-[15rem] rounded-xl cursor-pointer text-md">Join for free</button>
-                    <button className="bg-[#7377836a] hover:bg-[#858a996a] px-5 py-2 w-[15rem] rounded-xl cursor-pointer text-md">See membership options</button>
+                 <button className="bg-[#7377836a] hover:bg-[#858a996a] px-5 py-2 w-[15rem] rounded-xl cursor-pointer text-md">See membership options</button>
                 </div>
             </div>
 
@@ -120,11 +148,11 @@ export const PaymentPage = ({ username }) => {
 
                 <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg p-6 max-h-[450px] shadow-lg border border-gray-700">
                     <h2 className="text-2xl font-bold text-white mb-6">Top Supporters</h2>
-                    <ul className="space-y-3">
+                    <ul className="space-y-3 overflow-y-auto max-h-[320px] custom-scrollbar pr-2">
                         {paymentReceived.map((supporter, index) => (
                             <li key={index} className="flex justify-between items-center p-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors">
                                 <span className="text-gray-100 font-medium">{supporter.from_user}</span>
-                                <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">₹{supporter.amount/100}</span>
+                                <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">₹{supporter.amount / 100}</span>
                             </li>
                         ))}
                     </ul>

@@ -2,12 +2,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSession, signIn, signOut } from "next-auth/react"
+import { fetchCreator } from '@/actions/userAction';
+import { useRouter } from 'next/navigation';
 
 const Navbar = () => {
   const { data: session } = useSession()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState(false)
   const dropdownRef = useRef(null)
+  const router = useRouter();
 
   useEffect(() => {
     // Load dark mode preference from localStorage
@@ -77,7 +80,7 @@ const Navbar = () => {
         }
         {session && <>
           <div ref={dropdownRef} className="relative">
-          <button id="dropdownInformationButton" onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="relative mx-2 px-4 py-2.5 text-sm font-medium text-white rounded-xl bg-white/10 backdrop-blur-md border border-white/20 transition-all duration-300 ease-in-out shadow-lg focus:outline-none focus:ring-1 focus:ring-white inline-flex items-center gap-2" type="button">
+          <button id="dropdownInformationButton" onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="relative mx-2 px-4 py-2.5 text-sm font-medium text-white rounded-xl bg-white/10 backdrop-blur-md border border-white/20 transition-all duration-300 ease-in-out shadow-lg focus:outline-none focus:ring-1 focus:ring-white inline-flex items-center gap-1" type="button">
             {session.user.name}
             <svg className="w-4 h-4 ms-1.5 -me-0.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 9-7 7-7-7" /></svg>
           </button>
@@ -94,10 +97,19 @@ const Navbar = () => {
             </div>
             <ul className={`px-2 pb-2 text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} aria-labelledby="dropdownInformationButton">
               <li>
-                <Link href={`/${session.user.email.split('@')[0]}`} className={`inline-flex items-center w-full p-2 rounded ${isDarkMode ? 'hover:bg-gray-700 text-gray-100' : 'hover:bg-gray-100 text-gray-900'}`}>
+                <span className={`inline-flex items-center w-full cursor-pointer p-2 rounded ${isDarkMode ? 'hover:bg-gray-700 text-gray-100' : 'hover:bg-gray-100 text-gray-900'}`}
+                onClick={async()=>{
+                  let a = await fetch('/api/profile',{
+                    method:'GET',
+                  });
+                  if(a.ok){
+                    let data = await a.json();
+                    router.replace(`/${data.user?.username}`);
+                  }
+                }}>
                   <svg className="w-4 h-4 me-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 6H7a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h6m6-11h1a2 2 0 0 1 2 2v2M7 15h6m6-6v6m-3-3h6" /></svg>
                   Your Page
-                </Link>
+                </span>
               </li>
               <li>
                 <Link href="/dashboard" className={`inline-flex items-center w-full p-2 rounded ${isDarkMode ? 'hover:bg-gray-700 text-gray-100' : 'hover:bg-gray-100 text-gray-900'}`}>
