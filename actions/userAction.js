@@ -8,9 +8,12 @@ import Payment from "@/models/Payment"
 export const initiate = async (amount, to_user, paymentform) => {
     try {
         await mongoose.connect(process.env.MONGODB_URI)
-
-        const keyId = process.env.RAZORPAY_KEY_ID;
-        const keySecret = process.env.RAZORPAY_KEY_SECRET;
+        let user = await User.findOne({ username: to_user })
+        if (!user) {
+            throw new Error('Recipient user not found: ' + to_user);
+        }
+        const keyId = user.razorpayId;
+        const keySecret = user.razorpaySecret;
 
 
         if (!keyId || !keySecret) {
@@ -18,12 +21,12 @@ export const initiate = async (amount, to_user, paymentform) => {
                 keyId: keyId || 'UNDEFINED',
                 keySecret: keySecret ? 'SET' : 'UNDEFINED'
             });
-            throw new Error('Razorpay API keys not configured. Check .env.local file.');
+            throw new Error('Cannot fetch Razorpay keys for user: ' + to_user);
         }
 
         var instance = new Razorpay({
-            key_id: keyId,
-            key_secret: keySecret
+            key_id: keyId.trim(),
+            key_secret: keySecret.trim()
         })
 
         const options = {
@@ -52,7 +55,11 @@ export const fetchCreator = async (username) => {
         await mongoose.connect(process.env.MONGODB_URI)
         const user = await User.findOne({ username: username })
         if(user) {
-            return user.toObject({ flattenObjectIds: true })
+            return {
+                ...user.toObject({ flattenObjectIds: true, getters: true }),
+                razorpayId: user.razorpayId?.trim(),
+                razorpaySecret: undefined,
+            }
         }
     } catch (error) {
         console.error('Fetch Creator Error:', error);

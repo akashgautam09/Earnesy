@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { validatePaymentVerification } from "razorpay/dist/utils/razorpay-utils";
 import Payment from "@/models/Payment";
+import User from "@/models/User";
 import mongoose from "mongoose";
 
 export const POST = async (request) => {
@@ -23,11 +24,15 @@ export const POST = async (request) => {
             return NextResponse.json({ error: "Payment details not found" }, { status: 404 })
         }
 
+        const user = await User.findOne({ username: paymentDetails.to_user })
+        if (!user) {
+            return NextResponse.json({ error: "Recipient user not found" }, { status: 404 })
+        }
         // Verify the payment signature
         const isPaymentValid = validatePaymentVerification({
             "order_id": body.razorpay_order_id,
             "payment_id": body.razorpay_payment_id
-        }, body.razorpay_signature, process.env.RAZORPAY_KEY_SECRET)
+        }, body.razorpay_signature, user.razorpaySecret)
 
         if (isPaymentValid) {
             // Update payment status to completed

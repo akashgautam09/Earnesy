@@ -76,7 +76,7 @@ export const PaymentPage = ({ username }) => {
             let order_id = x.id
 
             var options = {
-                "key": process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+                "key": currentCreator.razorpayId, // Enter the Key ID generated from the Dashboard
                 "amount": amount, // Amount is in currency subunits. 
                 "currency": "INR",
                 "name": "Get Me A Kofi", //your business name
@@ -99,7 +99,7 @@ export const PaymentPage = ({ username }) => {
             var rzp1 = new window.Razorpay(options);
             rzp1.open();
         } catch (error) {
-            console.error('Payment error:', error.message || error);
+            console.error('Payment error:', error || error.message);
             toast.error(`Error: ${error.message || 'Payment failed. Please try again.'}`);
         }
     }
