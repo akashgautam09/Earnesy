@@ -1,7 +1,25 @@
 import BtnRotatingBg from '@/components/Btnrotatingbg';
+import { authoptions } from '@/app/api/auth/[...nextauth]/route';
+import User from '@/models/User';
+import { getServerSession } from 'next-auth';
+import mongoose from 'mongoose';
 import Link from 'next/link';
 
-export default function Home() {
+export default async function Home() {
+  const session = await getServerSession(authoptions);
+  let startHref = '/login';
+
+  if (session?.user?.email) {
+    if (mongoose.connection.readyState === 0) {
+      await mongoose.connect(process.env.MONGODB_URI);
+    }
+
+    const user = await User.findOne({ email: session.user.email }).select('username').lean();
+    if (user?.username) {
+      startHref = `/${user.username}`;
+    }
+  }
+
   return (
     <>
       <div className='flex h-[calc(100vh-4rem)] w-full flex-col items-center justify-center gap-4 text-center text-white' >
@@ -12,7 +30,7 @@ export default function Home() {
         <p className='font-serif text-xl '>A crowdfunding platform for creators. Get funded today!</p>
         <div className='flex gap-4'>
 
-          <Link href="/login">
+          <Link href={startHref}>
             <BtnRotatingBg>
               Start Now
             </BtnRotatingBg>
