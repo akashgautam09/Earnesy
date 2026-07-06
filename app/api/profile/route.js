@@ -81,6 +81,22 @@ export async function POST(req) {
       coverUrl,
     } = body
 
+    const updateData = {
+      name: name || undefined,
+      username: username || undefined,
+      profileUrl: profileUrl || undefined,
+      coverUrl: coverUrl || undefined,
+      updatedAt: new Date(),
+    }
+
+    if (razorpayId) {
+      updateData.razorpayId = razorpayId
+    }
+
+    if (razorpaySecret) {
+      updateData.razorpaySecret = razorpaySecret
+    }
+
     // Security check: verify email matches session user email
     if (email !== session.user.email) {
       return Response.json(
@@ -92,15 +108,7 @@ export async function POST(req) {
     // Find user by email and update
     const updatedUser = await User.findOneAndUpdate(
       { email: session.user.email },
-      {
-        name: name || undefined,
-        username: username || undefined,
-        razorpayId: razorpayId || undefined,
-        razorpaySecret: razorpaySecret || undefined,
-        profileUrl: profileUrl || undefined,
-        coverUrl: coverUrl || undefined,
-        updatedAt: new Date(),
-      },
+      updateData,
       { returnDocument: 'after', runValidators: true }
     )
 

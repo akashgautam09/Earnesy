@@ -10,7 +10,7 @@ export const initiate = async (amount, to_user, paymentform) => {
         await mongoose.connect(process.env.MONGODB_URI)
         let user = await User.findOne({ username: to_user })
         if (!user) {
-            throw new Error('Recipient user not found: ' + to_user);
+            return { error: 'Recipient user not found.' }
         }
         const keyId = user.razorpayId;
         const keySecret = user.razorpaySecret;
@@ -21,7 +21,7 @@ export const initiate = async (amount, to_user, paymentform) => {
                 keyId: keyId || 'UNDEFINED',
                 keySecret: keySecret ? 'SET' : 'UNDEFINED'
             });
-            throw new Error('Cannot fetch Razorpay keys for user: ' + to_user);
+            return { error: 'Creator has not configured Razorpay payments yet.' }
         }
 
         var instance = new Razorpay({
@@ -46,7 +46,7 @@ export const initiate = async (amount, to_user, paymentform) => {
         return x
     } catch (error) {
         console.error('Payment Error:', error);
-        throw error;
+        return { error: error.message || 'Payment failed. Please try again.' }
     }
 }
 

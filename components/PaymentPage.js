@@ -72,7 +72,16 @@ export const PaymentPage = ({ username }) => {
                 return;
             }
 
+            if (!currentCreator?.razorpayId) {
+                toast.error('This creator has not configured Razorpay payments yet.');
+                return;
+            }
+
             let x = await initiate(amount, username, paymentform)
+            if (x?.error) {
+                toast.error(x.error)
+                return
+            }
             let order_id = x.id
 
             var options = {
