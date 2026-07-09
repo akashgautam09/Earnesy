@@ -52,9 +52,9 @@ const Navbar = () => {
     }
   }
   return (
-    <nav className="sticky top-0 left-0 right-0 z-50 flex h-[5rem] items-center justify-between px-10 py-4 border-b border-b-white/20 bg-black/30 backdrop-blur-md transition-all duration-300">
+    <nav className="sticky top-0 left-0 right-0 z-50 flex h-[5rem] items-center justify-between px-4 sm:px-6 md:px-10 py-4 border-b border-b-white/20 bg-black/30 backdrop-blur-md transition-all duration-300">
 
-      <div className="text-xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent cursor-pointer hover:scale-105 transition-transform">
+      <div className="md:text-xl text-[1.2rem] font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent cursor-pointer hover:scale-105 transition-transform">
         Get Me A Kofi
       </div>
 
@@ -64,15 +64,15 @@ const Navbar = () => {
         <li className="hover:text-gray-300 cursor-pointer transition-colors">Contact</li>
       </ul>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2">
         {!session && <>  <Link href="/login">
-          <button className="px-4 py-2 text-sm font-medium text-white hover:text-gray-300 transition-colors">
+          <button className="md:px-3 md:py-1 font-medium text-white md:hover:text-gray-300 text-[0.8rem] transition-colors">
             Login
           </button>
         </Link>
 
           <Link href="/login">
-            <button className="px-5 py-2 text-sm font-semibold text-black bg-white rounded-full hover:bg-gray-200 transition-all active:scale-95 shadow-lg shadow-white/5">
+            <button className="md:flex md:px-5 md:py-2 px-2 py-2 text-[0.8rem] font-semibold text-black bg-white rounded-full hover:bg-gray-200 transition-all active:scale-95 shadow-lg shadow-white/5">
               Sign Up
             </button>
           </Link>
@@ -80,12 +80,12 @@ const Navbar = () => {
         }
         {session && <>
           <div ref={dropdownRef} className="relative">
-          <button id="dropdownInformationButton" onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="relative px-4 py-2.5 text-sm font-medium text-white rounded-xl bg-white/10 backdrop-blur-md border border-white/20 transition-all duration-300 ease-in-out shadow-lg focus:outline-none focus:ring-1 focus:ring-white inline-flex items-center gap-1" type="button">
+          <button id="dropdownInformationButton" onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="relative md:px-4 px-2 py-3 md:py-2.5 text-sm font-medium text-white rounded-xl bg-white/10 backdrop-blur-md border border-white/20 transition-all duration-300 ease-in-out shadow-lg focus:outline-none focus:ring-1 focus:ring-white inline-flex items-center gap-1" type="button">
             {session.user.name}
             <svg className="w-4 h-4 ms-1.5 -me-0.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 9-7 7-7-7" /></svg>
           </button>
 
-          <div id="dropdownInformation" className={`${isDropdownOpen ? "block" : "hidden"} absolute top-full mt-2 left-0 z-50 ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border rounded-lg shadow-lg w-72`}>
+          <div id="dropdownInformation" className={`${isDropdownOpen ? "block" : "hidden"} absolute top-full mt-2 md:left-0 -left-[9rem] z-50 ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border rounded-lg shadow-lg w-72`}>
             <div className="p-2">
               <div className={`flex items-center px-2.5 p-2 space-x-1.5 text-sm ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'} rounded`}>
                 <img width={32} height={32} className="rounded-full" src={session.user.image} alt="Rounded avatar" />
@@ -147,7 +147,7 @@ const Navbar = () => {
           </div>
           </div>
 
-          <button className="px-5 py-2 text-sm font-semibold text-black bg-white rounded-full hover:bg-gray-200 transition-all active:scale-95 shadow-lg shadow-white/5" onClick={() => signOut()}>
+          <button className="hidden md:inline-flex px-5 py-2 text-sm font-semibold text-black bg-white rounded-full hover:bg-gray-200 transition-all active:scale-95 shadow-lg shadow-white/5" onClick={() => signOut()}>
             Sign Out
           </button>
         </>}

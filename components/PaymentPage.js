@@ -131,37 +131,37 @@ export const PaymentPage = ({ username }) => {
             />
 
             <div className="relative mb-12">
-                <div className="coverImage w-full bg-gray-500">
+                <div className="coverImage w-full h-44 sm:h-56 md:h-72 bg-gray-500 overflow-hidden">
                     {/* Get the cover image url from the currentCreator */}
                     <img src={currentCreator.coverUrl} alt="cover image" className="w-full h-full object-cover" />
                 </div>
-                <span className="profileImage absolute w-28 -bottom-12 left-[46%] overflow-hidden aspect-square rounded-full bg-gray-500">
+                <span className="profileImage absolute w-24 sm:w-28 -bottom-12 left-1/2 -translate-x-1/2 overflow-hidden aspect-square rounded-full bg-gray-500 border-4 border-gray-950">
                     <img src={currentCreator.profileUrl} alt="profile image" className="w-full h-full object-cover object-center" />
                 </span>
             </div>
             <div>
                 <div className="flex flex-col gap-1 text-center py-3">
-                    <div className="text-3xl font-bold">{username}</div>
-                    <p className="text-md">exploring conceal topics and telling amazing stories</p>
-                    <div className="text-sm text-gray-300"><span>934 members </span><span>• 105 Posts</span></div>
+                    <div className="text-2xl sm:text-3xl font-bold">{username}</div>
+                    <p className="text-sm sm:text-md px-4">exploring conceal topics and telling amazing stories</p>
+                    <div className="text-xs sm:text-sm text-gray-300"><span>934 members </span><span>• 105 Posts</span></div>
                 </div>
                 <div className="flex flex-col gap-3 justify-center items-center">
-                    <button className="bg-[#047cfc] hover:bg-[#1e84f1] px-5 py-2 w-[15rem] rounded-xl cursor-pointer text-md">Join for free</button>
-                 <button className="bg-[#7377836a] hover:bg-[#858a996a] px-5 py-2 w-[15rem] rounded-xl cursor-pointer text-md">See membership options</button>
+                    <button className="bg-[#047cfc] hover:bg-[#1e84f1] px-5 py-2 w-full max-w-[15rem] rounded-xl cursor-pointer text-sm sm:text-md">Join for free</button>
+                 <button className="bg-[#7377836a] hover:bg-[#858a996a] px-5 py-2 w-full max-w-[15rem] rounded-xl cursor-pointer text-sm sm:text-md">See membership options</button>
                 </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-6 w-full px-10 my-12">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full px-4 sm:px-6 lg:px-10 my-12">
 
                 {/* Supporters Section */}
 
-                <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg p-6 max-h-[450px] shadow-lg border border-gray-700">
-                    <h2 className="text-2xl font-bold text-white mb-6">Top Supporters</h2>
-                    <ul className="space-y-3 overflow-y-auto max-h-[320px] custom-scrollbar pr-2">
+                <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg p-4 sm:p-6 max-h-none lg:max-h-[450px] shadow-lg border border-gray-700">
+                    <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Top Supporters</h2>
+                    <ul className="space-y-3 overflow-y-auto max-h-[260px] sm:max-h-[320px] custom-scrollbar pr-2">
                         {paymentReceived.map((supporter, index) => (
-                            <li key={index} className="flex justify-between items-center p-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors">
-                                <span className="text-gray-100 font-medium">{supporter.from_user}</span>
-                                <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">₹{supporter.amount / 100}</span>
+                            <li key={index} className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 p-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors">
+                                <span className="text-gray-100 font-medium break-words">{supporter.from_user}</span>
+                                <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold self-start sm:self-auto">₹{supporter.amount / 100}</span>
                             </li>
                         ))}
                     </ul>
@@ -169,8 +169,8 @@ export const PaymentPage = ({ username }) => {
 
                 {/* Donation Form Section */}
 
-                <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg max-h-[350px] p-6 shadow-lg border border-gray-700">
-                    <h2 className="text-2xl font-bold text-white mb-6">Support This Creator</h2>
+                <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg max-h-none lg:max-h-[350px] p-4 sm:p-6 shadow-lg border border-gray-700">
+                    <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Support This Creator</h2>
 
                     <form className="space-y-4">
                         <div>
