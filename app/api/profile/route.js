@@ -3,8 +3,45 @@
 
 import mongoose from 'mongoose'
 import User from '@/models/User'
+import Payment from '@/models/Payment'
 import { getServerSession } from 'next-auth'
 import { authoptions } from '@/app/api/auth/[...nextauth]/route'
+import { v2 as cloudinary } from 'cloudinary'
+
+const getCloudinaryPublicId = (url) => {
+  if (typeof url !== 'string' || !url.includes('res.cloudinary.com')) {
+    return null
+  }
+
+  try {
+    const parsedUrl = new URL(url)
+    const uploadMarker = '/upload/'
+    const uploadIndex = parsedUrl.pathname.indexOf(uploadMarker)
+
+    if (uploadIndex === -1) {
+      return null
+    }
+
+    let publicPath = parsedUrl.pathname.slice(uploadIndex + uploadMarker.length)
+
+    if (publicPath.startsWith('v')) {
+      const versionSeparator = publicPath.indexOf('/')
+      if (versionSeparator === -1) {
+        return null
+      }
+      publicPath = publicPath.slice(versionSeparator + 1)
+    }
+
+    const extensionIndex = publicPath.lastIndexOf('.')
+    if (extensionIndex === -1) {
+      return null
+    }
+
+    return decodeURIComponent(publicPath.slice(0, extensionIndex))
+  } catch {
+    return null
+  }
+}
 
 export async function GET(req) {
   try {
@@ -81,6 +118,29 @@ export async function POST(req) {
       coverUrl,
     } = body
 
+    const currentUser = await User.findOne({ email: session.user.email })
+
+    if (!currentUser) {
+      return Response.json(
+        { error: 'User not found' },
+        { status: 404 }
+      )
+    }
+
+    if (profileUrl && currentUser.profileUrl && profileUrl !== currentUser.profileUrl) {
+      const previousProfileId = getCloudinaryPublicId(currentUser.profileUrl)
+      if (previousProfileId) {
+        await cloudinary.uploader.destroy(previousProfileId)
+      }
+    }
+
+    if (coverUrl && currentUser.coverUrl && coverUrl !== currentUser.coverUrl) {
+      const previousCoverId = getCloudinaryPublicId(currentUser.coverUrl)
+      if (previousCoverId) {
+        await cloudinary.uploader.destroy(previousCoverId)
+      }
+    }
+
     const updateData = {
       name: name || undefined,
       username: username || undefined,
@@ -102,6 +162,14 @@ export async function POST(req) {
       return Response.json(
         { error: 'Email mismatch: Cannot update other users profile' },
         { status: 403 }
+      )
+    }
+
+    // Update to_user in payment when username is updated
+    if (username) {
+      await Payment.updateMany(
+        { to_user: currentUser.username },
+        { to_user: username }
       )
     }
 

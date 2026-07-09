@@ -18,6 +18,8 @@ export default function Dashboard() {
 
   const [profilePic, setProfilePic] = useState(null)
   const [coverPic, setCoverPic] = useState(null)
+  const [profileFile, setProfileFile] = useState(null)
+  const [coverFile, setCoverFile] = useState(null)
   const [profileMethod, setProfileMethod] = useState('upload')
   const [coverMethod, setCoverMethod] = useState('upload')
   const [profileUrl, setProfileUrl] = useState('')
@@ -57,11 +59,13 @@ export default function Dashboard() {
         if (data.user?.profileUrl) {
           setProfilePic(data.user.profileUrl)
           setProfileUrl(data.user.profileUrl)
+          setProfileFile(null)
           setProfileMethod('url')
         }
         if (data.user?.coverUrl) {
           setCoverPic(data.user.coverUrl)
           setCoverUrl(data.user.coverUrl)
+          setCoverFile(null)
           setCoverMethod('url')
         }
       }
@@ -91,7 +95,8 @@ export default function Dashboard() {
       })
 
       if (!response.ok) {
-        throw new Error('Upload failed')
+        const errorData = await response.json().catch(() => null)
+        throw new Error(errorData?.error || 'Upload failed')
       }
 
       const data = await response.json()
@@ -108,6 +113,7 @@ export default function Dashboard() {
   const handleProfilePicChange = (e) => {
     const file = e.target.files?.[0]
     if (file) {
+      setProfileFile(file)
       const reader = new FileReader()
       reader.onloadend = () => {
         setProfilePic(reader.result)
@@ -120,6 +126,7 @@ export default function Dashboard() {
   const handleCoverPicChange = (e) => {
     const file = e.target.files?.[0]
     if (file) {
+      setCoverFile(file)
       const reader = new FileReader()
       reader.onloadend = () => {
         setCoverPic(reader.result)
@@ -146,13 +153,8 @@ export default function Dashboard() {
       let finalCoverUrl = coverUrl
 
       // Upload profile picture if selected from file
-      if (profileMethod === 'upload' && profilePic && !profileUrl) {
-        // Convert data URL to file for upload
-        const file = await fetch(profilePic)
-          .then(res => res.blob())
-          .then(blob => new File([blob], 'profile.jpg', { type: 'image/jpeg' }))
-        
-        const uploadedUrl = await uploadToCloudinary(file, 'profile')
+      if (profileMethod === 'upload' && profileFile) {
+        const uploadedUrl = await uploadToCloudinary(profileFile, 'profile')
         if (!uploadedUrl) {
           setLoading(false)
           return
@@ -163,12 +165,8 @@ export default function Dashboard() {
       }
 
       // Upload cover picture if selected from file
-      if (coverMethod === 'upload' && coverPic && !coverUrl) {
-        const file = await fetch(coverPic)
-          .then(res => res.blob())
-          .then(blob => new File([blob], 'cover.jpg', { type: 'image/jpeg' }))
-        
-        const uploadedUrl = await uploadToCloudinary(file, 'cover')
+      if (coverMethod === 'upload' && coverFile) {
+        const uploadedUrl = await uploadToCloudinary(coverFile, 'cover')
         if (!uploadedUrl) {
           setLoading(false)
           return
@@ -239,7 +237,12 @@ export default function Dashboard() {
                   <button
                     key={method}
                     type="button"
-                    onClick={() => setCoverMethod(method)}
+                    onClick={() => {
+                      setCoverMethod(method)
+                      if (method === 'url') {
+                        setCoverFile(null)
+                      }
+                    }}
                     className={`px-2 py-1 text-xs rounded ${
                       coverMethod === method
                         ? 'bg-blue-500 text-white'
@@ -291,7 +294,12 @@ export default function Dashboard() {
                   <button
                     key={method}
                     type="button"
-                    onClick={() => setProfileMethod(method)}
+                    onClick={() => {
+                      setProfileMethod(method)
+                      if (method === 'url') {
+                        setProfileFile(null)
+                      }
+                    }}
                     className={`px-2 py-1 text-xs rounded ${
                       profileMethod === method
                         ? 'bg-blue-500 text-white'

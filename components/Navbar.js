@@ -52,19 +52,19 @@ const Navbar = () => {
     }
   }
   return (
-    <nav className="sticky top-0 left-0 right-0 z-50 flex h-[5rem] items-center justify-between px-8 py-4 border-b border-b-white/20 bg-black/30 backdrop-blur-md transition-all duration-300">
+    <nav className="sticky top-0 left-0 right-0 z-50 flex h-[5rem] items-center justify-between px-10 py-4 border-b border-b-white/20 bg-black/30 backdrop-blur-md transition-all duration-300">
 
       <div className="text-xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent cursor-pointer hover:scale-105 transition-transform">
         Get Me A Kofi
       </div>
 
-      <ul className="hidden md:flex items-center gap-8 text-sm font-medium text-white">
+      <ul className="hidden md:flex items-center gap-10 text-sm font-medium text-white">
         <li className="hover:text-gray-300 cursor-pointer transition-colors">Home</li>
         <li className="hover:text-gray-300 cursor-pointer transition-colors">About</li>
         <li className="hover:text-gray-300 cursor-pointer transition-colors">Contact</li>
       </ul>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-4">
         {!session && <>  <Link href="/login">
           <button className="px-4 py-2 text-sm font-medium text-white hover:text-gray-300 transition-colors">
             Login
@@ -80,7 +80,7 @@ const Navbar = () => {
         }
         {session && <>
           <div ref={dropdownRef} className="relative">
-          <button id="dropdownInformationButton" onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="relative mx-2 px-4 py-2.5 text-sm font-medium text-white rounded-xl bg-white/10 backdrop-blur-md border border-white/20 transition-all duration-300 ease-in-out shadow-lg focus:outline-none focus:ring-1 focus:ring-white inline-flex items-center gap-1" type="button">
+          <button id="dropdownInformationButton" onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="relative px-4 py-2.5 text-sm font-medium text-white rounded-xl bg-white/10 backdrop-blur-md border border-white/20 transition-all duration-300 ease-in-out shadow-lg focus:outline-none focus:ring-1 focus:ring-white inline-flex items-center gap-1" type="button">
             {session.user.name}
             <svg className="w-4 h-4 ms-1.5 -me-0.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 9-7 7-7-7" /></svg>
           </button>

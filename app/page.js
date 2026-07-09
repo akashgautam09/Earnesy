@@ -36,9 +36,11 @@ export default async function Home() {
             </BtnRotatingBg>
           </Link>
 
-          <BtnRotatingBg>
-            Read Here
-          </BtnRotatingBg>
+          <Link href="/about">
+            <BtnRotatingBg>
+              Read More
+            </BtnRotatingBg>
+          </Link>
         </div>
       </div>
       <div className="bg-white h-1 opacity-10">
