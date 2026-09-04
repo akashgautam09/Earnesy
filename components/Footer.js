@@ -1,64 +1,47 @@
 import React from 'react';
+import Link from 'next/link';
 
 const Footer = () => {
   return (
-    <>
-      <div className="bg-white h-1 opacity-10"></div>
-      <footer className="w-full bg-black text-gray-400 pt-16 pb-8 border-t border-white/5">
-        <div className="max-w-7xl mx-auto px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-
-            {/* Brand Section */}
-            <div className="col-span-1 md:col-span-1">
-              <h2 className="text-white font-bold text-xl mb-4">Get Me A Kofi</h2>
-              <p className="text-sm leading-relaxed">
-                Empowering creators to do what they love, one caffeine-fueled project at a time.
-              </p>
-            </div>
-
-            {/* Quick Links */}
-            <div>
-              <h3 className="text-white font-semibold mb-4">Product</h3>
-              <ul className="space-y-2 text-sm">
-                <li className="hover:text-white transition-colors cursor-pointer">Features</li>
-                <li className="hover:text-white transition-colors cursor-pointer">Pricing</li>
-                <li className="hover:text-white transition-colors cursor-pointer">Showcase</li>
-              </ul>
-            </div>
-
-            {/* Support */}
-            <div>
-              <h3 className="text-white font-semibold mb-4">Support</h3>
-              <ul className="space-y-2 text-sm">
-                <li className="hover:text-white transition-colors cursor-pointer">Help Center</li>
-                <li className="hover:text-white transition-colors cursor-pointer">Terms of Service</li>
-                <li className="hover:text-white transition-colors cursor-pointer">Privacy</li>
-              </ul>
-            </div>
-
-            {/* Socials / Newsletter */}
-            <div>
-              <h3 className="text-white font-semibold mb-4">Stay Connected</h3>
-              <div className="flex gap-4">
-                {/* You can replace these with actual icons (Lucide/FontAwesome) */}
-                <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 cursor-pointer transition-all">𝕏</div>
-                <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 cursor-pointer transition-all">📸</div>
-                <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 cursor-pointer transition-all">🐙</div>
-              </div>
-            </div>
+    <footer id="contact" className="border-t border-[#F5F1E8]/10 bg-[#171717]">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="grid gap-8 border-b border-[#F5F1E8]/10 pb-8 md:grid-cols-4">
+          <div className="md:col-span-2">
+            <p className="mb-3 text-sm uppercase tracking-[0.18em] text-[#F4C542]">Get Me A Kofi</p>
+            <h3 className="max-w-md text-2xl font-medium text-[#F5F1E8] sm:text-3xl">
+              Support the work you believe in.
+            </h3>
           </div>
 
-          {/* Bottom Bar */}
-          <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-xs">
-            <p>&copy; {new Date().getFullYear()} Get Me A Kofi. All rights reserved.</p>
-            <div className="flex gap-6">
-              <span className="hover:text-white cursor-pointer">Status</span>
-              <span className="hover:text-white cursor-pointer">Cookies</span>
-            </div>
+          <div>
+            <p className="mb-3 text-sm uppercase tracking-[0.18em] text-[#F5F1E8]/56">Product</p>
+            <ul className="space-y-2 text-sm text-[#F5F1E8]/72">
+              <li><Link href="/about" className="hover:text-[#F4C542]">About</Link></li>
+              <li><Link href="/" className="hover:text-[#F4C542]">Home</Link></li>
+              <li><Link href="/login" className="hover:text-[#F4C542]">Login</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <p className="mb-3 text-sm uppercase tracking-[0.18em] text-[#F5F1E8]/56">Contact</p>
+            <ul className="space-y-2 text-sm text-[#F5F1E8]/72">
+              <li>hello@getmeakofi.com</li>
+              <li>+91 98765 43210</li>
+              <li className="text-[#F4C542]">Support</li>
+            </ul>
           </div>
         </div>
-      </footer>
-    </>
+
+        <div className="flex flex-col gap-3 pt-6 text-sm text-[#F5F1E8]/56 sm:flex-row sm:items-center sm:justify-between">
+          <p>© {new Date().getFullYear()} Get Me A Kofi. All rights reserved.</p>
+          <div className="flex gap-4">
+            <span>Privacy</span>
+            <span>Terms</span>
+            <span>Status</span>
+          </div>
+        </div>
+      </div>
+    </footer>
   );
 };
 

@@ -1,158 +1,199 @@
-"use client"
+"use client";
+
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useSession, signIn, signOut } from "next-auth/react"
-import { fetchCreator } from '@/actions/userAction';
+import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { Menu, X } from 'lucide-react';
 
 const Navbar = () => {
-  const { data: session } = useSession()
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const [isDarkMode, setIsDarkMode] = useState(false)
-  const dropdownRef = useRef(null)
+  const { data: session } = useSession();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const dropdownRef = useRef(null);
   const router = useRouter();
 
   useEffect(() => {
-    // Load dark mode preference from localStorage
-    const savedDarkMode = localStorage.getItem('darkMode') === 'true'
-    setIsDarkMode(savedDarkMode)
-    if (savedDarkMode) {
-      document.documentElement.classList.add('dark')
-    }
-
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsDropdownOpen(false)
+        setIsDropdownOpen(false);
       }
-    }
+    };
 
     const handleEscape = (event) => {
-      if (event.key === "Escape") {
-        setIsDropdownOpen(false)
+      if (event.key === 'Escape') {
+        setIsDropdownOpen(false);
+        setIsMobileMenuOpen(false);
       }
-    }
+    };
 
-    document.addEventListener("mousedown", handleClickOutside)
-    document.addEventListener("keydown", handleEscape)
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-      document.removeEventListener("keydown", handleEscape)
-    }
-  }, [])
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, []);
 
-  const toggleDarkMode = () => {
-    const newDarkMode = !isDarkMode
-    setIsDarkMode(newDarkMode)
-    localStorage.setItem('darkMode', newDarkMode)
-    if (newDarkMode) {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
-  }
+  const navLinks = [
+    { label: 'Home', href: '/' },
+    { label: 'About', href: '/about' },
+    { label: 'Contact', href: '/about#contact' },
+  ];
+
   return (
-    <nav className="sticky top-0 left-0 right-0 z-50 flex h-[5rem] items-center justify-between px-4 sm:px-6 md:px-10 py-4 border-b border-b-white/20 bg-black/30 backdrop-blur-md transition-all duration-300">
-
-      <div className="md:text-xl text-[1.2rem] font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent cursor-pointer hover:scale-105 transition-transform">
-        Get Me A Kofi
-      </div>
-
-      <ul className="hidden md:flex items-center gap-10 text-sm font-medium text-white">
-        <li className="hover:text-gray-300 cursor-pointer transition-colors">Home</li>
-        <li className="hover:text-gray-300 cursor-pointer transition-colors">About</li>
-        <li className="hover:text-gray-300 cursor-pointer transition-colors">Contact</li>
-      </ul>
-
-      <div className="flex items-center gap-2">
-        {!session && <>  <Link href="/login">
-          <button className="md:px-3 md:py-1 font-medium text-white md:hover:text-gray-300 text-[0.8rem] transition-colors">
-            Login
-          </button>
-        </Link>
-
-          <Link href="/login">
-            <button className="md:flex md:px-5 md:py-2 px-2 py-2 text-[0.8rem] font-semibold text-black bg-white rounded-full hover:bg-gray-200 transition-all active:scale-95 shadow-lg shadow-white/5">
-              Sign Up
-            </button>
+    <>
+      <nav className="sticky top-0 z-50 border-b border-[#F5F1E8]/10 bg-[#171717]/90 backdrop-blur-sm">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <Link href="/" className="text-base font-semibold tracking-[0.08em] text-[#F5F1E8] transition-opacity hover:opacity-80 sm:text-lg">
+            GET ME A KOFI
           </Link>
-        </>
-        }
-        {session && <>
-          <div ref={dropdownRef} className="relative">
-          <button id="dropdownInformationButton" onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="relative md:px-4 px-2 py-3 md:py-2.5 text-sm font-medium text-white rounded-xl bg-white/10 backdrop-blur-md border border-white/20 transition-all duration-300 ease-in-out shadow-lg focus:outline-none focus:ring-1 focus:ring-white inline-flex items-center gap-1" type="button">
-            {session.user.name}
-            <svg className="w-4 h-4 ms-1.5 -me-0.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 9-7 7-7-7" /></svg>
-          </button>
 
-          <div id="dropdownInformation" className={`${isDropdownOpen ? "block" : "hidden"} absolute top-full mt-2 md:left-0 -left-[9rem] z-50 ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border rounded-lg shadow-lg w-72`}>
-            <div className="p-2">
-              <div className={`flex items-center px-2.5 p-2 space-x-1.5 text-sm ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'} rounded`}>
-                <img width={32} height={32} className="rounded-full" src={session.user.image} alt="Rounded avatar" />
-                <div className={`text-sm ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>
-                  <div className={`font-medium ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>{session.user.name}</div>
-                  <div className={`truncate ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>{session.user.email}</div>
-                </div>
+          <ul className="hidden items-center gap-8 md:flex">
+            {navLinks.map((link) => (
+              <li key={link.label}>
+                <Link
+                  href={link.href}
+                  className="text-sm uppercase tracking-[0.12em] text-[#F5F1E8]/72 transition-colors hover:text-[#F4C542]"
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+
+          <div className="flex items-center gap-2 sm:gap-3">
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-[#F5F1E8]/10 text-[#F5F1E8] md:hidden"
+              aria-label="Toggle menu"
+            >
+              {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
+
+            {!session ? (
+              <div className="hidden items-center gap-2 md:flex">
+                <Link href="/login" className="px-3 py-2 text-sm uppercase tracking-[0.12em] text-[#F5F1E8]/78 transition-colors hover:text-[#F4C542]">
+                  Login
+                </Link>
+                <Link href="/login" className="premium-button rounded-md px-4 py-2 text-sm uppercase tracking-[0.12em]">
+                  Sign Up
+                </Link>
               </div>
-            </div>
-            <ul className={`px-2 pb-2 text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} aria-labelledby="dropdownInformationButton">
-              <li>
-                <span className={`inline-flex items-center w-full cursor-pointer p-2 rounded ${isDarkMode ? 'hover:bg-gray-700 text-gray-100' : 'hover:bg-gray-100 text-gray-900'}`}
-                onClick={async()=>{
-                  let a = await fetch('/api/profile',{
-                    method:'GET',
-                  });
-                  if(a.ok){
-                    let data = await a.json();
-                    router.replace(`/${data.user?.username}`);
-                  }
-                }}>
-                  <svg className="w-4 h-4 me-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 6H7a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h6m6-11h1a2 2 0 0 1 2 2v2M7 15h6m6-6v6m-3-3h6" /></svg>
-                  Your Page
-                </span>
-              </li>
-              <li>
-                <Link href="/dashboard" className={`inline-flex items-center w-full p-2 rounded ${isDarkMode ? 'hover:bg-gray-700 text-gray-100' : 'hover:bg-gray-100 text-gray-900'}`}>
-                  <svg className="w-4 h-4 me-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeWidth="2" d="M7 17v1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-4a3 3 0 0 0-3 3Zm8-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
-                  Dashboard
-                </Link>
-              </li>
-              <li className={`flex items-center w-full p-2 rounded mb-1.5 ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}>
-                <span className={`inline-flex items-center ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>
-                  <svg className="w-4 h-4 me-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 21a9 9 0 0 1-.5-17.986V3c-.354.966-.5 1.911-.5 3a9 9 0 0 0 9 9c.239 0 .254.018.488 0A9.004 9.004 0 0 1 12 21Z" /></svg>
-                  Dark mode
-                </span>
-                <label className="inline-flex items-center cursor-pointer ms-auto">
-                  <input type="checkbox" checked={isDarkMode} onChange={toggleDarkMode} className="sr-only peer" />
-                  <div className={`relative w-9 h-5 ${isDarkMode ? 'bg-blue-600' : 'bg-gray-300'} peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer transition-colors`}>
-                    <div className={`absolute top-[2px] start-[2px] bg-white rounded-full h-4 w-4 transition-transform ${isDarkMode ? 'translate-x-full' : ''}`}></div>
-                  </div>
-                  <span className="ms-3 text-sm font-medium sr-only">Toggle dark mode</span>
-                </label>
-              </li>
-              <li className={`border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} pt-1.5`}>
-                <Link href="/earnings" className={`inline-flex items-center w-full p-2 rounded ${isDarkMode ? 'hover:bg-gray-700 text-gray-100' : 'hover:bg-gray-100 text-gray-900'}`}>
-                  <svg className="w-4 h-4 me-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m10.051 8.102-3.778.322-1.994 1.994a.94.94 0 0 0 .533 1.6l2.698.316m8.39 1.617-.322 3.78-1.994 1.994a.94.94 0 0 1-1.595-.533l-.4-2.652m8.166-11.174a1.366 1.366 0 0 0-1.12-1.12c-1.616-.279-4.906-.623-6.38.853-1.671 1.672-5.211 8.015-6.31 10.023a.932.932 0 0 0 .162 1.111l.828.835.833.832a.932.932 0 0 0 1.111.163c2.008-1.102 8.35-4.642 10.021-6.312 1.475-1.478 1.133-4.77.855-6.385Zm-2.961 3.722a1.88 1.88 0 1 1-3.76 0 1.88 1.88 0 0 1 3.76 0Z" /></svg>
-                  Earnings
-                </Link>
-              </li>
-              <li>
-                <button className={`inline-flex items-center w-full p-2 rounded ${isDarkMode ? 'hover:bg-gray-700 text-red-400' : 'hover:bg-gray-100 text-red-600'}`}
-                  onClick={() => { setIsDropdownOpen(false); signOut(); }}>
-                  <svg className="w-4 h-4 me-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 12H8m12 0-4 4m4-4-4-4M9 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h2" /></svg>
-                  Sign out
+            ) : (
+              <div className="relative hidden md:block" ref={dropdownRef}>
+                <button
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="inline-flex items-center gap-2 rounded-md border border-[#F5F1E8]/12 bg-[#1F1F1F] px-3 py-2 text-sm text-[#F5F1E8]"
+                >
+                  <span className="max-w-[120px] truncate">{session.user.name}</span>
+                  <span className="text-[#F4C542]">▾</span>
                 </button>
-              </li>
-            </ul>
-          </div>
-          </div>
 
-          <button className="hidden md:inline-flex px-5 py-2 text-sm font-semibold text-black bg-white rounded-full hover:bg-gray-200 transition-all active:scale-95 shadow-lg shadow-white/5" onClick={() => signOut()}>
-            Sign Out
-          </button>
-        </>}
-      </div>
-    </nav>
+                {isDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-64 rounded-md border border-[#F5F1E8]/12 bg-[#1D1D1D] p-2 shadow-lg">
+                    <div className="mb-2 flex items-center gap-3 rounded-md border border-[#F5F1E8]/10 bg-[#171717] p-2">
+                      <img src={session.user.image || '/tea.gif'} alt="Profile" className="h-9 w-9 rounded-full object-cover" />
+                      <div className="min-w-0">
+                        <div className="truncate text-sm font-medium text-[#F5F1E8]">{session.user.name}</div>
+                        <div className="truncate text-xs text-[#F5F1E8]/56">{session.user.email}</div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <button
+                        onClick={async () => {
+                          const response = await fetch('/api/profile', { method: 'GET' });
+                          if (response.ok) {
+                            const data = await response.json();
+                            router.replace(`/${data.user?.username}`);
+                            setIsDropdownOpen(false);
+                          }
+                        }}
+                        className="block w-full rounded-md px-3 py-2 text-left text-sm text-[#F5F1E8]/78 hover:bg-[#171717] hover:text-[#F4C542]"
+                      >
+                        Your Page
+                      </button>
+
+                      <Link href="/dashboard" className="block rounded-md px-3 py-2 text-sm text-[#F5F1E8]/78 hover:bg-[#171717] hover:text-[#F4C542]">
+                        Dashboard
+                      </Link>
+
+                      <button
+                        onClick={() => {
+                          setIsDropdownOpen(false);
+                          signOut();
+                        }}
+                        className="block w-full rounded-md px-3 py-2 text-left text-sm text-[#F5F1E8]/78 hover:bg-[#171717] hover:text-[#F4C542]"
+                      >
+                        Sign Out
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {isMobileMenuOpen && (
+          <div className="border-t border-[#F5F1E8]/10 bg-[#171717] px-4 py-4 md:hidden">
+            <div className="space-y-2">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block rounded-md px-3 py-2 text-sm uppercase tracking-[0.12em] text-[#F5F1E8]/78 hover:bg-[#1F1F1F] hover:text-[#F4C542]"
+                >
+                  {link.label}
+                </Link>
+              ))}
+
+              {!session ? (
+                <>
+                  <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="block rounded-md px-3 py-2 text-sm uppercase tracking-[0.12em] text-[#F5F1E8]/78 hover:bg-[#1F1F1F] hover:text-[#F4C542]">
+                    Login
+                  </Link>
+                  <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="premium-button mt-2 w-full rounded-md px-4 py-2 text-sm uppercase tracking-[0.12em]">
+                    Sign Up
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={async () => {
+                      const response = await fetch('/api/profile', { method: 'GET' });
+                      if (response.ok) {
+                        const data = await response.json();
+                        router.replace(`/${data.user?.username}`);
+                        setIsMobileMenuOpen(false);
+                      }
+                    }}
+                    className="block w-full rounded-md px-3 py-2 text-left text-sm uppercase tracking-[0.12em] text-[#F5F1E8]/78 hover:bg-[#1F1F1F] hover:text-[#F4C542]"
+                  >
+                    Your Page
+                  </button>
+                  <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="block rounded-md px-3 py-2 text-sm uppercase tracking-[0.12em] text-[#F5F1E8]/78 hover:bg-[#1F1F1F] hover:text-[#F4C542]">
+                    Dashboard
+                  </Link>
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      signOut();
+                    }}
+                    className="block w-full rounded-md px-3 py-2 text-left text-sm uppercase tracking-[0.12em] text-[#F5F1E8]/78 hover:bg-[#1F1F1F] hover:text-[#F4C542]"
+                  >
+                    Sign Out
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+      </nav>
+    </>
   );
 };
 

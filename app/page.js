@@ -1,9 +1,9 @@
-import BtnRotatingBg from '@/components/Btnrotatingbg';
 import { authoptions } from '@/app/api/auth/[...nextauth]/route';
 import User from '@/models/User';
 import { getServerSession } from 'next-auth';
 import mongoose from 'mongoose';
 import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
 
 export default async function Home() {
   const session = await getServerSession(authoptions);
@@ -22,51 +22,75 @@ export default async function Home() {
 
   return (
     <>
-      <div className='flex h-[calc(100vh-4rem)] w-full flex-col items-center justify-center pl-2 gap-4 text-center text-white' >
-        <div className='inline-flex h-7 items-center justify-center pl-2 animate-background-shine bg-[linear-gradient(110deg,#ff0080,#ff8c00,#40e0d0,#8a2be2,#ff0080)] bg-[length:250%_100%] bg-clip-text text-4xl text-transparent font-serif font-bold'>
-          Get Me A Kofi !
-          <span className='pb-4'><img className="invertImg" src="/tea.gif" width={71} alt="" /></span>
+      {/* Hero Section */}
+      <div className='min-h-[70vh] flex flex-col items-center justify-center px-4 py-12 sm:py-20 gap-8 text-center' >
+        <div className='max-w-2xl space-y-4'>
+          <div className='inline-flex items-center justify-center gap-2'>
+            <img src="/tea.gif" width={40} height={40} alt="Tea" className="sm:w-12 sm:h-12" />
+            <span className='text-sm sm:text-base font-medium text-white bg-[#F4C542]/10 px-3 py-1 rounded-full'>Support Your Creators</span>
+          </div>
+          
+          <h1 className='text-4xl sm:text-5xl md:text-6xl font-bold text-[#F5F1E8] leading-tight tracking-tight'>
+            Fuel Your <span className='text-[#F5F1E8]'>Creative Journey</span>
+          </h1>
+          
+          <p className='text-base sm:text-lg text-[#F5F1E8]/72 leading-relaxed max-w-xl mx-auto'>
+            Direct support from your fans. No algorithms. No gatekeeping. Just you and the people who love your work.
+          </p>
         </div>
-        <p className='font-serif text-xl '>A crowdfunding platform for creators. Get funded today!</p>
-        <div className='flex gap-4'>
 
-          <Link href={startHref}>
-            <BtnRotatingBg>
-              Start Now
-            </BtnRotatingBg>
+        {/* CTA Buttons */}
+        <div className='flex flex-col sm:flex-row gap-4 sm:gap-6 pt-4'>
+          <Link href={startHref} className='group'>
+            <button className='px-8 sm:px-10 py-3 sm:py-4 bg-white hover:bg-[#F5F1E8] text-[#171717] font-semibold rounded-xl transition-all duration-200 flex items-center gap-2 active:scale-95 w-full sm:w-auto justify-center sm:justify-start'>
+              Start Creating
+              <ArrowRight size={18} className='group-hover:translate-x-1 transition-transform' />
+            </button>
           </Link>
-
-          <Link href="/about">
-            <BtnRotatingBg>
-              Read More
-            </BtnRotatingBg>
+          <Link href="/about" className='group'>
+            <button className='px-8 sm:px-10 py-3 sm:py-4 bg-transparent hover:bg-[#F5F1E8]/5 text-[#F5F1E8] font-semibold rounded-xl border border-[#F5F1E8]/20 transition-all duration-200 active:scale-95 w-full sm:w-auto'>
+              Learn More
+            </button>
           </Link>
         </div>
       </div>
-      <div className="bg-white h-1 opacity-10">
-      </div>
 
-      <div className="text-white container mx-auto md:pb-32 pb-20 pt-20 px-2 md:px-10">
-        <p className="text-3xl font-bold md:text-3xl text-[1.6rem] text-center md:mb-14 mb-6">Your Fans can buy you a Chai</p>
-        <div className="flex gap-5 justify-around">
-          <div className="item md:space-y-3 space-y-2 flex flex-col items-center justify-center pl-2">
-            <img className="rounded-full p-2 text-black" width={100} src="/man.gif" alt="" />
-            <p className="font-bold md:text-center">Fans want to help</p>
-            <p className="md:text-center text-sm">Your fans are available to support you</p>
+      {/* Features Section */}
+      <div className="py-16 sm:py-24 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12 sm:mb-16">
+            <p className="text-[#F4C542] font-semibold text-sm uppercase tracking-wider mb-3">Why Choose Us</p>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#F5F1E8] leading-tight">Simple. Direct. Powerful.</h2>
+            <p className="text-[#F5F1E8]/68 text-base sm:text-lg mt-4 max-w-2xl mx-auto">Everything creators need to turn passion into sustainable income</p>
           </div>
-          <div className="item md:space-y-3 space-y-2 flex flex-col items-center justify-center pl-2">
-            <img className="rounded-full p-2 text-black" width={105} src="/coin.gif" alt="" />
-            <p className="font-bold md:text-center">Fans want to contribute</p>
-            <p className="md:text-center text-sm">Your fans are willing to contribute financially</p>
-          </div>
-          <div className="item md:space-y-3 space-y-2 flex flex-col items-center justify-center pl-2">
-            <img className="rounded-full p-2 text-black" width={105} src="/group.gif" alt="" />
-            <p className="font-bold md:text-center">Fans want to collaborate</p>
-            <p className="md:text-center text-sm">Your fans are ready to collaborate with you</p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
+            {[
+              {
+                title: 'Instant Support',
+                desc: 'Your fans support you directly in seconds, no friction.',
+                icon: '🎁'
+              },
+              {
+                title: 'Keep Control',
+                desc: 'Your page, your rules. No algorithms deciding who sees your work.',
+                icon: '🎯'
+              },
+              {
+                title: 'Build Community',
+                desc: 'Connect with supporters who believe in your mission.',
+                icon: '👥'
+              }
+            ].map((feature, idx) => (
+              <div key={idx} className='group bg-[#1F1F1F] border border-[#F5F1E8]/10 rounded-xl p-6 sm:p-8 transition-all duration-200 hover:border-[#F5F1E8]/20'>
+                <p className='text-3xl sm:text-4xl mb-4'>{feature.icon}</p>
+                <h3 className='text-lg sm:text-xl font-semibold text-[#F5F1E8] mb-2'>{feature.title}</h3>
+                <p className='text-[#F5F1E8]/68 text-sm sm:text-base leading-relaxed'>{feature.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </div>
-      
     </>
   );
 }

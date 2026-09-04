@@ -28,14 +28,12 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
 
-  // Redirect if not authenticated
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/login')
     }
   }, [status, router])
 
-  // Load user data on mount
   useEffect(() => {
     if (session?.user?.email) {
       loadUserData()
@@ -44,9 +42,7 @@ export default function Dashboard() {
 
   const loadUserData = async () => {
     try {
-      const response = await fetch('/api/profile', {
-        method: 'GET',
-      })
+      const response = await fetch('/api/profile', { method: 'GET' })
       if (response.ok) {
         const data = await response.json()
         setFormData({
@@ -76,10 +72,7 @@ export default function Dashboard() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }))
+    setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
   const uploadToCloudinary = async (file, folder) => {
@@ -138,7 +131,7 @@ export default function Dashboard() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    
+
     if (!formData.name || !formData.username) {
       setMessage('Name and username are required')
       setTimeout(() => setMessage(''), 3000)
@@ -152,7 +145,6 @@ export default function Dashboard() {
       let finalProfileUrl = profileUrl
       let finalCoverUrl = coverUrl
 
-      // Upload profile picture if selected from file
       if (profileMethod === 'upload' && profileFile) {
         const uploadedUrl = await uploadToCloudinary(profileFile, 'profile')
         if (!uploadedUrl) {
@@ -164,7 +156,6 @@ export default function Dashboard() {
         finalProfileUrl = profileUrl
       }
 
-      // Upload cover picture if selected from file
       if (coverMethod === 'upload' && coverFile) {
         const uploadedUrl = await uploadToCloudinary(coverFile, 'cover')
         if (!uploadedUrl) {
@@ -176,12 +167,9 @@ export default function Dashboard() {
         finalCoverUrl = coverUrl
       }
 
-      // Save to database
       const response = await fetch('/api/profile', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: formData.name,
           email: session.user.email,
@@ -208,221 +196,272 @@ export default function Dashboard() {
     }
   }
 
-  // Show loading state while checking authentication
   if (status === 'loading') {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-400">Loading...</p>
+      <div className="flex min-h-screen items-center justify-center bg-[#171717] text-[#F5F1E8]/72">
+        Loading...
       </div>
     )
   }
 
-  // Don't render if not authenticated
   if (status === 'unauthenticated') {
     return null
   }
 
   return (
-    <div className="min-h-screen bg-gray-200 p-4 md:p-4">
-      <div className="max-w-2xl mx-auto">
-
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-4">
-          
-          {/* Cover Picture */}
-          <div className="border-b pb-4">
-            <div className="flex gap-2 mb-2">
-              <label className="text-xs font-medium text-gray-600">Cover Picture</label>
-              <div className="flex gap-1">
-                {['upload', 'url'].map(method => (
-                  <button
-                    key={method}
-                    type="button"
-                    onClick={() => {
-                      setCoverMethod(method)
-                      if (method === 'url') {
-                        setCoverFile(null)
-                      }
-                    }}
-                    className={`px-2 py-1 text-xs rounded ${
-                      coverMethod === method
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-gray-200 text-gray-700'
-                    }`}
-                  >
-                    {method === 'upload' ? 'Upload' : 'URL'}
-                  </button>
-                ))}
-              </div>
-            </div>
-            {coverMethod === 'upload' ? (
-              <label className="block relative h-28 bg-gray-100 rounded border-2 border-dashed border-gray-300 cursor-pointer hover:bg-gray-50">
-                {coverPic ? (
-                  <img src={coverPic} alt="Cover" className="w-full h-full object-cover rounded" />
-                ) : (
-                  <div className="flex items-center justify-center h-full text-gray-400 text-sm">
-                    Click to upload cover
-                  </div>
-                )}
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleCoverPicChange}
-                  className="hidden"
-                  disabled={uploading}
-                />
-              </label>
-            ) : (
-              <input
-                type="url"
-                value={coverUrl}
-                onChange={(e) => {
-                  setCoverUrl(e.target.value)
-                  setCoverPic(e.target.value)
-                }}
-                placeholder="Paste image URL"
-                className="w-full px-3 py-2 border border-gray-300 rounded text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            )}
+    <div className="min-h-screen bg-[#171717] px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-5xl">
+        <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-[#F5F1E8]/5 bg-[#1A1A1A] p-6 shadow-[0_0_0_1px_rgba(245,241,232,0.02)] sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-[0.24em] text-[#e0bf6498]">Dashboard</p>
+            <h1 className="mt-2 text-3xl font-medium text-[#F5F1E8]">Profile settings</h1>
           </div>
+          <div className="rounded-full border border-[#F5F1E8]/10 bg-[#171717] px-3 py-1.5 text-xs uppercase tracking-[0.16em] text-[#F5F1E8]/60">
+            Creator profile
+          </div>
+        </div>
 
-          {/* Profile Picture */}
-          <div className="border-b pb-4">
-            <div className="flex gap-2 mb-2">
-              <label className="text-xs font-medium text-gray-600">Profile Picture</label>
-              <div className="flex gap-1">
-                {['upload', 'url'].map(method => (
-                  <button
-                    key={method}
-                    type="button"
-                    onClick={() => {
-                      setProfileMethod(method)
-                      if (method === 'url') {
-                        setProfileFile(null)
-                      }
-                    }}
-                    className={`px-2 py-1 text-xs rounded ${
-                      profileMethod === method
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-gray-200 text-gray-700'
-                    }`}
-                  >
-                    {method === 'upload' ? 'Upload' : 'URL'}
-                  </button>
-                ))}
+        <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+          <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-[#F5F1E8]/5 bg-[#1A1A1A] p-4 sm:p-6 shadow-[0_0_0_1px_rgba(245,241,232,0.02)]">
+            <div className="space-y-4 rounded-xl border border-[#F5F1E8]/5 bg-[#171717] p-4 sm:p-5">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <label className="text-sm font-medium text-[#F5F1E8]/72">Cover image</label>
+                <div className="flex gap-2">
+                  {['upload', 'url'].map((method) => (
+                    <button
+                      key={method}
+                      type="button"
+                      onClick={() => {
+                        setCoverMethod(method)
+                        if (method === 'url') setCoverFile(null)
+                      }}
+                      className={`rounded-md border px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.16em] transition-colors ${
+                        coverMethod === method
+                          ? 'border-[#F5F1E8]/20 bg-white text-[#171717]'
+                          : 'border-[#F5F1E8]/10 bg-transparent text-[#F5F1E8]/72 hover:border-[#F5F1E8]/20'
+                      }`}
+                    >
+                      {method === 'upload' ? 'Upload' : 'URL'}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-            {profileMethod === 'upload' ? (
-              <div className="flex gap-3">
-                <label className="h-20 w-20 rounded-full bg-gray-100 border-2 border-gray-300 overflow-hidden cursor-pointer hover:bg-gray-50 flex-shrink-0 flex items-center justify-center">
-                  {profilePic ? (
-                    <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
+
+              {coverMethod === 'upload' ? (
+                <label className="block h-36 cursor-pointer overflow-hidden rounded-xl border border-dashed border-[#F5F1E8]/15 bg-[#171717] transition-colors hover:border-[#F5F1E8]/25">
+                  {coverPic ? (
+                    <img src={coverPic} alt="Cover" className="h-full w-full object-cover" />
                   ) : (
-                    <span className="text-gray-400 text-xs text-center px-1">Photo</span>
+                    <div className="flex h-full items-center justify-center text-sm text-[#F5F1E8]/52">Upload cover image</div>
                   )}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleProfilePicChange}
-                    className="hidden"
-                    disabled={uploading}
-                  />
+                  <input type="file" accept="image/*" onChange={handleCoverPicChange} className="hidden" disabled={uploading} />
                 </label>
+              ) : (
+                <input
+                  type="url"
+                  value={coverUrl}
+                  onChange={(e) => {
+                    setCoverUrl(e.target.value)
+                    setCoverPic(e.target.value)
+                  }}
+                  placeholder="Paste image URL"
+                  className="w-full border border-[#F5F1E8]/10 bg-[#171717] px-3 py-2.5 text-sm text-[#F5F1E8] outline-none transition-colors placeholder:text-[#F5F1E8]/35 focus:border-[#e0bf6498]"
+                />
+              )}
+            </div>
+
+            <div className="space-y-4 rounded-xl border border-[#F5F1E8]/5 bg-[#171717] p-4 sm:p-5">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <label className="text-sm font-medium text-[#F5F1E8]/72">Profile picture</label>
+                <div className="flex gap-2">
+                  {['upload', 'url'].map((method) => (
+                    <button
+                      key={method}
+                      type="button"
+                      onClick={() => {
+                        setProfileMethod(method)
+                        if (method === 'url') setProfileFile(null)
+                      }}
+                      className={`rounded-md border px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.16em] transition-colors ${
+                        profileMethod === method
+                          ? 'border-[#F5F1E8]/20 bg-white text-[#171717]'
+                          : 'border-[#F5F1E8]/10 bg-transparent text-[#F5F1E8]/72 hover:border-[#F5F1E8]/20'
+                      }`}
+                    >
+                      {method === 'upload' ? 'Upload' : 'URL'}
+                    </button>
+                  ))}
+                </div>
               </div>
-            ) : (
-              <input
-                type="url"
-                value={profileUrl}
-                onChange={(e) => {
-                  setProfileUrl(e.target.value)
-                  setProfilePic(e.target.value)
-                }}
-                placeholder="Paste image URL"
-                className="w-full px-3 py-2 border border-gray-300 rounded text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+
+              {profileMethod === 'upload' ? (
+                <div className="flex items-center gap-4">
+                  <label className="flex h-24 w-24 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-[#F5F1E8]/15 bg-[#171717] transition-colors hover:border-[#F5F1E8]/25">
+                    {profilePic ? (
+                      <img src={profilePic} alt="Profile" className="h-full w-full object-cover" />
+                    ) : (
+                      <span className="text-[10px] uppercase tracking-[0.2em] text-[#F5F1E8]/52">Photo</span>
+                    )}
+                    <input type="file" accept="image/*" onChange={handleProfilePicChange} className="hidden" disabled={uploading} />
+                  </label>
+                  <div className="text-sm text-[#F5F1E8]/60">
+                    <p className="font-medium text-[#F5F1E8]/75">Add your profile image</p>
+                    <p className="mt-1 text-xs">Square images work best</p>
+                  </div>
+                </div>
+              ) : (
+                <input
+                  type="url"
+                  value={profileUrl}
+                  onChange={(e) => {
+                    setProfileUrl(e.target.value)
+                    setProfilePic(e.target.value)
+                  }}
+                  placeholder="Paste image URL"
+                  className="w-full border border-[#F5F1E8]/10 bg-[#171717] px-3 py-2.5 text-sm text-[#F5F1E8] outline-none transition-colors placeholder:text-[#F5F1E8]/35 focus:border-[#e0bf6498]"
+                />
+              )}
+            </div>
+
+            <div className="rounded-xl border border-[#F5F1E8]/5 bg-[#171717] p-4 sm:p-5">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-sm font-medium uppercase tracking-[0.18em] text-[#F5F1E8]/65">Profile details</h2>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="md:col-span-2">
+                  <label className="mb-2 block text-sm text-[#F5F1E8]/72">Full Name</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    className="w-full border border-[#F5F1E8]/10 bg-[#171717] px-3 py-2.5 text-sm text-[#F5F1E8] outline-none transition-colors placeholder:text-[#F5F1E8]/35 focus:border-[#e0bf6498]"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="mb-2 block text-sm text-[#F5F1E8]/72">Username</label>
+                  <input
+                    type="text"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleInputChange}
+                    className="w-full border border-[#F5F1E8]/10 bg-[#171717] px-3 py-2.5 text-sm text-[#F5F1E8] outline-none transition-colors placeholder:text-[#F5F1E8]/35 focus:border-[#e0bf6498]"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="mb-2 block text-sm text-[#F5F1E8]/72">Email</label>
+                  <input
+                    type="email"
+                    value={session?.user?.email || ''}
+                    disabled
+                    className="w-full border border-[#F5F1E8]/10 bg-[#171717] px-3 py-2.5 text-sm text-[#F5F1E8]/52 outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-[#F5F1E8]/5 bg-[#171717] p-4 sm:p-5">
+              <div className="mb-4">
+                <h2 className="text-sm font-medium uppercase tracking-[0.18em] text-[#F5F1E8]/65">Payment setup</h2>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <label className="mb-2 block text-sm text-[#F5F1E8]/72">Razorpay ID</label>
+                  <input
+                    type="text"
+                    name="razorpayId"
+                    value={formData.razorpayId}
+                    onChange={handleInputChange}
+                    className="w-full border border-[#F5F1E8]/10 bg-[#171717] px-3 py-2.5 text-sm text-[#F5F1E8] outline-none transition-colors placeholder:text-[#F5F1E8]/35 focus:border-[#e0bf6498]"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm text-[#F5F1E8]/72">Razorpay Secret</label>
+                  <input
+                    type="password"
+                    name="razorpaySecret"
+                    value={formData.razorpaySecret}
+                    onChange={handleInputChange}
+                    className="w-full border border-[#F5F1E8]/10 bg-[#171717] px-3 py-2.5 text-sm text-[#F5F1E8] outline-none transition-colors placeholder:text-[#F5F1E8]/35 focus:border-[#e0bf6498]"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {message && (
+              <div
+                className={`rounded-md border px-3 py-2 text-sm ${
+                  message.includes('Error') || message.includes('error')
+                    ? 'border-[#e0bf6498]/30 bg-[#e0bf6498]/10 text-[#F5F1E8]'
+                    : 'border-[#e0bf6498]/30 bg-[#e0bf6498]/10 text-[#F5F1E8]'
+                }`}
+              >
+                {message}
+              </div>
             )}
-          </div>
 
-          {/* Name, Email, Username */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 border-b pb-4">
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Full Name</label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                placeholder="Your name"
-                className="w-full px-3 py-2 border border-gray-300 rounded text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Email</label>
-              <input
-                type="email"
-                value={session?.user?.email || ''}
-                disabled
-                className="w-full px-3 py-2 border border-gray-300 rounded text-sm bg-gray-50 text-black"
-              />
-            </div>
-            <div className="md:col-span-2">
-              <label className="block text-xs font-medium text-gray-600 mb-1">Username</label>
-              <input
-                type="text"
-                name="username"
-                value={formData.username}
-                onChange={handleInputChange}
-                placeholder="your_username"
-                className="w-full px-3 py-2 border border-gray-300 rounded text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
+            <button
+              type="submit"
+              disabled={loading || uploading}
+              className="w-full rounded-xl bg-white px-4 py-3 text-sm font-medium uppercase tracking-[0.14em] text-[#171717] transition-all hover:bg-[#F5F1E8] disabled:opacity-60"
+            >
+              {loading || uploading ? 'Saving...' : 'Save Profile'}
+            </button>
+          </form>
 
-          {/* Razorpay Fields */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 border-b pb-4">
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Razorpay ID</label>
-              <input
-                type="text"
-                name="razorpayId"
-                value={formData.razorpayId}
-                onChange={handleInputChange}
-                placeholder="Your Razorpay ID"
-                className="w-full px-3 py-2 border border-gray-300 rounded text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+          <aside className="rounded-2xl border border-[#F5F1E8]/5 bg-[#1A1A1A] p-4 sm:p-5">
+            <div className="mb-5 flex items-center justify-between">
+              <p className="text-xs uppercase tracking-[0.2em] text-[#F5F1E8]/55">Preview</p>
+              <span className="rounded-full border border-[#F5F1E8]/10 bg-[#171717] px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-[#F5F1E8]/60">
+                Live
+              </span>
             </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Razorpay Secret</label>
-              <input
-                type="password"
-                name="razorpaySecret"
-                value={formData.razorpaySecret}
-                onChange={handleInputChange}
-                placeholder="Your Razorpay Secret"
-                className="w-full px-3 py-2 border border-gray-300 rounded text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
 
-          {/* Message */}
-          {message && (
-            <div className={`px-3 py-2 rounded text-sm border ${
-              message.includes('Error') || message.includes('error')
-                ? 'bg-red-50 border-red-200 text-red-700'
-                : 'bg-green-50 border-green-200 text-green-700'
-            }`}>
-              {message}
-            </div>
-          )}
+            <div className="overflow-hidden rounded-2xl border border-[#F5F1E8]/5 bg-[#171717]">
+              <div className="h-28 w-full bg-[radial-gradient(circle_at_top,_rgba(244,197,66,0.28),transparent_55%)] relative">
+                {coverPic ? (
+                  <img src={coverPic} alt="Cover preview" className="h-full w-full object-cover" />
+                ) : (
+                  <div className="flex h-full items-center justify-center text-xs uppercase tracking-[0.2em] text-[#F5F1E8]/45">Cover</div>
+                )}
+              </div>
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={loading || uploading}
-            className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white font-semibold py-2 px-4 rounded text-sm transition"
-          >
-            {loading || uploading ? 'Saving...' : 'Save Profile'}
-          </button>
-        </form>
+              <div className="relative px-4 pb-4">
+                <div className="-mt-8 mb-3 flex items-center gap-3">
+                  <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border-2 border-[#171717] bg-[#171717] text-xs uppercase tracking-[0.18em] text-[#F5F1E8]/60">
+                    {profilePic ? (
+                      <img src={profilePic} alt="Profile preview" className="h-full w-full object-cover" />
+                    ) : (
+                      <span>DP</span>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-base font-medium text-[#F5F1E8]">{formData.name || 'Your name'}</p>
+                    <p className="text-xs text-[#F5F1E8]/55">@{formData.username || 'yourusername'}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3 rounded-xl border border-[#F5F1E8]/5 bg-[#1A1A1A] p-3">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#F5F1E8]/45">Contact</p>
+                    <p className="mt-1 text-sm text-[#F5F1E8]/80">{session?.user?.email || 'you@example.com'}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#F5F1E8]/45">Support</p>
+                    <p className="mt-1 text-sm text-[#F5F1E8]/80">
+                      {formData.razorpayId ? 'Razorpay connected' : 'Connect payment details'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
       </div>
     </div>
   )

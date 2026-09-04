@@ -76,13 +76,13 @@ export default function AboutPage() {
 					<div className="flex flex-col gap-4 sm:flex-row">
 						<Link
 							href="/login"
-							className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 px-6 py-3 text-sm font-semibold text-black shadow-lg shadow-orange-500/20 transition-transform hover:-translate-y-0.5"
+							className="inline-flex items-center justify-center rounded-xl bg-white px-6 py-3 text-sm font-semibold text-[#171717] transition-transform hover:-translate-y-0.5"
 						>
 							Start supporting creators
 						</Link>
 						<Link
 							href="/"
-							className="inline-flex items-center justify-center rounded-full border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-white backdrop-blur-md transition-colors hover:bg-white/10"
+							className="inline-flex items-center justify-center rounded-xl border border-[#F5F1E8]/15 bg-transparent px-6 py-3 text-sm font-semibold text-[#F5F1E8] transition-colors hover:bg-[#F5F1E8]/5"
 						>
 							Explore the platform
 						</Link>
@@ -155,8 +155,8 @@ export default function AboutPage() {
 
 					<ul className="mt-6 space-y-3">
 						{benefits.map((benefit) => (
-							<li key={benefit} className="flex items-start gap-3 rounded-2xl border border-white/8 bg-black/15 px-4 py-3 text-sm text-white/78">
-								<span className="mt-1 inline-block h-2.5 w-2.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500" />
+							<li key={benefit} className="flex items-start gap-3 rounded-2xl border border-[#F5F1E8]/10 bg-[#171717] px-4 py-3 text-sm text-[#F5F1E8]/80">
+								<span className="mt-1 inline-block h-2.5 w-2.5 rounded-full bg-[#F4C542]" />
 								<span>{benefit}</span>
 							</li>
 						))}
@@ -164,16 +164,16 @@ export default function AboutPage() {
 				</div>
 
 				<div className="grid gap-6">
-					<div className="rounded-[1.75rem] border border-white/10 bg-gradient-to-br from-white/8 to-white/3 p-7 shadow-xl shadow-black/20 backdrop-blur-md">
-						<p className="text-sm uppercase tracking-[0.25em] text-white/45">How funding works</p>
+					<div className="rounded-[1.75rem] border border-[#F5F1E8]/10 bg-[#171717] p-7 shadow-xl shadow-black/20">
+						<p className="text-sm uppercase tracking-[0.25em] text-[#F5F1E8]/45">How funding works</p>
 						<div className="mt-6 space-y-4">
 							{steps.map((step, index) => (
-								<div key={step.title} className="flex gap-4 rounded-2xl border border-white/10 bg-black/15 p-4">
-									<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-sm font-bold text-black">
+								<div key={step.title} className="flex gap-4 rounded-2xl border border-[#F5F1E8]/10 bg-[#171717] p-4">
+									<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#F4C542] text-sm font-bold text-[#171717]">
 										0{index + 1}
 									</div>
 									<div>
-										<h3 className="text-base font-semibold text-white">{step.title}</h3>
+										<h3 className="text-base font-semibold text-[#F5F1E8]">{step.title}</h3>
 										<p className="mt-2 text-sm leading-6 text-white/70">{step.description}</p>
 									</div>
 								</div>
