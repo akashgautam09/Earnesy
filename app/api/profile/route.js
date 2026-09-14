@@ -1,11 +1,10 @@
 // This API endpoint saves user profile data to the database
-// It checks the authenticated user's email for security
 
 import mongoose from 'mongoose'
 import User from '@/models/User'
 import Payment from '@/models/Payment'
 import { getServerSession } from 'next-auth'
-import { authoptions } from '@/app/api/auth/[...nextauth]/route'
+import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { v2 as cloudinary } from 'cloudinary'
 
 const getCloudinaryPublicId = (url) => {
@@ -45,8 +44,8 @@ const getCloudinaryPublicId = (url) => {
 
 export async function GET(req) {
   try {
-    // Get authenticated user session
-    const session = await getServerSession(authoptions)
+    // The session ID identifies the owner; email and username can change.
+    const session = await getServerSession(authOptions)
 
     // Check if user is authenticated
     if (!session || !session.user) {
@@ -59,14 +58,25 @@ export async function GET(req) {
     // Connect to database
     await mongoose.connect(process.env.MONGODB_URI)
 
-    // Find user by email
-    const user = await User.findOne({ email: session.user.email })
+    const user = await User.findById(session.user.id)
 
     if (!user) {
       return Response.json(
         { error: 'User not found' },
         { status: 404 }
       )
+    }
+
+    // Return the public key and a status only. Never return the secret.
+    let razorpayId = ''
+    let hasRazorpayCredentials = false
+
+    try {
+      razorpayId = user.razorpayId || ''
+      hasRazorpayCredentials = Boolean(razorpayId && user.razorpaySecret)
+    } catch {
+      razorpayId = ''
+      hasRazorpayCredentials = false
     }
 
     return Response.json({
@@ -77,8 +87,8 @@ export async function GET(req) {
         username: user.username,
         profileUrl: user.profileUrl,
         coverUrl: user.coverUrl,
-        razorpayId: user.razorpayId,
-        razorpaySecret: user.razorpaySecret,
+        razorpayId,
+        hasRazorpayCredentials,
       },
     })
   } catch (error) {
@@ -92,8 +102,7 @@ export async function GET(req) {
 
 export async function POST(req) {
   try {
-    // Get authenticated user session
-    const session = await getServerSession(authoptions)
+    const session = await getServerSession(authOptions)
 
     // Check if user is authenticated
     if (!session || !session.user) {
@@ -110,15 +119,15 @@ export async function POST(req) {
     const body = await req.json()
     const {
       name,
-      email,
       username,
       razorpayId,
       razorpaySecret,
+      disconnectRazorpay,
       profileUrl,
       coverUrl,
     } = body
 
-    const currentUser = await User.findOne({ email: session.user.email })
+    const currentUser = await User.findById(session.user.id)
 
     if (!currentUser) {
       return Response.json(
@@ -141,41 +150,71 @@ export async function POST(req) {
       }
     }
 
+    const normalizedName = typeof name === 'string' ? name.trim() : ''
+    const normalizedUsername = typeof username === 'string' ? username.trim().toLowerCase() : ''
+
+    if (!normalizedName || !normalizedUsername) {
+      return Response.json(
+        { error: 'Username is required' },
+        { status: 400 }
+      )
+    }
+
+    if (!/^[a-z0-9_-]{3,30}$/.test(normalizedUsername)) {
+      return Response.json(
+        { error: 'Username must be 3-30 characters and use only letters, numbers, hyphens, or underscores' },
+        { status: 400 }
+      )
+    }
+
+    // Check availability before MongoDB's unique index provides the final safeguard.
+    const usernameOwner = await User.findOne({
+      username: normalizedUsername,
+      _id: { $ne: currentUser._id },
+    }).select('_id').lean()
+
+    if (usernameOwner) {
+      return Response.json(
+        { error: 'This username is already taken' },
+        { status: 409 }
+      )
+    }
+
     const updateData = {
-      name: name || undefined,
-      username: username || undefined,
+      name: normalizedName,
+      username: normalizedUsername,
       profileUrl: profileUrl || undefined,
       coverUrl: coverUrl || undefined,
       updatedAt: new Date(),
     }
 
-    if (razorpayId) {
-      updateData.razorpayId = razorpayId
+    if (!disconnectRazorpay && razorpayId) {
+      updateData.razorpayId = razorpayId.trim()
     }
 
-    if (razorpaySecret) {
-      updateData.razorpaySecret = razorpaySecret
+    // The secret is write-only: save a replacement, but never read it back.
+    if (!disconnectRazorpay && razorpaySecret) {
+      updateData.razorpaySecret = razorpaySecret.trim()
     }
 
-    // Security check: verify email matches session user email
-    if (email !== session.user.email) {
-      return Response.json(
-        { error: 'Email mismatch: Cannot update other users profile' },
-        { status: 403 }
-      )
+    // Unsetting both values immediately disables payments for this user.
+    if (disconnectRazorpay) {
+      updateData.$unset = {
+        razorpayId: 1,
+        razorpaySecret: 1,
+      }
     }
 
     // Update to_user in payment when username is updated
-    if (username) {
+    if (normalizedUsername !== currentUser.username) {
       await Payment.updateMany(
         { to_user: currentUser.username },
-        { to_user: username }
+        { to_user: normalizedUsername }
       )
     }
 
-    // Find user by email and update
     const updatedUser = await User.findOneAndUpdate(
-      { email: session.user.email },
+      { _id: currentUser._id },
       updateData,
       { returnDocument: 'after', runValidators: true }
     )
@@ -199,6 +238,13 @@ export async function POST(req) {
       },
     })
   } catch (error) {
+    if (error?.code === 11000) {
+      return Response.json(
+        { error: 'This username is already taken' },
+        { status: 409 }
+      )
+    }
+
     console.error('Profile update error:', error)
     return Response.json(
       { error: error.message || 'Failed to update profile' },
