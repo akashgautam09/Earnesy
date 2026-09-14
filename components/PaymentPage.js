@@ -5,7 +5,7 @@ import Script from 'next/script'
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState, useCallback, useRef } from "react"
-import { creatorPayments, initiate, fetchCreator } from '@/actions/userAction'
+import { fetchPayments, initiate, fetchUserPage } from '@/actions/userAction'
 import { ToastContainer, toast, Bounce } from 'react-toastify'
 import { useSearchParams } from 'next/navigation'
 
@@ -14,51 +14,53 @@ export const PaymentPage = ({ username }) => {
     const router = useRouter()
     const isMounted = useRef(true)
     const [paymentform, setPaymentform] = useState({ name: '', amount: '' })
-    const [currentCreator, setcurrentCreator] = useState({})
+    const [currentUser, setCurrentUser] = useState({})
     const [paymentReceived, setPaymentReceived] = useState([])
+    const [pageLoading, setPageLoading] = useState(true)
     const searchParams = useSearchParams()
 
-    const fetchCurrentCreator = useCallback(async () => {
+    const loadUserPage = useCallback(async () => {
         if (!isMounted.current) return
         try {
-            let user = await fetchCreator(username)
-            if (isMounted.current) setcurrentCreator(user);
-            let payments = await creatorPayments(username)
-            if (isMounted.current) setPaymentReceived(payments);
+            // These requests are independent, so load them at the same time.
+            const [user, payments] = await Promise.all([
+                fetchUserPage(username),
+                fetchPayments(username),
+            ])
+
+            if (isMounted.current) {
+                setCurrentUser(user || {})
+                setPaymentReceived(payments)
+            }
         } catch (error) {
-            console.error('Error fetching creator:', error)
+            console.error('Error fetching user page:', error)
+        } finally {
+            if (isMounted.current) setPageLoading(false)
         }
     }, [username])
 
     useEffect(() => {
-        if (status === "unauthenticated") {
-            router.push("/login")
-        }
-    }, [status, router])
+        isMounted.current = true
+        loadUserPage()
 
-    useEffect(() => {
-        fetchCurrentCreator()
-    }, [fetchCurrentCreator])
+        return () => {
+            isMounted.current = false
+        }
+    }, [loadUserPage])
 
     useEffect(() => {
         if (searchParams.get("paymentdone") === "true" && isMounted.current) {
             toast.success("Payment done successfully")
             router.replace(`/${username}`)
         }
-    }, [searchParams, username])
+    }, [searchParams, username, router])
 
-    // Show loading state while checking authentication
-    if (status === 'loading') {
+    if (pageLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
-                <p className="text-gray-400">Loading...</p>
+                <p className="text-gray-400">Loading page...</p>
             </div>
         )
-    }
-
-    // Don't render if not authenticated
-    if (status === 'unauthenticated') {
-        return null
     }
 
     const handlechange = (e) => {
@@ -72,20 +74,28 @@ export const PaymentPage = ({ username }) => {
                 return;
             }
 
-            if (!currentCreator?.razorpayId) {
-                toast.error('This creator has not configured Razorpay payments yet.');
+            // Profiles are public, but starting a payment requires a session.
+            if (status !== 'authenticated') {
+                toast.info('Please log in before making a payment.')
+                router.push('/login')
+                return
+            }
+
+            if (!currentUser?.paymentsEnabled) {
+                toast.error('This user is currently unable to accept payments.')
                 return;
             }
 
-            let x = await initiate(amount, username, paymentform)
+            // The server validates the session, amount, and payment credentials again.
+            const x = await initiate(amount, username, paymentform)
             if (x?.error) {
                 toast.error(x.error)
                 return
             }
             let order_id = x.id
 
-            var options = {
-                "key": currentCreator.razorpayId, // Enter the Key ID generated from the Dashboard
+            const options = {
+                "key": currentUser.razorpayId,
                 "amount": amount, // Amount is in currency subunits. 
                 "currency": "INR",
                 "name": "Get Me A Kofi", //your business name
@@ -105,7 +115,12 @@ export const PaymentPage = ({ username }) => {
                     "color": "#3399cc"
                 }
             };
-            var rzp1 = new window.Razorpay(options);
+            if (!window.Razorpay) {
+                toast.error('Payment checkout is still loading. Please try again.')
+                return
+            }
+
+            const rzp1 = new window.Razorpay(options);
             rzp1.open();
         } catch (error) {
             console.error('Payment error:', error || error.message);
@@ -132,11 +147,10 @@ export const PaymentPage = ({ username }) => {
 
             <div className="relative mb-12 sm:mb-16 md:mb-20">
                 <div className="coverImage w-full h-32 sm:h-44 md:h-56 lg:h-72 bg-gray-500 overflow-hidden">
-                    {/* Get the cover image url from the currentCreator */}
-                    <img src={currentCreator.coverUrl} alt="cover image" className="w-full h-full object-cover" />
+                    <img src={currentUser.coverUrl} alt="cover image" className="w-full h-full object-cover" />
                 </div>
                 <span className="profileImage absolute w-20 sm:w-24 md:w-28 -bottom-10 sm:-bottom-12 left-1/2 -translate-x-1/2 overflow-hidden aspect-square rounded-full bg-gray-500 border-4 border-gray-950">
-                    <img src={currentCreator.profileUrl} alt="profile image" className="w-full h-full object-cover object-center" />
+                    <img src={currentUser.profileUrl} alt="profile image" className="w-full h-full object-cover object-center" />
                 </span>
             </div>
             <div>
@@ -167,44 +181,49 @@ export const PaymentPage = ({ username }) => {
                     </ul>
                 </div>
 
-                {/* Donation Form Section */}
+                {currentUser.paymentsEnabled ? (
+                    <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg lg:max-h-[350px] p-4 sm:p-6 shadow-lg border border-gray-700">
+                        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-3 sm:mb-4 md:mb-6">Support This User</h2>
 
-                <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg lg:max-h-[350px] p-4 sm:p-6 shadow-lg border border-gray-700">
-                    <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-3 sm:mb-4 md:mb-6">Support This Creator</h2>
-
-                    <form className="space-y-3 sm:space-y-4">
-                        <div>
-                            <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">Your Name</label>
-                            <input onChange={handlechange} value={paymentform.name}
-                                type="text"
-                                name="name"
-                                placeholder="Enter your name"
-                                className="w-full px-3 sm:px-4 py-2 rounded-lg bg-gray-700 text-white placeholder-gray-400 border border-gray-600 focus:border-blue-500 focus:outline-none transition-colors text-sm"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">Donation Amount (₹)</label>
-                            <input onChange={handlechange} value={paymentform.amount}
-                                type="number"
-                                name="amount"
-                                placeholder="Enter amount"
-                                min="1"
-                                className="w-full px-3 sm:px-4 py-2 rounded-lg bg-gray-700 text-white placeholder-gray-400 border border-gray-600 focus:border-blue-500 focus:outline-none transition-colors text-sm"
-                            />
-                        </div>
-                        <div className="w-full flex justify-center items-center pt-2">
-                            <button onClick={(e) => {
-                                e.preventDefault();
-                                pay(paymentform.amount * 100);
-                            }}
-                                type="button"
-                                className="w-32 sm:w-36 bg-white hover:bg-[#F5F1E8] text-[#171717] text-sm sm:text-base font-semibold py-2 sm:py-2.5 rounded-lg transition-all duration-200 transform hover:scale-105"
-                            >
-                                Donate Now
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                        <form className="space-y-3 sm:space-y-4">
+                            <div>
+                                <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">Your Name</label>
+                                <input onChange={handlechange} value={paymentform.name}
+                                    type="text"
+                                    name="name"
+                                    placeholder="Enter your name"
+                                    className="w-full px-3 sm:px-4 py-2 rounded-lg bg-gray-700 text-white placeholder-gray-400 border border-gray-600 focus:border-blue-500 focus:outline-none transition-colors text-sm"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">Donation Amount (₹)</label>
+                                <input onChange={handlechange} value={paymentform.amount}
+                                    type="number"
+                                    name="amount"
+                                    placeholder="Enter amount"
+                                    min="1"
+                                    className="w-full px-3 sm:px-4 py-2 rounded-lg bg-gray-700 text-white placeholder-gray-400 border border-gray-600 focus:border-blue-500 focus:outline-none transition-colors text-sm"
+                                />
+                            </div>
+                            <div className="w-full flex justify-center items-center pt-2">
+                                <button onClick={(e) => {
+                                    e.preventDefault();
+                                    pay(paymentform.amount * 100);
+                                }}
+                                    type="button"
+                                    className="w-32 sm:w-36 bg-white hover:bg-[#F5F1E8] text-[#171717] text-sm sm:text-base font-semibold py-2 sm:py-2.5 rounded-lg transition-all duration-200 transform hover:scale-105"
+                                >
+                                    Donate Now
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                ) : (
+                    <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg p-4 sm:p-6 shadow-lg border border-gray-700">
+                        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-3 sm:mb-4">Razorpay not connected</h2>
+                        <p className="text-sm text-gray-300">This user is currently unable to accept payments.</p>
+                    </div>
+                )}
             </div>
         </>
     )

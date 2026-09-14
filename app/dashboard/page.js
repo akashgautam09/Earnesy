@@ -35,40 +35,60 @@ export default function Dashboard() {
   }, [status, router])
 
   useEffect(() => {
-    if (session?.user?.email) {
-      loadUserData()
+    if (status !== 'authenticated' || !session?.user?.email) {
+      return undefined
     }
-  }, [session])
 
-  const loadUserData = async () => {
-    try {
-      const response = await fetch('/api/profile', { method: 'GET' })
-      if (response.ok) {
-        const data = await response.json()
-        setFormData({
-          name: data.user?.name || '',
-          email: data.user?.email || session.user.email,
-          username: data.user?.username || '',
-          razorpayId: data.user?.razorpayId || '',
-          razorpaySecret: data.user?.razorpaySecret || '',
+    const controller = new AbortController()
+
+    const loadUserData = async () => {
+      try {
+        const response = await fetch('/api/profile', {
+          method: 'GET',
+          signal: controller.signal,
         })
-        if (data.user?.profileUrl) {
-          setProfilePic(data.user.profileUrl)
-          setProfileUrl(data.user.profileUrl)
+
+        if (!response.ok) {
+          throw new Error('Could not load profile')
+        }
+
+        const data = await response.json()
+        const user = data.user || {}
+
+        setFormData((previous) => ({
+          ...previous,
+          name: user.name || '',
+          email: user.email || session.user.email,
+          username: user.username || '',
+          razorpayId: user.razorpayId || '',
+          // Secrets are write-only in the dashboard and must not be loaded into browser state.
+          razorpaySecret: '',
+        }))
+
+        if (user.profileUrl) {
+          setProfilePic(user.profileUrl)
+          setProfileUrl(user.profileUrl)
           setProfileFile(null)
           setProfileMethod('url')
         }
-        if (data.user?.coverUrl) {
-          setCoverPic(data.user.coverUrl)
-          setCoverUrl(data.user.coverUrl)
+
+        if (user.coverUrl) {
+          setCoverPic(user.coverUrl)
+          setCoverUrl(user.coverUrl)
           setCoverFile(null)
           setCoverMethod('url')
         }
+      } catch (error) {
+        if (error.name !== 'AbortError') {
+          setMessage('Could not load profile')
+        }
       }
-    } catch (error) {
-      console.log('Could not load user data')
     }
-  }
+
+    loadUserData()
+
+    return () => controller.abort()
+  }, [session?.user?.email, status])
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -132,7 +152,15 @@ export default function Dashboard() {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (!formData.name || !formData.username) {
+    if (status !== 'authenticated' || !session?.user?.email) {
+      setMessage('Please login again before saving your profile')
+      return
+    }
+
+    const name = formData.name.trim()
+    const username = formData.username.trim().toLowerCase()
+
+    if (!name || !username) {
       setMessage('Name and username are required')
       setTimeout(() => setMessage(''), 3000)
       return
@@ -171,9 +199,9 @@ export default function Dashboard() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: formData.name,
+          name,
           email: session.user.email,
-          username: formData.username,
+          username,
           razorpayId: formData.razorpayId,
           razorpaySecret: formData.razorpaySecret,
           profileUrl: finalProfileUrl,
@@ -191,6 +219,45 @@ export default function Dashboard() {
     } catch (error) {
       setMessage('Error: ' + error.message)
       setTimeout(() => setMessage(''), 3000)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDisconnectRazorpay = async () => {
+    if (!window.confirm('Disconnect Razorpay and disable payments?')) {
+      return
+    }
+
+    setLoading(true)
+    setMessage('')
+
+    try {
+      const response = await fetch('/api/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          username: formData.username,
+          profileUrl,
+          coverUrl,
+          disconnectRazorpay: true,
+        }),
+      })
+
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to disconnect Razorpay')
+      }
+
+      setFormData((previous) => ({
+        ...previous,
+        razorpayId: '',
+        razorpaySecret: '',
+      }))
+      setMessage('Razorpay disconnected successfully')
+    } catch (error) {
+      setMessage(`Error: ${error.message}`)
     } finally {
       setLoading(false)
     }
@@ -216,8 +283,8 @@ export default function Dashboard() {
             <p className="text-xs uppercase tracking-[0.24em] text-[#e0bf6498]">Dashboard</p>
             <h1 className="mt-2 text-3xl font-medium text-[#F5F1E8]">Profile settings</h1>
           </div>
-          <div className="rounded-full border border-[#F5F1E8]/10 bg-[#171717] px-3 py-1.5 text-xs uppercase tracking-[0.16em] text-[#F5F1E8]/60">
-            Creator profile
+            <div className="rounded-full border border-[#F5F1E8]/10 bg-[#171717] px-3 py-1.5 text-xs uppercase tracking-[0.16em] text-[#F5F1E8]/60">
+            Public profile
           </div>
         </div>
 
@@ -361,6 +428,15 @@ export default function Dashboard() {
                   />
                 </div>
               </div>
+
+              <button
+                type="button"
+                onClick={handleDisconnectRazorpay}
+                disabled={loading || uploading || !formData.razorpayId}
+                className="mt-4 rounded-md border border-red-300/20 px-3 py-2 text-xs font-medium uppercase tracking-[0.14em] text-red-200 transition-colors hover:border-red-300/40 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Disconnect Razorpay
+              </button>
             </div>
 
             <div className="rounded-xl border border-[#F5F1E8]/5 bg-[#171717] p-4 sm:p-5">
