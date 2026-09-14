@@ -4,24 +4,38 @@ import mongoose from "mongoose"
 import Razorpay from "razorpay"
 import User from "@/models/User"
 import Payment from "@/models/Payment"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 
 export const initiate = async (amount, to_user, paymentform) => {
     try {
+        // Server actions can be called directly, so validate everything here.
+        const session = await getServerSession(authOptions)
+        if (!session?.user?.id) {
+            return { error: 'Please log in before making a payment.' }
+        }
+
+        const amountInPaise = Number(amount)
+        if (!Number.isInteger(amountInPaise) || amountInPaise < 100 || amountInPaise > 100000000) {
+            return { error: 'Payment amount must be between ₹1 and ₹1,000,000.' }
+        }
+
+        if (!paymentform?.name?.trim()) {
+            return { error: 'Your name is required.' }
+        }
+
         await mongoose.connect(process.env.MONGODB_URI)
-        let user = await User.findOne({ username: to_user })
+        const user = await User.findOne({ username: to_user?.trim().toLowerCase() })
         if (!user) {
             return { error: 'Recipient user not found.' }
         }
-        const keyId = user.razorpayId;
-        const keySecret = user.razorpaySecret;
+        // Mongoose getters decrypt these values on the server only.
+        const keyId = user.razorpayId?.trim()
+        const keySecret = user.razorpaySecret?.trim()
 
 
         if (!keyId || !keySecret) {
-            console.error('Missing Razorpay keys:', {
-                keyId: keyId || 'UNDEFINED',
-                keySecret: keySecret ? 'SET' : 'UNDEFINED'
-            });
-            return { error: 'Creator has not configured Razorpay payments yet.' }
+            return { error: 'This user has not connected Razorpay yet.' }
         }
 
         var instance = new Razorpay({
@@ -30,16 +44,17 @@ export const initiate = async (amount, to_user, paymentform) => {
         })
 
         const options = {
-            amount: Number.parseInt(amount),
+            amount: amountInPaise,
             currency: "INR",
         }
 
         let x = await instance.orders.create(options)
 
         await Payment.create({
-            from_user: paymentform.name,
-            amount: amount,
-            to_user: to_user,
+            from_user: paymentform.name.trim(),
+            amount: amountInPaise,
+            to_user: user.username,
+            creator_id: user._id,
             order_id: x.id
         })
 
@@ -50,31 +65,48 @@ export const initiate = async (amount, to_user, paymentform) => {
     }
 }
 
-export const fetchCreator = async (username) => {
+// Return only public fields. Never return the Razorpay secret.
+export const fetchUserPage = async (username) => {
     try {
         await mongoose.connect(process.env.MONGODB_URI)
-        const user = await User.findOne({ username: username })
-        if(user) {
+        const user = await User.findOne({ username: username?.trim().toLowerCase() })
+        if (user) {
+            let razorpayId = ''
+            let razorpaySecret = ''
+
+            try {
+                razorpayId = user.razorpayId?.trim() || ''
+                razorpaySecret = user.razorpaySecret?.trim() || ''
+            } catch (error) {
+                console.error('Payment credentials could not be read')
+            }
+
+            // Public pages need only this safe payment capability flag.
             return {
-                ...user.toObject({ flattenObjectIds: true, getters: true }),
-                razorpayId: user.razorpayId?.trim(),
-                razorpaySecret: undefined,
+                id: user._id.toString(),
+                name: user.name,
+                username: user.username,
+                profileUrl: user.profileUrl,
+                coverUrl: user.coverUrl,
+                razorpayId,
+                paymentsEnabled: Boolean(razorpayId && razorpaySecret),
             }
         }
+        return null
     } catch (error) {
-        console.error('Fetch Creator Error:', error);
+        console.error('Fetch user page error:', error);
         throw error;
     }
 }
 
-// fetch payments received by creator and arranged in descending order of amount and flattened order_id
-export const creatorPayments = async (username) => {
+// Return completed payments from highest to lowest amount.
+export const fetchPayments = async (username) => {
     try {
         await mongoose.connect(process.env.MONGODB_URI)
-        const payments = await Payment.find({ to_user: username, done: true }).sort({ amount: -1 })
+        const payments = await Payment.find({ to_user: username?.trim().toLowerCase(), done: true }).sort({ amount: -1 })
         return payments.map(payment => payment.toObject({ flattenObjectIds: true }))
     } catch (error) {
-        console.error('Fetch Creator Payments Error:', error);
+        console.error('Fetch user payments error:', error);
         throw error;
     }
 }

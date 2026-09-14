@@ -1,4 +1,4 @@
-import { authoptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import User from '@/models/User';
 import { getServerSession } from 'next-auth';
 import mongoose from 'mongoose';
@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
 export default async function Home() {
-  const session = await getServerSession(authoptions);
+  const session = await getServerSession(authOptions);
   let startHref = '/login';
 
   if (session?.user?.email) {
@@ -14,7 +14,7 @@ export default async function Home() {
       await mongoose.connect(process.env.MONGODB_URI);
     }
 
-    const user = await User.findOne({ email: session.user.email }).select('username').lean();
+    const user = await User.findById(session.user.id).select('username').lean();
     if (user?.username) {
       startHref = `/${user.username}`;
     }

@@ -2,6 +2,10 @@ import mongoose from "mongoose";
 import { Schema, model } from "mongoose";
 // payment details
 const paymentSchema = new mongoose.Schema({
+    creator_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+    },
     from_user: {
         type: String,
         required: true
@@ -17,6 +21,9 @@ const paymentSchema = new mongoose.Schema({
     order_id: {
         type: String,
         required: true
+    },
+    payment_id: {
+        type: String,
     },
     createdAt: {
         type: Date,

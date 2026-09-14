@@ -1,12 +1,12 @@
 import PaymentPage from '@/components/PaymentPage'
-import { fetchCreator } from '@/actions/userAction'
+import { fetchUserPage } from '@/actions/userAction'
 import { notFound } from 'next/navigation'
 import React from 'react'
 
 const page = async ({params}) => {
   try {
-    const creator = await fetchCreator(params.username)
-    if (!creator) {
+    const user = await fetchUserPage(params.username)
+    if (!user) {
       notFound()
     }
   } catch (error) {

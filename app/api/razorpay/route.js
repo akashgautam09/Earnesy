@@ -24,7 +24,9 @@ export const POST = async (request) => {
             return NextResponse.json({ error: "Payment details not found" }, { status: 404 })
         }
 
-        const user = await User.findOne({ username: paymentDetails.to_user })
+        const user = paymentDetails.creator_id
+            ? await User.findById(paymentDetails.creator_id)
+            : await User.findOne({ username: paymentDetails.to_user })
         if (!user) {
             return NextResponse.json({ error: "Recipient user not found" }, { status: 404 })
         }
