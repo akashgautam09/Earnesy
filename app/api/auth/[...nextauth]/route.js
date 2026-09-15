@@ -6,6 +6,22 @@ import User from '@/models/User'
 import Account from '@/models/Account'
 
 const normalizeEmail = (email) => email?.trim().toLowerCase()
+const googleClientId = process.env.GOOGLE_ID || process.env.GOOGLE_CLIENT_ID
+const googleClientSecret = process.env.GOOGLE_SECRET || process.env.GOOGLE_CLIENT_SECRET
+const githubClientId = process.env.GITHUB_ID || process.env.GITHUB_CLIENT_ID
+const githubClientSecret = process.env.GITHUB_SECRET || process.env.GITHUB_CLIENT_SECRET
+
+const connectToDatabase = async () => {
+  if (!process.env.MONGODB_URI) {
+    throw new Error('MONGODB_URI is not configured')
+  }
+
+  if (mongoose.connection.readyState === 1) {
+    return
+  }
+
+  await mongoose.connect(process.env.MONGODB_URI)
+}
 
 // OAuth providers do not give us an application username, so create one once.
 const createUsername = async (email) => {
@@ -30,14 +46,15 @@ const createUsername = async (email) => {
 export const authOptions = {
   providers: [
     GitHubProvider({
-      clientId: process.env.GITHUB_ID,
-      clientSecret: process.env.GITHUB_SECRET
+      clientId: githubClientId,
+      clientSecret: githubClientSecret
     }),
     GoogleProvider({
-      clientId: process.env.GOOGLE_ID,
-      clientSecret: process.env.GOOGLE_SECRET
+      clientId: googleClientId,
+      clientSecret: googleClientSecret
     }),
   ],
+  secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     async signIn({ user, account }) {
       const email = normalizeEmail(user?.email)
@@ -47,7 +64,7 @@ export const authOptions = {
         return false
       }
 
-      await mongoose.connect(process.env.MONGODB_URI)
+      await connectToDatabase()
 
       // check Has this Google/GitHub account Already been linked?
       const linkedAccount = await Account.findOne({
@@ -86,7 +103,7 @@ export const authOptions = {
     },
     async jwt({ token }) {
       if (token.email) {
-        await mongoose.connect(process.env.MONGODB_URI)
+        await connectToDatabase()
         // Store the local database ID in the token for secure ownership checks.
         const user = await User.findOne({ email: normalizeEmail(token.email) }).select('_id username email').lean()
         if (user) {
