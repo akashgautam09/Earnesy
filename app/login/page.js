@@ -1,11 +1,19 @@
 "use client"
-import React, { useEffect } from 'react'
+import React, { Suspense, useEffect } from 'react'
 import { useSession, signIn, signOut } from "next-auth/react"
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
-const Login = () => {
+const LoginContent = () => {
     const { data: session } = useSession()
     const router = useRouter()
+    const searchParams = useSearchParams()
+    const error = searchParams.get('error')
+
+    const errorMessage = {
+        OAuthSignin: 'The provider could not start sign-in. Check the OAuth app configuration.',
+        OAuthCallback: 'The provider sign-in completed, but account setup failed. Please try again.',
+        AccessDenied: 'This account could not be connected. Make sure the provider allows access to your email.',
+    }[error]
 
     useEffect(() => {
         if (session) {
@@ -15,6 +23,12 @@ const Login = () => {
 
     return (
         <div className="flex flex-col gap-2 h-[calc(100vh-5rem)] p-10 justify-center items-center">
+
+            {errorMessage && (
+                <p className="max-w-md rounded-lg border border-red-400/40 bg-red-950/40 px-4 py-3 text-center text-sm text-red-200">
+                    {errorMessage}
+                </p>
+            )}
 
 
             <button
@@ -73,5 +87,11 @@ const Login = () => {
         </div>
     )
 }
+
+const Login = () => (
+    <Suspense fallback={null}>
+        <LoginContent />
+    </Suspense>
+)
 
 export default Login

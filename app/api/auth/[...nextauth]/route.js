@@ -23,6 +23,31 @@ const connectToDatabase = async () => {
   await mongoose.connect(process.env.MONGODB_URI)
 }
 
+const getProviderEmail = async ({ user, account, profile }) => {
+  const profileEmail = normalizeEmail(user?.email || profile?.email)
+  if (profileEmail || account?.provider !== 'github' || !account.access_token) {
+    return profileEmail
+  }
+
+  const response = await fetch('https://api.github.com/user/emails', {
+    headers: {
+      Accept: 'application/vnd.github+json',
+      Authorization: `Bearer ${account.access_token}`,
+      'X-GitHub-Api-Version': '2022-11-28',
+    },
+  })
+
+  if (!response.ok) {
+    return null
+  }
+
+  const emails = await response.json()
+  const verifiedEmail = emails.find((email) => email.verified && email.primary)
+    || emails.find((email) => email.verified)
+
+  return normalizeEmail(verifiedEmail?.email)
+}
+
 // OAuth providers do not give us an application username, so create one once.
 const createUsername = async (email) => {
   const base = normalizeEmail(email)
@@ -55,11 +80,13 @@ export const authOptions = {
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
+  pages: {
+    signIn: '/login',
+  },
   callbacks: {
-    async signIn({ user, account }) {
-      const email = normalizeEmail(user?.email)
+    async signIn({ user, account, profile }) {
+      const email = await getProviderEmail({ user, account, profile })
 
-      // The application requires an email and a provider account ID.
       if (!account?.provider || !account.providerAccountId || !email) {
         return false
       }
