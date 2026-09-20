@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+// Tailwind CSS configuration for Get Me A Kofi
 module.exports = {
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",

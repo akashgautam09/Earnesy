@@ -1,5 +1,5 @@
 // Encryption utility for storing sensitive data securely in database
-// Uses AES-256-GCM encryption
+// Uses AES-256-GCM encryption with 256-bit keys
 
 import crypto from 'crypto'
 

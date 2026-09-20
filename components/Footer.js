@@ -35,9 +35,9 @@ const Footer = () => {
         <div className="flex flex-col gap-3 pt-6 text-sm text-[#F5F1E8]/56 sm:flex-row sm:items-center sm:justify-between">
           <p>© {new Date().getFullYear()} Get Me A Kofi. All rights reserved.</p>
           <div className="flex gap-4">
-            <span>Privacy</span>
-            <span>Terms</span>
-            <span>Status</span>
+            <Link href="/privacy" className="hover:text-[#F4C542]">Privacy</Link>
+            <Link href="/terms" className="hover:text-[#F4C542]">Terms</Link>
+            <span className="hover:text-[#F4C542] cursor-default">Status</span>
           </div>
         </div>
       </div>

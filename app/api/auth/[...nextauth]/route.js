@@ -57,11 +57,12 @@ const createUsername = async (email) => {
     .replace(/^[-_]+|[-_]+$/g, '')
     .slice(0, 24) || 'user'
 
-  let username = base
+  let username = base.length >= 3 ? base : `${base}-user`
   let suffix = 1
 
   while (await User.exists({ username })) {
-    username = `${base.slice(0, 24 - String(suffix).length - 1)}-${suffix}`
+    const suffixText = `-${suffix}`
+    username = `${base.slice(0, 30 - suffixText.length)}${suffixText}`
     suffix += 1
   }
 
@@ -108,11 +109,28 @@ export const authOptions = {
 
       if (!currentUser) {
         // One email maps to one local profile, even when several providers are used.
-        currentUser = await User.create({
-          name: user.name || '',
-          username: await createUsername(email),
-          email,
-        })
+        try {
+          currentUser = await User.create({
+            name: user.name || '',
+            username: await createUsername(email),
+            email,
+          })
+        } catch (error) {
+          if (error?.code !== 11000) {
+            console.error('OAuth user creation failed', {
+              name: error?.name,
+              code: error?.code,
+              message: error?.message,
+            })
+            throw error
+          }
+
+          currentUser = await User.findOne({ email })
+        }
+      }
+
+      if (!currentUser) {
+        throw new Error('OAuth user could not be loaded after creation')
       }
 
       await Account.findOneAndUpdate(

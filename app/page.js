@@ -23,7 +23,7 @@ export default async function Home() {
   return (
     <>
       {/* Hero Section */}
-      <div className='min-h-[70vh] flex flex-col items-center justify-center px-4 py-12 sm:py-20 gap-8 text-center' >
+      <div className='min-h-[80vh] flex flex-col items-center justify-center px-4 py-12 sm:py-20 gap-8 text-center' >
         <div className='max-w-2xl space-y-4'>
           <div className='inline-flex items-center justify-center gap-2'>
             <img src="/tea.gif" width={40} height={40} alt="Tea" className="sm:w-12 sm:h-12" />
