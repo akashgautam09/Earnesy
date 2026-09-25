@@ -10,17 +10,17 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: "Get Me A Kofi - Fund Your Work With Kofi",
+  title: "Earnesy - Fund Your Work With Earnesy",
   description: "This website is a crowdfunding platform for creators.",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-[#171717] text-[#F5F1E8]`}>
+      <body className={`${inter.className} bg-[#fffdf8] text-[#1f2937]`}>
         <SessionWrapper>
           <Navbar />
-          <div className="min-h-screen bg-[#171717] text-[#F5F1E8]">{children}</div>
+          <div className="min-h-screen bg-[#fffdf8] text-[#1f2937]">{children}</div>
           <Footer />
         </SessionWrapper>
       </body>

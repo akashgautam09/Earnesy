@@ -1,4 +1,4 @@
-// PostCSS configuration for Get Me A Kofi
+// PostCSS configuration for Earnesy
 module.exports = {
   plugins: {
     tailwindcss: {},

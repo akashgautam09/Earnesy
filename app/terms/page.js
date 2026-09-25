@@ -1,8 +1,8 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Terms of Service - Get Me A Kofi",
-  description: "Terms and conditions for using Get Me A Kofi platform and creator services.",
+  title: "Terms of Service - Earnesy",
+  description: "Terms and conditions for using Earnesy platform and creator services.",
 };
 
 export default function TermsOfServicePage() {
@@ -31,7 +31,7 @@ export default function TermsOfServicePage() {
         <div className="mt-8 space-y-8 text-[#F5F1E8]/80 leading-relaxed text-sm sm:text-base">
           <section className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
             <p>
-              Please read these Terms of Service (&quot;Terms&quot;) carefully before using the <strong>Get Me A Kofi</strong> platform operated by Get Me A Kofi (&quot;us&quot;, &quot;we&quot;, or &quot;our&quot;). By accessing our website, creating an account, or sending payments to creators, you agree to be bound by these Terms.
+              Please read these Terms of Service (&quot;Terms&quot;) carefully before using the <strong>Earnesy</strong> platform operated by Earnesy (&quot;us&quot;, &quot;we&quot;, or &quot;our&quot;). By accessing our website, creating an account, or sending payments to creators, you agree to be bound by these Terms.
             </p>
           </section>
 
@@ -51,7 +51,7 @@ export default function TermsOfServicePage() {
               2. Platform Purpose and Acceptable Use
             </h2>
             <p>
-              Get Me A Kofi is a creator support platform designed to enable fans and communities to support creative projects, software development, art, and content creation. You agree NOT to use the platform for:
+              Earnesy is a creator support platform designed to enable fans and communities to support creative projects, software development, art, and content creation. You agree NOT to use the platform for:
             </p>
             <ul className="list-disc list-inside space-y-1.5 text-sm text-[#F5F1E8]/70">
               <li>Illegal, fraudulent, harassing, abusive, or defamatory content.</li>
@@ -68,7 +68,7 @@ export default function TermsOfServicePage() {
               3. Payments, Contributions & Fees
             </h2>
             <ul className="list-disc list-inside space-y-2 text-sm text-[#F5F1E8]/70">
-              <li><strong>Voluntary Support:</strong> Contributions made through Get Me A Kofi are voluntary donations to support creators and do not represent investments, equity, or physical products unless explicitly guaranteed by the creator.</li>
+              <li><strong>Voluntary Support:</strong> Contributions made through Earnesy are voluntary donations to support creators and do not represent investments, equity, or physical products unless explicitly guaranteed by the creator.</li>
               <li><strong>Payment Processing:</strong> Transactions are routed through third-party payment gateways (such as Razorpay). By initiating a transaction, you agree to comply with the terms of the respective payment gateway.</li>
               <li><strong>Refunds:</strong> Because contributions are delivered directly to the creator&apos;s linked payment account, refund requests must be directed to the recipient creator, subject to payment processor refund guidelines.</li>
             </ul>
@@ -80,7 +80,7 @@ export default function TermsOfServicePage() {
               4. Intellectual Property Rights
             </h2>
             <p>
-              Creators retain all intellectual property ownership of any content, artwork, avatars, banners, and descriptions uploaded to their profile pages. By uploading assets, creators grant Get Me A Kofi a non-exclusive, worldwide license to host, display, and format that content for the purpose of operating the platform.
+              Creators retain all intellectual property ownership of any content, artwork, avatars, banners, and descriptions uploaded to their profile pages. By uploading assets, creators grant Earnesy a non-exclusive, worldwide license to host, display, and format that content for the purpose of operating the platform.
             </p>
           </section>
 
@@ -90,7 +90,7 @@ export default function TermsOfServicePage() {
               5. Disclaimer and Limitation of Liability
             </h2>
             <p className="text-sm text-[#F5F1E8]/70">
-              The platform is provided on an &quot;AS IS&quot; and &quot;AS AVAILABLE&quot; basis without warranties of any kind. In no event shall Get Me A Kofi, its developers, or affiliates be liable for any indirect, incidental, special, consequential, or punitive damages arising from the use or inability to use the service.
+              The platform is provided on an &quot;AS IS&quot; and &quot;AS AVAILABLE&quot; basis without warranties of any kind. In no event shall Earnesy, its developers, or affiliates be liable for any indirect, incidental, special, consequential, or punitive damages arising from the use or inability to use the service.
             </p>
           </section>
 
@@ -110,7 +110,7 @@ export default function TermsOfServicePage() {
               7. Updates to These Terms
             </h2>
             <p>
-              We may modify these Terms periodically. Continued use of Get Me A Kofi following any changes constitutes your acceptance of the revised Terms.
+              We may modify these Terms periodically. Continued use of Earnesy following any changes constitutes your acceptance of the revised Terms.
             </p>
           </section>
 

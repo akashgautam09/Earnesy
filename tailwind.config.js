@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-// Tailwind CSS configuration for Get Me A Kofi
+// Tailwind CSS configuration for Earnesy
 module.exports = {
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",

@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-// Next.js configuration for Get Me A Kofi
+// Next.js configuration for Earnesy
 const nextConfig = {};
 
 export default nextConfig;

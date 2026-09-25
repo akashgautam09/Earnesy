@@ -3,15 +3,15 @@
 @tailwind utilities;
 
 :root {
-  --bg: #171717;
-  --bg-soft: #1f1f1f;
-  --panel: #202020;
-  --panel-strong: #262626;
-  --accent: #F4C542;
-  --text: #F5F1E8;
-  --muted: rgba(245, 241, 232, 0.72);
-  --muted-strong: rgba(245, 241, 232, 0.5);
-  --border: rgba(245, 241, 232, 0.12);
+  --bg: #fffdf8;
+  --bg-soft: #fff8e8;
+  --panel: #ffffff;
+  --panel-strong: #f7f3ea;
+  --accent: #a16207;
+  --text: #1f2937;
+  --muted: rgba(31, 41, 55, 0.72);
+  --muted-strong: rgba(31, 41, 55, 0.56);
+  --border: rgba(31, 41, 55, 0.14);
 }
 
 html {
@@ -30,7 +30,7 @@ body {
 }
 
 ::selection {
-  background: rgba(244, 197, 66, 0.28);
+  background: rgba(245, 158, 11, 0.28);
   color: var(--text);
 }
 
@@ -56,18 +56,18 @@ select {
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(245, 241, 232, 0.18);
+    background: rgba(31, 41, 55, 0.2);
     border-radius: 999px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(244, 197, 66, 0.45);
+    background: rgba(161, 98, 7, 0.55);
   }
 }
 
 @layer components {
   .premium-panel {
-    background: rgba(255, 255, 255, 0.01);
+    background: rgba(255, 255, 255, 0.85);
     border: 1px solid var(--border);
   }
 
@@ -75,16 +75,16 @@ select {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(244, 197, 66, 0.25);
-    background: var(--accent);
-    color: #171717;
+    border: 1px solid rgba(161, 98, 7, 0.3);
+    background: #f4c542;
+    color: #1f2937;
     font-weight: 600;
     transition: all 0.2s ease;
   }
 
   .premium-button:hover {
     transform: translateY(-1px);
-    filter: brightness(0.98);
+    filter: brightness(0.95);
   }
 
   .premium-button:active {
@@ -102,7 +102,51 @@ select {
   }
 
   .ghost-button:hover {
-    border-color: rgba(244, 197, 66, 0.35);
-    background: rgba(244, 197, 66, 0.04);
+    border-color: rgba(161, 98, 7, 0.45);
+    background: rgba(245, 158, 11, 0.08);
   }
+}
+
+/* Keep older page-level utility tokens aligned with the light theme. */
+[class*="bg-[#171717]"],
+[class*="bg-[#1A1A1A]"],
+[class*="bg-[#1F1F1F]"],
+[class*="bg-[#1D1D1D]"],
+[class*="bg-neutral-950"],
+[class*="bg-black"] {
+  background-color: #ffffff !important;
+}
+
+[class*="bg-white/5"],
+[class*="bg-white/10"] {
+  background-color: rgba(255, 255, 255, 0.8) !important;
+}
+
+[class*="text-[#F5F1E8]"],
+[class*="text-white"] {
+  color: #1f2937 !important;
+}
+
+.bg-blue-600.text-white,
+.bg-[#047cfc].text-white {
+  color: #ffffff !important;
+}
+
+[class*="text-gray-300"],
+[class*="text-gray-400"],
+[class*="text-gray-500"] {
+  color: #475569 !important;
+}
+
+[class*="border-white"],
+[class*="border-[#F5F1E8]"] {
+  border-color: rgba(31, 41, 55, 0.14) !important;
+}
+
+[class*="divide-white"] {
+  border-color: rgba(31, 41, 55, 0.1) !important;
+}
+
+.prose-invert {
+  color: #334155 !important;
 }

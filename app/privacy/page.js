@@ -1,8 +1,8 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Privacy Policy - Get Me A Kofi",
-  description: "Privacy Policy and Google API Services User Data Policy disclosure for Get Me A Kofi.",
+  title: "Privacy Policy - Earnesy",
+  description: "Privacy Policy and Google API Services User Data Policy disclosure for Earnesy.",
 };
 
 export default function PrivacyPolicyPage() {
@@ -31,7 +31,7 @@ export default function PrivacyPolicyPage() {
         <div className="prose prose-invert mt-8 max-w-none space-y-10 text-[#F5F1E8]/80 leading-relaxed text-sm sm:text-base">
           <section className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
             <p>
-              Welcome to <strong>Get Me A Kofi</strong> (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;). We respect your privacy and are committed to protecting the personal data of creators, donors, and visitors. This Privacy Policy explains what information we collect, how it is used and protected, and your rights regarding your personal information when using our crowdfunding platform and services at <strong>getmeakofi.com</strong>.
+              Welcome to <strong>Earnesy</strong> (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;). We respect your privacy and are committed to protecting the personal data of creators, donors, and visitors. This Privacy Policy explains what information we collect, how it is used and protected, and your rights regarding your personal information when using our crowdfunding platform and services at <strong>getmeakofi.com</strong>.
             </p>
           </section>
 
@@ -41,10 +41,10 @@ export default function PrivacyPolicyPage() {
               1. Google API Services User Data Policy & Limited Use Disclosure
             </h2>
             <p className="text-[#F5F1E8]/90 mb-4">
-              Get Me A Kofi uses Google OAuth to facilitate quick, secure authentication for user sign-in and account creation.
+              Earnesy uses Google OAuth to facilitate quick, secure authentication for user sign-in and account creation.
             </p>
             <div className="rounded-xl border border-white/10 bg-black/40 p-4 text-sm text-[#F5F1E8] font-mono leading-relaxed mb-4">
-              Get Me A Kofi&apos;s use and transfer to any other app of information received from Google APIs will adhere to the{' '}
+              Earnesy&apos;s use and transfer to any other app of information received from Google APIs will adhere to the{' '}
               <a
                 href="https://developers.google.com/terms/api-services-user-data-policy"
                 target="_blank"
@@ -59,7 +59,7 @@ export default function PrivacyPolicyPage() {
               <li>We only request access to basic identity scopes: <code>openid</code>, <code>.../auth/userinfo.email</code>, and <code>.../auth/userinfo.profile</code>.</li>
               <li>We do <strong>NOT</strong> request access to sensitive or restricted Google user data (such as Gmail, Google Drive, Google Calendar, or contacts).</li>
               <li>We do <strong>NOT</strong> sell Google user data to third parties, data brokers, or advertising networks.</li>
-              <li>Google user data is used solely to authenticate your identity, create your user session, and display your public profile name and avatar on Get Me A Kofi.</li>
+              <li>Google user data is used solely to authenticate your identity, create your user session, and display your public profile name and avatar on Earnesy.</li>
               <li>We do not transfer or disclose Google user data to third parties unless necessary to provide our core platform functionality, comply with applicable laws, or as part of an asset transfer.</li>
               <li>Humans are not permitted to read your personal Google data unless you provide explicit affirmative consent or it is required to investigate security issues or adhere to law.</li>
             </ul>
@@ -89,7 +89,7 @@ export default function PrivacyPolicyPage() {
               <div className="rounded-xl border border-white/10 bg-white/5 p-5">
                 <h3 className="font-semibold text-white mb-2">B. Creator Profile Data</h3>
                 <p className="text-sm text-[#F5F1E8]/70">
-                  If you set up a creator page on Get Me A Kofi, you may provide:
+                  If you set up a creator page on Earnesy, you may provide:
                 </p>
                 <ul className="mt-2 text-xs space-y-1 text-[#F5F1E8]/60 list-disc list-inside">
                   <li>Unique username and bio description</li>
@@ -252,7 +252,7 @@ export default function PrivacyPolicyPage() {
               8. Children&apos;s Privacy
             </h2>
             <p className="text-sm sm:text-base">
-              Get Me A Kofi is not intended for individuals under the age of 13 (or under 16 in certain jurisdictions). We do not knowingly collect personal information from children. If you become aware that a child has provided us with personal information, please contact us immediately.
+              Earnesy is not intended for individuals under the age of 13 (or under 16 in certain jurisdictions). We do not knowingly collect personal information from children. If you become aware that a child has provided us with personal information, please contact us immediately.
             </p>
           </section>
 
@@ -265,7 +265,7 @@ export default function PrivacyPolicyPage() {
               If you have any questions, inquiries, or concerns regarding this Privacy Policy or our data handling practices, please contact us:
             </p>
             <div className="space-y-1 text-sm text-[#F5F1E8]/70">
-              <p><strong>Platform:</strong> Get Me A Kofi</p>
+              <p><strong>Platform:</strong> Earnesy</p>
               <p><strong>Support & Privacy Email:</strong> <a href="mailto:hello@getmeakofi.com" className="text-[#F4C542] underline">hello@getmeakofi.com</a></p>
               <p><strong>Website:</strong> <Link href="/" className="text-[#F4C542] underline">getmeakofi.com</Link></p>
             </div>
