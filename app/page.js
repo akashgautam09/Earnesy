@@ -42,7 +42,7 @@ export default async function Home() {
         {/* CTA Buttons */}
         <div className='flex flex-col sm:flex-row gap-4 sm:gap-6 pt-4'>
           <Link href={startHref} className='group'>
-            <button className='px-8 sm:px-10 py-3 sm:py-4 bg-amber-400 hover:bg-amber-300 text-slate-900 font-semibold rounded-xl transition-all duration-200 flex items-center gap-2 active:scale-95 w-full sm:w-auto justify-center sm:justify-start'>
+            <button className='px-8 sm:px-10 py-3 sm:py-4 bg-amber-400 hover:bg-amber-300 text-white font-semibold rounded-xl transition-all duration-200 flex items-center gap-2 active:scale-95 w-full sm:w-auto justify-center sm:justify-start'>
               Start Creating
               <ArrowRight size={18} className='group-hover:translate-x-1 transition-transform' />
             </button>

@@ -56,13 +56,13 @@ export default function AboutPage() {
 
 			<section className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
 				<div className="space-y-8">
-					<div className="inline-flex items-center gap-3 rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-900">
+					<div className="inline-flex items-center gap-3 rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-900 font-bold">
 						<Image src="/tea.gif" alt="Tea cup icon" width={24} height={24} unoptimized />
 						Built for independent creators, communities, and supporters
 					</div>
 
 					<div className="space-y-5">
-						<h1 className="max-w-3xl text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
+						<h1 className="max-w-3xl text-4xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
 							A modern platform for creators to receive direct support.
 						</h1>
 						<p className="max-w-2xl text-base leading-7 text-slate-700 sm:text-lg">
@@ -76,13 +76,13 @@ export default function AboutPage() {
 					<div className="flex flex-col gap-4 sm:flex-row">
 						<Link
 							href="/login"
-							className="inline-flex items-center justify-center rounded-xl bg-amber-400 px-6 py-3 text-sm font-semibold text-slate-900 transition-transform hover:-translate-y-0.5"
+							className="inline-flex items-center justify-center rounded-xl bg-amber-400 px-7 py-4 text-[1rem] font-semibold text-white transition-transform hover:-translate-y-0.5"
 						>
 							Start supporting creators
 						</Link>
 						<Link
 							href="/"
-							className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-transparent px-6 py-3 text-sm font-semibold text-slate-800 transition-colors hover:bg-amber-50"
+							className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-transparent px-7 py-4 text-[1rem] font-semibold text-slate-800 transition-colors hover:bg-amber-50"
 						>
 							Explore the platform
 						</Link>
@@ -169,7 +169,7 @@ export default function AboutPage() {
 						<div className="mt-6 space-y-4">
 							{steps.map((step, index) => (
 								<div key={step.title} className="flex gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-									<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-400 text-sm font-bold text-slate-900">
+									<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-400 text-sm font-bold text-white">
 										0{index + 1}
 									</div>
 									<div>

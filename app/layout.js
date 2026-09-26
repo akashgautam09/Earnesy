@@ -1,10 +1,10 @@
-import { Inter } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SessionWrapper from "@/components/SessionWrapper";
 
-const inter = Inter({
+const montserrat = Montserrat({
   subsets: ["latin"],
   display: "swap",
 });
@@ -17,10 +17,10 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-[#fffdf8] text-[#1f2937]`}>
+      <body className={`${montserrat.className} bg-[var(--background)] text-[var(--foreground)]`}>
         <SessionWrapper>
           <Navbar />
-          <div className="min-h-screen bg-[#fffdf8] text-[#1f2937]">{children}</div>
+          <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">{children}</div>
           <Footer />
         </SessionWrapper>
       </body>

@@ -288,7 +288,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+        <div className="grid items-start gap-6 lg:grid-cols-[1.15fr_0.85fr]">
           <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
             <div className="space-y-4 rounded-xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -484,7 +484,7 @@ export default function Dashboard() {
             <button
               type="submit"
               disabled={loading || uploading}
-              className="w-full rounded-xl bg-amber-400 px-4 py-3 text-sm font-medium uppercase tracking-[0.14em] text-slate-900 transition-all hover:bg-amber-300 disabled:opacity-60"
+              className="w-full rounded-xl bg-amber-400 px-4 py-3 text-sm font-medium uppercase tracking-[0.14em] text-white transition-all hover:bg-amber-300 disabled:opacity-60"
             >
               {loading || uploading ? 'Saving...' : 'Save Profile'}
             </button>

@@ -211,7 +211,7 @@ export const PaymentPage = ({ username }) => {
                                     pay(paymentform.amount * 100);
                                 }}
                                     type="button"
-                                    className="w-32 sm:w-36 bg-amber-400 hover:bg-amber-300 text-slate-900 text-sm sm:text-base font-semibold py-2 sm:py-2.5 rounded-lg transition-all duration-200 transform hover:scale-105"
+                                    className="w-32 sm:w-36 bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base font-semibold py-2 sm:py-2.5 rounded-lg transition-all duration-300 transform hover:scale-105"
                                 >
                                     Donate Now
                                 </button>

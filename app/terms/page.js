@@ -9,7 +9,7 @@ export default function TermsOfServicePage() {
   const lastUpdated = "September 20, 2026";
 
   return (
-    <main className="relative overflow-hidden px-6 py-16 sm:px-10 lg:px-16">
+    <main className="legal-page relative overflow-hidden px-6 py-16 sm:px-10 lg:px-16">
       {/* Background glow */}
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(250,204,21,0.12),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(34,197,94,0.10),transparent_25%)]" />
 
