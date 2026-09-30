@@ -1,205 +1,120 @@
-import Image from "next/image";
-import Link from "next/link";
+import Image from 'next/image'
+import Link from 'next/link'
+import { ArrowRight, Check, CreditCard, LayoutTemplate, ShieldCheck } from 'lucide-react'
 
-const supportCards = [
-	{
-		title: "Direct support",
-		description:
-			"Fans can send one-time contributions straight to a creator without complicated steps, helping ideas move from draft to reality faster.",
-		image: "/coin.gif",
-	},
-	{
-		title: "Creator-first pages",
-		description:
-			"Every creator gets a personal public page with their profile, cover image, and payment options, making the experience feel polished and personal.",
-		image: "/profile.jpg",
-	},
-	{
-		title: "Community energy",
-		description:
-			"Supporters are not just donors. They become part of the creator's journey, with visible appreciation and a stronger sense of belonging.",
-		image: "/group.gif",
-	},
-];
-
-const benefits = [
-	"Simple creator onboarding and profile setup",
-	"Fast Razorpay-powered donations",
-	"Public creator pages that build trust",
-	"Supporter lists that encourage momentum",
-	"Responsive design that works beautifully on mobile",
-	"A polished experience designed for modern creator funding",
-];
+const principles = [
+  {
+    icon: LayoutTemplate,
+    title: 'A clear public page',
+    description: 'Creators get one focused place for their story, work, and support options.',
+  },
+  {
+    icon: CreditCard,
+    title: 'Direct payments',
+    description: 'Supporters can contribute through a simple checkout without a complicated funnel.',
+  },
+  {
+    icon: ShieldCheck,
+    title: 'Built around trust',
+    description: 'Creator ownership, payment records, and account security stay explicit at every step.',
+  },
+]
 
 const steps = [
-	{
-		title: "Create your page",
-		description:
-			"Set up your creator profile, add a cover image, and customize the public page that supporters will see.",
-	},
-	{
-		title: "Share your link",
-		description:
-			"Post your page anywhere your audience already hangs out: social media, newsletters, portfolios, or communities.",
-	},
-	{
-		title: "Receive support",
-		description:
-			"Fans enter a name and donation amount, then pay securely through the integrated checkout flow.",
-	},
-];
+  ['01', 'Set up your profile', 'Add your name, username, images, and payment details from the dashboard.'],
+  ['02', 'Share your page', 'Use your public link wherever your audience already follows your work.'],
+  ['03', 'Keep creating', 'Receive support directly and use the momentum to keep your next idea moving.'],
+]
 
 export default function AboutPage() {
-	return (
-		<main className="relative overflow-hidden px-6 py-16 sm:px-10 lg:px-16">
-			<div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(250,204,21,0.16),transparent_28%),radial-gradient(circle_at_top_right,rgba(34,197,94,0.12),transparent_24%),radial-gradient(circle_at_bottom,rgba(59,130,246,0.10),transparent_28%)]" />
+  return (
+    <main className="bg-[var(--background)] px-5 py-10 sm:px-8 sm:py-14 lg:px-12 lg:py-16">
+      <div className="mx-auto max-w-6xl">
+        <header className="grid gap-8 border-b border-[var(--border)] pb-10 lg:grid-cols-[1fr_0.7fr] lg:items-end">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--primary)]">About Earnesy</p>
+            <h1 className="mt-4 max-w-3xl text-3xl font-semibold leading-tight tracking-tight text-[var(--foreground)] sm:text-5xl">
+              The direct support layer for independent work.
+            </h1>
+          </div>
+          <div className="lg:pb-1">
+            <p className="max-w-xl text-base leading-7 text-[var(--muted-foreground)]">
+              Earnesy gives creators a focused public page and a straightforward way for people to fund the work they value.
+            </p>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <Link href="/login" className="inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90">
+                Create your page <ArrowRight size={16} />
+              </Link>
+              <a href="#how-it-works" className="inline-flex items-center rounded-lg border border-[var(--border)] px-4 py-2.5 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--muted)]">
+                See how it works
+              </a>
+            </div>
+          </div>
+        </header>
 
-			<section className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
-				<div className="space-y-8">
-					<div className="inline-flex items-center gap-3 rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-900 font-bold">
-						<Image src="/tea.gif" alt="Tea cup icon" width={24} height={24} unoptimized />
-						Built for independent creators, communities, and supporters
-					</div>
+        <section className="grid border-b border-[var(--border)] py-8 sm:grid-cols-3 sm:divide-x sm:divide-[var(--border)]">
+          <div className="pb-5 sm:px-6 sm:py-1 first:sm:pl-0 last:sm:pr-0"><p className="text-2xl font-semibold text-[var(--foreground)]">01</p><p className="mt-1 text-sm text-[var(--muted-foreground)]">Public creator page</p></div>
+          <div className="border-t border-[var(--border)] py-5 sm:border-t-0 sm:px-6 sm:py-1"><p className="text-2xl font-semibold text-[var(--foreground)]">Direct</p><p className="mt-1 text-sm text-[var(--muted-foreground)]">Support from your audience</p></div>
+          <div className="border-t border-[var(--border)] pt-5 sm:border-t-0 sm:px-6 sm:py-1"><p className="text-2xl font-semibold text-[var(--foreground)]">Secure</p><p className="mt-1 text-sm text-[var(--muted-foreground)]">Payments through Razorpay</p></div>
+        </section>
 
-					<div className="space-y-5">
-						<h1 className="max-w-3xl text-4xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
-							A modern platform for creators to receive direct support.
-						</h1>
-						<p className="max-w-2xl text-base leading-7 text-slate-700 sm:text-lg">
-							Earnesy gives creators a public page where fans can support
-							their work in seconds. It combines a clean creator profile,
-							secure payments, and a focused experience that makes funding feel
-							simple, trustworthy, and human.
-						</p>
-					</div>
+        <section className="grid gap-10 border-b border-[var(--border)] py-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:py-16">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--primary)]">Why it exists</p>
+            <h2 className="mt-3 max-w-md text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-3xl">Good work should not need a complicated business model.</h2>
+            <p className="mt-5 max-w-lg text-sm leading-7 text-[var(--muted-foreground)]">
+              Many independent creators build before they have a sponsor, grant, or large audience. Earnesy keeps the support path short: one profile, one link, and a payment flow that gets out of the way.
+            </p>
+          </div>
+          <figure className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--muted)]">
+            <Image src="/EC.jpg" alt="Creator and supporter collaboration" width={1200} height={720} className="h-64 w-full object-cover sm:h-80" />
+            <figcaption className="border-t border-[var(--border)] px-4 py-3 text-xs text-[var(--muted-foreground)]">A simpler way to make independent work sustainable.</figcaption>
+          </figure>
+        </section>
 
-					<div className="flex flex-col gap-4 sm:flex-row">
-						<Link
-							href="/login"
-							className="inline-flex items-center justify-center rounded-xl bg-amber-400 px-7 py-4 text-[1rem] font-semibold text-white transition-transform hover:-translate-y-0.5"
-						>
-							Start supporting creators
-						</Link>
-						<Link
-							href="/"
-							className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-transparent px-7 py-4 text-[1rem] font-semibold text-slate-800 transition-colors hover:bg-amber-50"
-						>
-							Explore the platform
-						</Link>
-					</div>
-				</div>
+        <section className="border-b border-[var(--border)] py-12 lg:py-16">
+          <div className="max-w-xl">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--primary)]">The product</p>
+            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-3xl">Everything stays focused on the relationship.</h2>
+          </div>
+          <div className="mt-8 grid divide-y divide-[var(--border)] border-y border-[var(--border)] md:grid-cols-3 md:divide-x md:divide-y-0">
+            {principles.map(({ icon: Icon, title, description }) => (
+              <article key={title} className="px-0 py-5 md:px-6 md:py-6 first:md:pl-0 last:md:pr-0">
+                <Icon size={20} strokeWidth={1.8} className="text-[var(--primary)]" />
+                <h3 className="mt-5 text-base font-semibold text-[var(--foreground)]">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">{description}</p>
+              </article>
+            ))}
+          </div>
+        </section>
 
-				<div className="relative">
-					<div className="absolute inset-0 -z-10 rounded-[2rem] bg-gradient-to-br from-white/10 via-white/5 to-transparent blur-3xl" />
-					<div className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-xl sm:p-6">
-						<div className="overflow-hidden rounded-[1.5rem] border border-slate-200 bg-slate-100">
-							<Image
-								src="/EC.jpg"
-								alt="Creator and supporter collaboration"
-								width={1200}
-								height={720}
-								className="h-72 w-full object-cover object-center opacity-90"
-							/>
-						</div>
-						<div className="mt-5 grid gap-4 sm:grid-cols-2">
-							<div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-								<p className="text-sm text-slate-600">Funding style</p>
-								<p className="mt-1 text-lg font-semibold text-slate-900">One-time support</p>
-								<p className="mt-2 text-sm leading-6 text-slate-700">
-									Fans can contribute quickly without creating a complicated membership flow.
-								</p>
-							</div>
-							<div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-								<p className="text-sm text-slate-600">Best for</p>
-								<p className="mt-1 text-lg font-semibold text-slate-900">Artists, makers, and builders</p>
-								<p className="mt-2 text-sm leading-6 text-slate-700">
-									Anyone sharing creative work, learning in public, or building in the open.
-								</p>
-							</div>
-						</div>
-					</div>
-				</div>
-			</section>
+        <section id="how-it-works" className="grid gap-10 border-b border-[var(--border)] py-12 lg:grid-cols-[0.75fr_1.25fr] lg:py-16">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--primary)]">How it works</p>
+            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-3xl">A small workflow with a clear outcome.</h2>
+          </div>
+          <div className="divide-y divide-[var(--border)] border-y border-[var(--border)]">
+            {steps.map(([number, title, description]) => (
+              <div key={number} className="grid gap-3 py-5 sm:grid-cols-[3rem_0.7fr_1fr] sm:items-start sm:gap-5">
+                <span className="text-xs font-semibold tracking-[0.16em] text-[var(--primary)]">{number}</span>
+                <h3 className="font-semibold text-[var(--foreground)]">{title}</h3>
+                <p className="text-sm leading-6 text-[var(--muted-foreground)]">{description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
 
-			<section className="mx-auto mt-20 max-w-7xl">
-				<div className="grid gap-6 lg:grid-cols-3">
-					{supportCards.map((card) => (
-						<article
-							key={card.title}
-							className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-lg transition-transform duration-300 hover:-translate-y-1"
-						>
-							  <Image src={card.image} alt={card.title} width={64} height={64} unoptimized className="h-16 w-16 rounded-2xl object-cover" />
-							<h2 className="mt-5 text-xl font-semibold text-slate-900">{card.title}</h2>
-							<p className="mt-3 text-sm leading-7 text-slate-700">{card.description}</p>
-						</article>
-					))}
-				</div>
-			</section>
-
-			<section className="mx-auto mt-20 grid max-w-7xl gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
-				<div className="rounded-[1.75rem] border border-slate-200 bg-white p-7 shadow-lg">
-					<div className="flex items-center gap-3">
-						<Image src="/coins.gif" alt="Coins icon" width={48} height={48} unoptimized className="h-12 w-12 rounded-xl" />
-						<div>
-							<p className="text-sm uppercase tracking-[0.25em] text-slate-600">Why it matters</p>
-							<h2 className="text-2xl font-semibold text-slate-900">Funding should feel human.</h2>
-						</div>
-					</div>
-
-					<p className="mt-5 text-sm leading-7 text-slate-700 sm:text-base">
-						Many creators do great work long before they have a sponsor, a grant, or a full audience.
-						This platform exists to make early support accessible. It gives creators a simple public
-						page, a direct payment route, and a better way to receive encouragement from the people
-						who enjoy their work.
-					</p>
-
-					<ul className="mt-6 space-y-3">
-						{benefits.map((benefit) => (
-							<li key={benefit} className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-								<span className="mt-1 inline-block h-2.5 w-2.5 rounded-full bg-[#F4C542]" />
-								<span>{benefit}</span>
-							</li>
-						))}
-					</ul>
-				</div>
-
-				<div className="grid gap-6">
-					<div className="rounded-[1.75rem] border border-slate-200 bg-white p-7 shadow-lg">
-						<p className="text-sm uppercase tracking-[0.25em] text-slate-600">How funding works</p>
-						<div className="mt-6 space-y-4">
-							{steps.map((step, index) => (
-								<div key={step.title} className="flex gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-									<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-400 text-sm font-bold text-white">
-										0{index + 1}
-									</div>
-									<div>
-										<h3 className="text-base font-semibold text-slate-900">{step.title}</h3>
-										<p className="mt-2 text-sm leading-6 text-slate-700">{step.description}</p>
-									</div>
-								</div>
-							))}
-						</div>
-					</div>
-
-					<div className="grid gap-6 sm:grid-cols-2">
-						<div className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
-							  <Image src="/man.gif" alt="Supportive fan" width={56} height={56} unoptimized className="h-14 w-14 rounded-2xl" />
-							<h3 className="mt-4 text-lg font-semibold text-slate-900">For supporters</h3>
-							<p className="mt-2 text-sm leading-6 text-slate-700">
-								Back the people you care about in seconds and leave a visible sign of appreciation.
-							</p>
-						</div>
-						<div className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
-							  <Image src="/avatar.gif" alt="Creator avatar" width={56} height={56} unoptimized className="h-14 w-14 rounded-2xl" />
-							<h3 className="mt-4 text-lg font-semibold text-slate-900">For creators</h3>
-							<p className="mt-2 text-sm leading-6 text-slate-700">
-								Build a trustworthy public page, receive support, and keep your creative work moving.
-							</p>
-						</div>
-					</div>
-				</div>
-			</section>
-		</main>
-	);
+        <section id="contact" className="flex flex-col justify-between gap-6 py-10 sm:flex-row sm:items-center">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--primary)]">Questions?</p>
+            <h2 className="mt-2 text-xl font-semibold text-[var(--foreground)]">Talk to the Earnesy team.</h2>
+            <p className="mt-1 text-sm text-[var(--muted-foreground)]">We are building for creators and supporters who prefer a direct path.</p>
+          </div>
+          <a href="mailto:akashgautam.tech@gmail.com" className="inline-flex shrink-0 items-center gap-2 text-sm font-semibold text-[var(--primary)] hover:underline">
+            Get in touch <ArrowRight size={16} />
+          </a>
+        </section>
+      </div>
+    </main>
+  )
 }
-

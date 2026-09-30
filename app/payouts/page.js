@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { ArrowDownToLine, CalendarDays, Coins, ReceiptText } from 'lucide-react'
+import AppPageHeader from '@/components/AppPageHeader'
+import AppStatCard from '@/components/AppStatCard'
 
 const formatAmount = (amount) => `₹${(Number(amount || 0) / 100).toLocaleString('en-IN')}`
 
@@ -32,17 +34,13 @@ export default function PayoutsPage() {
 
   return (
     <div className="min-h-screen bg-[var(--background)] px-4 py-8 sm:px-6 lg:px-10">
-      <div className="mx-auto max-w-6xl space-y-6">
-        <div className="border-b border-[var(--border)] pb-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--primary)]">Payouts</p>
-          <h1 className="mt-2 text-3xl font-semibold text-[var(--foreground)]">Payment history</h1>
-          <p className="mt-2 text-sm text-[var(--muted-foreground)]">Track completed support and your total creator earnings.</p>
-        </div>
+      <div className="mx-auto max-w-6xl space-y-7">
+        <AppPageHeader eyebrow="Payouts" title="Payment history" description="Track completed support and your total creator earnings." />
 
         <div className="grid gap-4 sm:grid-cols-3">
-          <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5"><Coins className="text-[var(--primary)]" size={20} /><p className="mt-4 text-xs uppercase tracking-[0.16em] text-[var(--muted-foreground)]">Total earnings</p><p className="mt-2 text-2xl font-semibold text-[var(--foreground)]">{formatAmount(data?.stats?.totalEarnings)}</p></div>
-          <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5"><ReceiptText className="text-[var(--primary)]" size={20} /><p className="mt-4 text-xs uppercase tracking-[0.16em] text-[var(--muted-foreground)]">Completed payments</p><p className="mt-2 text-2xl font-semibold text-[var(--foreground)]">{data?.payments?.length || 0}</p></div>
-          <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5"><ArrowDownToLine className="text-[var(--primary)]" size={20} /><p className="mt-4 text-xs uppercase tracking-[0.16em] text-[var(--muted-foreground)]">Supporters</p><p className="mt-2 text-2xl font-semibold text-[var(--foreground)]">{data?.stats?.supporters || 0}</p></div>
+          <AppStatCard icon={Coins} label="Total earnings" value={formatAmount(data?.stats?.totalEarnings)} />
+          <AppStatCard icon={ReceiptText} label="Completed payments" value={data?.payments?.length || 0} />
+          <AppStatCard icon={ArrowDownToLine} label="Supporters" value={data?.stats?.supporters || 0} />
         </div>
 
         <section className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)]">

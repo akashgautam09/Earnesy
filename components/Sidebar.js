@@ -58,11 +58,11 @@ export default function Sidebar() {
   return (
     <aside className="sticky top-0 z-40 w-full shrink-0 border-b border-[var(--border)] bg-[var(--card)] md:h-screen md:w-64 md:border-b-0 md:border-r">
       <div className="flex h-full flex-col px-4 py-4 md:px-5 md:py-6">
-        <Link href="/" className="mb-5 hidden px-2 text-xl font-semibold tracking-[0.08em] text-[var(--foreground)] md:block">
+        <Link href="/" className="mb-7 hidden px-2 text-xl font-semibold tracking-[0.08em] text-[var(--foreground)] md:block">
           Earnesy
         </Link>
 
-        <div className="mb-4 flex items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--muted)] p-3">
+        <div className="mb-5 flex items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--muted)] p-3.5">
           <img src={user?.imageUrl || '/tea.gif'} alt="" className="h-10 w-10 rounded-full object-cover" />
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold text-[var(--foreground)]">{displayName}</p>
@@ -70,7 +70,8 @@ export default function Sidebar() {
           </div>
         </div>
 
-        <nav aria-label="Creator navigation" className="flex gap-1 overflow-x-auto pb-1 md:block md:space-y-1 md:overflow-visible">
+        <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Workspace</p>
+        <nav aria-label="Creator navigation" className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1 md:mx-0 md:block md:space-y-1 md:overflow-visible md:px-0">
           {navigation.map(({ label, href, icon: Icon }) => {
             const destination = href || myPageHref
             const active = href === '/'
@@ -83,7 +84,7 @@ export default function Sidebar() {
               <Link
                 key={label}
                 href={destination}
-                className={`flex min-w-max items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors md:w-full ${active ? 'bg-[var(--accent)] text-[var(--primary)]' : 'text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]'}`}
+                className={`flex min-w-max items-center gap-3 rounded-lg border-l-2 px-3 py-2.5 text-sm font-medium transition-colors md:w-full ${active ? 'border-[var(--primary)] bg-[var(--accent)]/60 text-[var(--primary)]' : 'border-transparent text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]'}`}
                 aria-current={active ? 'page' : undefined}
               >
                 <Icon size={18} strokeWidth={1.8} />
@@ -93,7 +94,7 @@ export default function Sidebar() {
           })}
         </nav>
 
-        <div className="mt-auto hidden border-t border-[var(--border)] pt-4 md:block">
+        <div className="mt-auto hidden border-t border-[var(--border)] pt-5 md:block">
           <button
             type="button"
             onClick={() => signOut({ redirectUrl: '/' })}
