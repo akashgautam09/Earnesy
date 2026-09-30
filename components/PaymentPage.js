@@ -93,6 +93,7 @@ export const PaymentPage = ({ username }) => {
                 return
             }
             let order_id = x.id
+            const callbackUrl = new URL('/api/razorpay', window.location.origin).toString()
 
             const options = {
                 "key": currentUser.razorpayId,
@@ -102,7 +103,7 @@ export const PaymentPage = ({ username }) => {
                 "description": "Test Transaction",
                 "image": "https://example.com/your_logo",
                 "order_id": order_id, // This is a sample Order ID. Pass the id obtained in the response of Step 1
-                "callback_url": `${process.env.NEXT_PUBLIC_URL}/api/razorpay/`,
+                "callback_url": callbackUrl,
                 "prefill": { //We recommend using the prefill parameter to auto-fill customer's contact information especially their phone number
                     "name": paymentform.name, //your customer's name
                     "email": session?.user.email,

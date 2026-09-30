@@ -321,7 +321,7 @@ export default function Dashboard() {
                   ) : (
                     <div className="flex h-full items-center justify-center text-sm text-slate-600">Upload cover image</div>
                   )}
-                  <input type="file" accept="image/*" onChange={handleCoverPicChange} className="hidden" disabled={uploading} />
+                  <input type="file" accept="image/jpeg,image/png,image/gif,image/webp" onChange={handleCoverPicChange} className="hidden" disabled={uploading} />
                 </label>
               ) : (
                 <input
@@ -369,7 +369,7 @@ export default function Dashboard() {
                     ) : (
                       <span className="text-[10px] uppercase tracking-[0.2em] text-slate-600">Photo</span>
                     )}
-                    <input type="file" accept="image/*" onChange={handleProfilePicChange} className="hidden" disabled={uploading} />
+                    <input type="file" accept="image/jpeg,image/png,image/gif,image/webp" onChange={handleProfilePicChange} className="hidden" disabled={uploading} />
                   </label>
                   <div className="text-sm text-slate-600">
                     <p className="font-medium text-slate-800">Add your profile image</p>

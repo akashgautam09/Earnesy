@@ -5,9 +5,14 @@ import User from "@/models/User";
 import mongoose from "mongoose";
 
 export const POST = async (request) => {
-    await mongoose.connect(process.env.MONGODB_URI)
-
     try {
+        if (!process.env.MONGODB_URI) {
+            throw new Error("MONGODB_URI is not configured")
+        }
+
+        await mongoose.connect(process.env.MONGODB_URI)
+        const applicationUrl = (process.env.NEXT_PUBLIC_URL || new URL(request.url).origin).replace(/\/$/, "")
+
         // Parse the form data from Razorpay webhook
         let body = await request.formData()
         body = Object.fromEntries(body)
@@ -49,12 +54,12 @@ export const POST = async (request) => {
                 return NextResponse.json({ error: "Failed to update payment status" }, { status: 500 })
             }
 
-            return NextResponse.redirect(`${process.env.NEXT_PUBLIC_URL}/${updatedDetails.to_user}?paymentdone=true`)
+            return NextResponse.redirect(`${applicationUrl}/${encodeURIComponent(updatedDetails.to_user)}?paymentdone=true`)
         }
         else {
             console.error(`Payment verification failed for order_id: ${body.razorpay_order_id}`)
             // Update payment status to failed
-            return NextResponse.redirect(`${process.env.NEXT_PUBLIC_URL}/dashboard?paymentfailed=true`)
+            return NextResponse.redirect(`${applicationUrl}/dashboard?paymentfailed=true`)
         }
 
     } catch (error) {

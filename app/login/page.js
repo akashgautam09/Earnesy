@@ -3,6 +3,7 @@
 import React, { Suspense, useEffect } from 'react'
 import { useSession, signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 import { FcGoogle } from 'react-icons/fc'
 import { FaGithub } from 'react-icons/fa'
 
@@ -30,10 +31,10 @@ const LoginContent = () => {
         if (session) router.replace('/dashboard')
     }, [session, router])
 
-{/* <div className="pointer-events-none absolute -right-24 top-12 -z-10 h-72 w-72 rounded-full bg-[var(--accent)] opacity-70 blur-3xl" />
+    {/* <div className="pointer-events-none absolute -right-24 top-12 -z-10 h-72 w-72 rounded-full bg-[var(--accent)] opacity-70 blur-3xl" />
     <div className="pointer-events-none absolute -bottom-36 -left-24 -z-10 h-80 w-80 rounded-full bg-[#d9f1e7] opacity-70 blur-3xl" /> */}
     return (
-        
+
         <main className="flex min-h-[calc(100vh-9rem)] items-center overflow-hidden bg-[var(--background)] px-5 pt-12 pb-12 sm:px-8 lg:px-12">
             <div className="mx-auto w-full max-w-2xl overflow-hidden rounded-[2rem] border border-[var(--border)] bg-[var(--card)] shadow-[0_24px_34px_rgba(0,0,0,0.08)]">
                 <section className="flex min-h-[50px] flex-col justify-center p-7 sm:p-12 lg:p-14">
@@ -63,7 +64,14 @@ const LoginContent = () => {
                             <span>Simple, secure, creator-first</span>
                             <span className="h-px flex-1 bg-[var(--border)]" />
                         </div>
-                        <p className="mt-8 text-center text-xs leading-5 text-[var(--muted-foreground)]">By continuing, you agree to our Terms of Service and Privacy Policy.</p>
+                        <div className="mt-8 text-center text-xs leading-5 text-[var(--muted-foreground)]">
+                            <p>By continuing, you agree to our</p>
+                            <p>
+                                <Link href="/terms" className="text-[var(--primary)] hover:underline">Terms of Service</Link>{' '}
+                                and{' '}
+                                <Link href="/privacy" className="text-[var(--primary)] hover:underline">Privacy Policy</Link>.
+                            </p>
+                        </div>
                     </div>
                 </section>
             </div>

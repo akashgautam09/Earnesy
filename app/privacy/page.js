@@ -31,7 +31,7 @@ export default function PrivacyPolicyPage() {
         <div className="prose prose-invert mt-8 max-w-none space-y-10 text-[#F5F1E8]/80 leading-relaxed text-sm sm:text-base">
           <section className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
             <p>
-              Welcome to <strong>Earnesy</strong> (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;). We respect your privacy and are committed to protecting the personal data of creators, donors, and visitors. This Privacy Policy explains what information we collect, how it is used and protected, and your rights regarding your personal information when using our crowdfunding platform and services at <strong>getmeakofi.com</strong>.
+              Welcome to <strong>Earnesy</strong> (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;). We respect your privacy and are committed to protecting the personal data of creators, donors, and visitors. This Privacy Policy explains what information we collect, how it is used and protected, and your rights regarding your personal information when using our crowdfunding platform and services at <strong>earnesy.com</strong>.
             </p>
           </section>
 
@@ -230,7 +230,7 @@ export default function PrivacyPolicyPage() {
                 You have the full right to delete your account, remove your public creator page, and erase your personal information. To request permanent deletion of your profile and data:
               </p>
               <ul className="mt-2 text-xs space-y-1 text-[#F5F1E8]/60 list-disc list-inside">
-                <li>Send an email to <strong className="text-white">hello@getmeakofi.com</strong> with the subject <em>&quot;Data Deletion Request&quot;</em> from the email address registered with your account.</li>
+                <li>Send an email to <strong className="text-white">hello@earnesy.com</strong> with the subject <em>&quot;Data Deletion Request&quot;</em> from the email address registered with your account.</li>
                 <li>Upon verification, we will permanently purge your personal profile, credentials, and uploaded assets from our database within 30 days.</li>
               </ul>
             </div>
@@ -266,8 +266,8 @@ export default function PrivacyPolicyPage() {
             </p>
             <div className="space-y-1 text-sm text-[#F5F1E8]/70">
               <p><strong>Platform:</strong> Earnesy</p>
-              <p><strong>Support & Privacy Email:</strong> <a href="mailto:hello@getmeakofi.com" className="text-[#F4C542] underline">hello@getmeakofi.com</a></p>
-              <p><strong>Website:</strong> <Link href="/" className="text-[#F4C542] underline">getmeakofi.com</Link></p>
+              <p><strong>Support & Privacy Email:</strong> <a href="mailto:hello@earnesy.com" className="text-[#F4C542] underline">hello@earnesy.com</a></p>
+              <p><strong>Website:</strong> <Link href="/" className="text-[#F4C542] underline">earnesy.com</Link></p>
             </div>
           </section>
         </div>

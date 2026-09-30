@@ -25,8 +25,8 @@ const Footer = () => {
           <div>
             <p className="mb-4 text-sm font-medium uppercase tracking-[0.18em] text-[var(--muted-foreground)]">Contact</p>
             <ul className="space-y-3 text-sm text-[var(--muted-foreground)]">
-              <li>hello@getmeakofi.com</li>
-              <li>+91 98765 43210</li>
+              <li>akashgautam.tech@gmail.com</li>
+              <li>+91 8368106877</li>
               <li className="text-[var(--primary)]">Support</li>
             </ul>
           </div>
@@ -35,9 +35,8 @@ const Footer = () => {
         <div className="flex flex-col gap-3 pt-7 text-sm text-[var(--muted-foreground)] sm:flex-row sm:items-center sm:justify-between">
           <p>© {new Date().getFullYear()} Earnesy. All rights reserved.</p>
           <div className="flex gap-4">
-            <Link href="/privacy" className="transition-colors duration-[180ms] hover:text-[var(--primary)]">Privacy</Link>
-            <Link href="/terms" className="transition-colors duration-[180ms] hover:text-[var(--primary)]">Terms</Link>
-            <span className="cursor-default transition-colors duration-[180ms] hover:text-[var(--primary)]">Status</span>
+            <Link href="/privacy" className="transition-colors duration-[180ms] hover:text-[var(--primary)]">Privacy Policy</Link>
+            <Link href="/terms" className="transition-colors duration-[180ms] hover:text-[var(--primary)]">Terms of Service</Link>
           </div>
         </div>
       </div>

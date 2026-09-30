@@ -120,7 +120,7 @@ export default function TermsOfServicePage() {
               8. Contact Us
             </h2>
             <p className="text-sm text-[#F5F1E8]/70">
-              For any questions regarding these Terms, please reach out to <a href="mailto:hello@getmeakofi.com" className="text-[#F4C542] underline">hello@getmeakofi.com</a>.
+              For any questions regarding these Terms, please reach out to <a href="mailto:hello@earnesy.com" className="text-[#F4C542] underline">hello@earnesy.com</a>.
             </p>
           </section>
         </div>

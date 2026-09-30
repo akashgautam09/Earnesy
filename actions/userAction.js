@@ -4,14 +4,13 @@ import mongoose from "mongoose"
 import Razorpay from "razorpay"
 import User from "@/models/User"
 import Payment from "@/models/Payment"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { getCurrentUser } from "@/lib/auth/server"
 
 export const initiate = async (amount, to_user, paymentform) => {
     try {
         // Server actions can be called directly, so validate everything here.
-        const session = await getServerSession(authOptions)
-        if (!session?.user?.id) {
+        const currentUser = await getCurrentUser()
+        if (!currentUser) {
             return { error: 'Please log in before making a payment.' }
         }
 

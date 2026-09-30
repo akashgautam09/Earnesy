@@ -1,10 +1,8 @@
 // This API endpoint saves user profile data to the database
 
-import mongoose from 'mongoose'
 import User from '@/models/User'
 import Payment from '@/models/Payment'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+import { getCurrentUser } from '@/lib/auth/server'
 import { v2 as cloudinary } from 'cloudinary'
 
 const getCloudinaryPublicId = (url) => {
@@ -45,20 +43,16 @@ const getCloudinaryPublicId = (url) => {
 export async function GET(req) {
   try {
     // The session ID identifies the owner; email and username can change.
-    const session = await getServerSession(authOptions)
+    const currentUser = await getCurrentUser()
 
-    // Check if user is authenticated
-    if (!session || !session.user) {
+    if (!currentUser) {
       return Response.json(
         { error: 'Unauthorized: Please login first' },
         { status: 401 }
       )
     }
 
-    // Connect to database
-    await mongoose.connect(process.env.MONGODB_URI)
-
-    const user = await User.findById(session.user.id)
+    const user = currentUser
 
     if (!user) {
       return Response.json(
@@ -102,18 +96,14 @@ export async function GET(req) {
 
 export async function POST(req) {
   try {
-    const session = await getServerSession(authOptions)
+    const currentUser = await getCurrentUser()
 
-    // Check if user is authenticated
-    if (!session || !session.user) {
+    if (!currentUser) {
       return Response.json(
         { error: 'Unauthorized: Please login first' },
         { status: 401 }
       )
     }
-
-    // Connect to database
-    await mongoose.connect(process.env.MONGODB_URI)
 
     // Get request body
     const body = await req.json()
@@ -126,15 +116,6 @@ export async function POST(req) {
       profileUrl,
       coverUrl,
     } = body
-
-    const currentUser = await User.findById(session.user.id)
-
-    if (!currentUser) {
-      return Response.json(
-        { error: 'User not found' },
-        { status: 404 }
-      )
-    }
 
     if (profileUrl && currentUser.profileUrl && profileUrl !== currentUser.profileUrl) {
       const previousProfileId = getCloudinaryPublicId(currentUser.profileUrl)
