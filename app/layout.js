@@ -1,8 +1,8 @@
 import { Montserrat } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ClerkProvider } from "@clerk/nextjs";
+import AppShell from "@/components/AppShell";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -19,9 +19,10 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`${montserrat.className} bg-[var(--background)] text-[var(--foreground)]`}>
         <ClerkProvider>
-          <Navbar />
-          <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">{children}</div>
-          <Footer />
+          <AppShell>
+            {children}
+            <Footer />
+          </AppShell>
         </ClerkProvider>
       </body>
     </html>

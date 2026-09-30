@@ -3,6 +3,7 @@
 import User from '@/models/User'
 import Payment from '@/models/Payment'
 import { getCurrentUser } from '@/lib/auth/server'
+import { getCreatorStats } from '@/lib/data/creator'
 import { v2 as cloudinary } from 'cloudinary'
 
 const getCloudinaryPublicId = (url) => {
@@ -61,6 +62,8 @@ export async function GET(req) {
       )
     }
 
+    const stats = await getCreatorStats(user)
+
     // Return the public key and a status only. Never return the secret.
     let razorpayId = ''
     let hasRazorpayCredentials = false
@@ -83,6 +86,7 @@ export async function GET(req) {
         coverUrl: user.coverUrl,
         razorpayId,
         hasRazorpayCredentials,
+        stats,
       },
     })
   } catch (error) {

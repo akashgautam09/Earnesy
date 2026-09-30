@@ -278,16 +278,6 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-[#fffdf8] px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-5xl">
-        <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-[0.24em] text-amber-700">Dashboard</p>
-            <h1 className="mt-2 text-3xl font-medium text-slate-900">Profile settings</h1>
-          </div>
-            <div className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs uppercase tracking-[0.16em] text-slate-600">
-            Public profile
-          </div>
-        </div>
-
         <div className="grid items-start gap-6 lg:grid-cols-[1.15fr_0.85fr]">
           <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
             <div className="space-y-4 rounded-xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
@@ -490,7 +480,7 @@ export default function Dashboard() {
             </button>
           </form>
 
-          <aside className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
+          <aside className="self-start rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 lg:sticky lg:top-6">
             <div className="mb-5 flex items-center justify-between">
               <p className="text-xs uppercase tracking-[0.2em] text-slate-600">Preview</p>
               <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-slate-600">
