@@ -118,7 +118,7 @@ export default function PrivacyPolicyPage() {
                 <ul className="mt-2 text-xs space-y-1 text-[#F5F1E8]/60 list-disc list-inside">
                   <li>IP address and general geographic location</li>
                   <li>Browser type, device operating system, and session timestamps</li>
-                  <li>Authentication session cookies managed via NextAuth</li>
+                  <li>Authentication session cookies managed via Clerk</li>
                 </ul>
               </div>
             </div>
@@ -242,7 +242,7 @@ export default function PrivacyPolicyPage() {
               7. Cookies and Tracking Technologies
             </h2>
             <p className="text-sm sm:text-base">
-              We use strictly necessary cookies to keep you signed in securely across requests. These session tokens are cryptographically signed using our secret key (NextAuth). We do not use third-party tracking cookies for targeted behavioral advertisements.
+              We use strictly necessary cookies to keep you signed in securely across requests. These session tokens are managed and cryptographically protected by Clerk. We do not use third-party tracking cookies for targeted behavioral advertisements.
             </p>
           </section>
 

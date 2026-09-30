@@ -3,21 +3,18 @@ import { fetchUserPage } from '@/actions/userAction'
 import { notFound } from 'next/navigation'
 import React from 'react'
 
-const page = async ({params}) => {
+const page = async ({ params }) => {
   try {
-    const user = await fetchUserPage(params.username)
+    const { username } = await params
+    const user = await fetchUserPage(username)
     if (!user) {
       notFound()
     }
+
+    return <PaymentPage username={username} />
   } catch (error) {
     notFound()
   }
-
-  return (
-    <>
-    <PaymentPage username={params.username} />
-    </>
-  )
 }
 
 export default page

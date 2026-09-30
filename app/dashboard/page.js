@@ -1,11 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
+import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 
 export default function Dashboard() {
-  const { data: session, status } = useSession()
+  const { isLoaded, isSignedIn, user } = useUser()
+  const status = !isLoaded ? 'loading' : isSignedIn ? 'authenticated' : 'unauthenticated'
+  const userEmail = user?.primaryEmailAddress?.emailAddress || ''
   const router = useRouter()
 
   const [formData, setFormData] = useState({
@@ -35,7 +37,7 @@ export default function Dashboard() {
   }, [status, router])
 
   useEffect(() => {
-    if (status !== 'authenticated' || !session?.user?.email) {
+    if (status !== 'authenticated' || !userEmail) {
       return undefined
     }
 
@@ -58,7 +60,7 @@ export default function Dashboard() {
         setFormData((previous) => ({
           ...previous,
           name: user.name || '',
-          email: user.email || session.user.email,
+          email: user.email || userEmail,
           username: user.username || '',
           razorpayId: user.razorpayId || '',
           // Secrets are write-only in the dashboard and must not be loaded into browser state.
@@ -69,14 +71,12 @@ export default function Dashboard() {
           setProfilePic(user.profileUrl)
           setProfileUrl(user.profileUrl)
           setProfileFile(null)
-          setProfileMethod('url')
         }
 
         if (user.coverUrl) {
           setCoverPic(user.coverUrl)
           setCoverUrl(user.coverUrl)
           setCoverFile(null)
-          setCoverMethod('url')
         }
       } catch (error) {
         if (error.name !== 'AbortError') {
@@ -88,7 +88,7 @@ export default function Dashboard() {
     loadUserData()
 
     return () => controller.abort()
-  }, [session?.user?.email, status])
+  }, [userEmail, status])
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -152,7 +152,7 @@ export default function Dashboard() {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (status !== 'authenticated' || !session?.user?.email) {
+    if (status !== 'authenticated' || !userEmail) {
       setMessage('Please login again before saving your profile')
       return
     }
@@ -200,7 +200,7 @@ export default function Dashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name,
-          email: session.user.email,
+          email: userEmail,
           username,
           razorpayId: formData.razorpayId,
           razorpaySecret: formData.razorpaySecret,
@@ -422,7 +422,7 @@ export default function Dashboard() {
                   <label className="mb-2 block text-sm text-slate-700">Email</label>
                   <input
                     type="email"
-                    value={session?.user?.email || ''}
+                    value={userEmail}
                     disabled
                     className="w-full border border-slate-300 bg-slate-100 px-3 py-2.5 text-sm text-slate-500 outline-none"
                   />
@@ -525,7 +525,7 @@ export default function Dashboard() {
                 <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
                   <div>
                     <p className="text-[10px] uppercase tracking-[0.2em] text-slate-600">Contact</p>
-                    <p className="mt-1 text-sm text-slate-700">{session?.user?.email || 'you@example.com'}</p>
+                    <p className="mt-1 text-sm text-slate-700">{userEmail || 'you@example.com'}</p>
                   </div>
                   <div>
                     <p className="text-[10px] uppercase tracking-[0.2em] text-slate-600">Support</p>

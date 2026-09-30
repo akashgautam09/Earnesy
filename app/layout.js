@@ -2,7 +2,7 @@ import { Montserrat } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import SessionWrapper from "@/components/SessionWrapper";
+import { ClerkProvider } from "@clerk/nextjs";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -18,11 +18,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${montserrat.className} bg-[var(--background)] text-[var(--foreground)]`}>
-        <SessionWrapper>
+        <ClerkProvider>
           <Navbar />
           <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">{children}</div>
           <Footer />
-        </SessionWrapper>
+        </ClerkProvider>
       </body>
     </html>
   );

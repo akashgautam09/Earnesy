@@ -2,7 +2,7 @@
 
 import React from 'react'
 import Script from 'next/script'
-import { useSession } from "next-auth/react"
+import { useUser } from '@clerk/nextjs'
 import { useRouter } from "next/navigation"
 import { useEffect, useState, useCallback, useRef } from "react"
 import { fetchPayments, initiate, fetchUserPage } from '@/actions/userAction'
@@ -10,7 +10,9 @@ import { ToastContainer, toast, Bounce } from 'react-toastify'
 import { useSearchParams } from 'next/navigation'
 
 export const PaymentPage = ({ username }) => {
-    const { data: session, status } = useSession()
+    const { isLoaded, isSignedIn, user } = useUser()
+    const status = !isLoaded ? 'loading' : isSignedIn ? 'authenticated' : 'unauthenticated'
+    const userEmail = user?.primaryEmailAddress?.emailAddress || ''
     const router = useRouter()
     const isMounted = useRef(true)
     const [paymentform, setPaymentform] = useState({ name: '', amount: '' })
@@ -41,9 +43,12 @@ export const PaymentPage = ({ username }) => {
 
     useEffect(() => {
         isMounted.current = true
-        loadUserPage()
+        const loadPageTimer = window.setTimeout(() => {
+            void loadUserPage()
+        }, 0)
 
         return () => {
+            window.clearTimeout(loadPageTimer)
             isMounted.current = false
         }
     }, [loadUserPage])
@@ -106,7 +111,7 @@ export const PaymentPage = ({ username }) => {
                 "callback_url": callbackUrl,
                 "prefill": { //We recommend using the prefill parameter to auto-fill customer's contact information especially their phone number
                     "name": paymentform.name, //your customer's name
-                    "email": session?.user.email,
+                    "email": userEmail,
                     "contact": "+919876543210" //Provide the customer's phone number for better conversion rates 
                 },
                 "notes": {

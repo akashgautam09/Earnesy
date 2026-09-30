@@ -2,17 +2,33 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useSession, signOut } from 'next-auth/react';
+import { useClerk, useUser } from '@clerk/nextjs';
 import { usePathname, useRouter } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 
 const Navbar = () => {
-  const { data: session } = useSession();
+  const { isLoaded, isSignedIn, user } = useUser();
+  const { signOut } = useClerk();
+  const isAuthenticated = isLoaded && isSignedIn;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRef = useRef(null);
   const router = useRouter();
   const pathname = usePathname();
+
+  const openYourPage = async (closeMenu) => {
+    const response = await fetch('/api/profile', { method: 'GET' });
+    const data = await response.json().catch(() => null);
+    const username = data?.user?.username?.trim();
+
+    if (!response.ok || !username) {
+      router.push('/dashboard');
+      return;
+    }
+
+    router.push(`/${encodeURIComponent(username)}`);
+    closeMenu();
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -74,12 +90,12 @@ const Navbar = () => {
               {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
 
-            {!session ? (
+            {!isAuthenticated ? (
               <div className="hidden items-center gap-2 md:flex">
                 <Link href="/login" className="px-3 py-2 text-sm font-medium uppercase tracking-[0.12em] text-[var(--muted-foreground)] transition-colors duration-[180ms] hover:text-[var(--primary)]">
                   Login
                 </Link>
-                <Link href="/login" className="premium-button rounded-lg uppercase tracking-[0.12em]">
+                <Link href="/sign-up" className="premium-button rounded-lg uppercase tracking-[0.12em]">
                   Sign Up
                 </Link>
               </div>
@@ -89,30 +105,23 @@ const Navbar = () => {
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-sm font-medium text-[var(--foreground)] transition-colors duration-180 hover:bg-[var(--muted)] active:scale-95"
                 >
-                  <span className="max-w-[120px] truncate">{session.user.name}</span>
+                  <span className="max-w-[120px] truncate">{user?.fullName || user?.primaryEmailAddress?.emailAddress}</span>
                   <span>▾</span>
                 </button>
 
                 {isDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-64 rounded-xl border border-[var(--border)] bg-[var(--card)] p-2 shadow-[0_12px_30px_rgba(0,0,0,0.08)]">
                     <div className="mb-2 flex items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--muted)] p-2">
-                      <img src={session.user.image || '/tea.gif'} alt="Profile" className="h-9 w-9 rounded-full object-cover" />
+                      <img src={user?.imageUrl || '/tea.gif'} alt="Profile" className="h-9 w-9 rounded-full object-cover" />
                       <div className="min-w-0">
-                        <div className="truncate text-sm font-medium text-slate-900">{session.user.name}</div>
-                        <div className="truncate text-xs text-slate-600">{session.user.email}</div>
+                        <div className="truncate text-sm font-medium text-slate-900">{user?.fullName || user?.primaryEmailAddress?.emailAddress}</div>
+                        <div className="truncate text-xs text-slate-600">{user?.primaryEmailAddress?.emailAddress}</div>
                       </div>
                     </div>
 
                     <div className="space-y-1">
                       <button
-                        onClick={async () => {
-                          const response = await fetch('/api/profile', { method: 'GET' });
-                          if (response.ok) {
-                            const data = await response.json();
-                            router.replace(`/${data.user?.username}`);
-                            setIsDropdownOpen(false);
-                          }
-                        }}
+                        onClick={() => openYourPage(() => setIsDropdownOpen(false))}
                         className="block w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-[var(--muted-foreground)] transition-colors duration-[180ms] hover:bg-[var(--accent)] hover:text-[var(--primary)]"
                       >
                         Your Page
@@ -153,26 +162,19 @@ const Navbar = () => {
                 </Link>
               ))}
 
-              {!session ? (
+              {!isAuthenticated ? (
                 <>
                   <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="block rounded-lg px-3 py-2 text-sm font-medium uppercase tracking-[0.12em] text-[var(--muted-foreground)] transition-colors duration-[180ms] hover:bg-[var(--accent)] hover:text-[var(--primary)]">
                     Login
                   </Link>
-                  <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="premium-button mt-2 w-full rounded-lg uppercase tracking-[0.12em]">
+                  <Link href="/sign-up" onClick={() => setIsMobileMenuOpen(false)} className="premium-button mt-2 w-full rounded-lg uppercase tracking-[0.12em]">
                     Sign Up
                   </Link>
                 </>
               ) : (
                 <>
                   <button
-                    onClick={async () => {
-                      const response = await fetch('/api/profile', { method: 'GET' });
-                      if (response.ok) {
-                        const data = await response.json();
-                        router.replace(`/${data.user?.username}`);
-                        setIsMobileMenuOpen(false);
-                      }
-                    }}
+                    onClick={() => openYourPage(() => setIsMobileMenuOpen(false))}
                     className="block w-full rounded-md px-3 py-2 text-left text-sm uppercase tracking-[0.12em] text-slate-700 hover:bg-amber-50 hover:text-amber-700"
                   >
                     Your Page
