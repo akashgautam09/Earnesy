@@ -52,7 +52,7 @@ export default function PostPage() {
   return (
     <div className="min-h-screen bg-[var(--background)] px-4 py-8 sm:px-6 lg:px-10">
       <div className="mx-auto max-w-5xl space-y-7">
-        <AppPageHeader eyebrow="Post" title="Share with your supporters" description="Publish updates, ideas, and moments from your work." />
+        <AppPageHeader eyebrow="Post" title="Share with your world" description="Publish updates, ideas, and moments from your work." />
 
         <form onSubmit={handleSubmit} className="space-y-5 rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-[0_8px_24px_rgba(25,25,25,0.03)] sm:p-6">
           <div className="flex items-center gap-2 text-sm font-semibold text-[var(--foreground)]"><FileText size={18} className="text-[var(--primary)]" /> New post</div>

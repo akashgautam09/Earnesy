@@ -7,7 +7,9 @@ import { useRouter } from 'next/navigation'
 export default function Dashboard() {
   const { isLoaded, isSignedIn, user } = useUser()
   const status = !isLoaded ? 'loading' : isSignedIn ? 'authenticated' : 'unauthenticated'
-  const userEmail = user?.primaryEmailAddress?.emailAddress || ''
+  const session = user
+    ? { user: { email: user.primaryEmailAddress?.emailAddress || '' } }
+    : null
   const router = useRouter()
 
   const [formData, setFormData] = useState({
@@ -37,7 +39,7 @@ export default function Dashboard() {
   }, [status, router])
 
   useEffect(() => {
-    if (status !== 'authenticated' || !userEmail) {
+    if (status !== 'authenticated' || !session?.user?.email) {
       return undefined
     }
 
@@ -60,7 +62,7 @@ export default function Dashboard() {
         setFormData((previous) => ({
           ...previous,
           name: user.name || '',
-          email: user.email || userEmail,
+          email: user.email || session.user.email,
           username: user.username || '',
           razorpayId: user.razorpayId || '',
           // Secrets are write-only in the dashboard and must not be loaded into browser state.
@@ -71,12 +73,14 @@ export default function Dashboard() {
           setProfilePic(user.profileUrl)
           setProfileUrl(user.profileUrl)
           setProfileFile(null)
+          setProfileMethod('url')
         }
 
         if (user.coverUrl) {
           setCoverPic(user.coverUrl)
           setCoverUrl(user.coverUrl)
           setCoverFile(null)
+          setCoverMethod('url')
         }
       } catch (error) {
         if (error.name !== 'AbortError') {
@@ -88,7 +92,7 @@ export default function Dashboard() {
     loadUserData()
 
     return () => controller.abort()
-  }, [userEmail, status])
+  }, [session?.user?.email, status])
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -152,7 +156,7 @@ export default function Dashboard() {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (status !== 'authenticated' || !userEmail) {
+    if (status !== 'authenticated' || !session?.user?.email) {
       setMessage('Please login again before saving your profile')
       return
     }
@@ -200,7 +204,7 @@ export default function Dashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name,
-          email: userEmail,
+          email: session.user.email,
           username,
           razorpayId: formData.razorpayId,
           razorpaySecret: formData.razorpaySecret,
@@ -265,7 +269,7 @@ export default function Dashboard() {
 
   if (status === 'loading') {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#fffdf8] text-slate-700">
+      <div className="flex min-h-screen items-center justify-center bg-[#171717] text-[#F5F1E8]/72">
         Loading...
       </div>
     )
@@ -276,13 +280,23 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fffdf8] px-4 py-8 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#171717] px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-5xl">
-        <div className="grid items-start gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-          <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
-            <div className="space-y-4 rounded-xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
+        <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-[#F5F1E8]/5 bg-[#1A1A1A] p-6 shadow-[0_0_0_1px_rgba(245,241,232,0.02)] sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-[0.24em] text-[#e0bf6498]">Dashboard</p>
+            <h1 className="mt-2 text-3xl font-medium text-[#F5F1E8]">Profile settings</h1>
+          </div>
+            <div className="rounded-full border border-[#F5F1E8]/10 bg-[#171717] px-3 py-1.5 text-xs uppercase tracking-[0.16em] text-[#F5F1E8]/60">
+            Public profile
+          </div>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+          <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-[#F5F1E8]/5 bg-[#1A1A1A] p-4 sm:p-6 shadow-[0_0_0_1px_rgba(245,241,232,0.02)]">
+            <div className="space-y-4 rounded-xl border border-[#F5F1E8]/5 bg-[#171717] p-4 sm:p-5">
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <label className="text-sm font-medium text-slate-700">Cover image</label>
+                <label className="text-sm font-medium text-[#F5F1E8]/72">Cover image</label>
                 <div className="flex gap-2">
                   {['upload', 'url'].map((method) => (
                     <button
@@ -294,8 +308,8 @@ export default function Dashboard() {
                       }}
                       className={`rounded-md border px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.16em] transition-colors ${
                         coverMethod === method
-                          ? 'border-amber-300 bg-amber-100 text-amber-900'
-                          : 'border-slate-300 bg-transparent text-slate-700 hover:border-amber-300'
+                          ? 'border-[#F5F1E8]/20 bg-white text-[#171717]'
+                          : 'border-[#F5F1E8]/10 bg-transparent text-[#F5F1E8]/72 hover:border-[#F5F1E8]/20'
                       }`}
                     >
                       {method === 'upload' ? 'Upload' : 'URL'}
@@ -305,13 +319,13 @@ export default function Dashboard() {
               </div>
 
               {coverMethod === 'upload' ? (
-                <label className="block h-36 cursor-pointer overflow-hidden rounded-xl border border-dashed border-slate-300 bg-white transition-colors hover:border-amber-400">
+                <label className="block h-36 cursor-pointer overflow-hidden rounded-xl border border-dashed border-[#F5F1E8]/15 bg-[#171717] transition-colors hover:border-[#F5F1E8]/25">
                   {coverPic ? (
                     <img src={coverPic} alt="Cover" className="h-full w-full object-cover" />
                   ) : (
-                    <div className="flex h-full items-center justify-center text-sm text-slate-600">Upload cover image</div>
+                    <div className="flex h-full items-center justify-center text-sm text-[#F5F1E8]/52">Upload cover image</div>
                   )}
-                  <input type="file" accept="image/jpeg,image/png,image/gif,image/webp" onChange={handleCoverPicChange} className="hidden" disabled={uploading} />
+                  <input type="file" accept="image/*" onChange={handleCoverPicChange} className="hidden" disabled={uploading} />
                 </label>
               ) : (
                 <input
@@ -322,14 +336,14 @@ export default function Dashboard() {
                     setCoverPic(e.target.value)
                   }}
                   placeholder="Paste image URL"
-                  className="w-full border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-500 focus:border-amber-600"
+                  className="w-full border border-[#F5F1E8]/10 bg-[#171717] px-3 py-2.5 text-sm text-[#F5F1E8] outline-none transition-colors placeholder:text-[#F5F1E8]/35 focus:border-[#e0bf6498]"
                 />
               )}
             </div>
 
-            <div className="space-y-4 rounded-xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
+            <div className="space-y-4 rounded-xl border border-[#F5F1E8]/5 bg-[#171717] p-4 sm:p-5">
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <label className="text-sm font-medium text-slate-700">Profile picture</label>
+                <label className="text-sm font-medium text-[#F5F1E8]/72">Profile picture</label>
                 <div className="flex gap-2">
                   {['upload', 'url'].map((method) => (
                     <button
@@ -341,8 +355,8 @@ export default function Dashboard() {
                       }}
                       className={`rounded-md border px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.16em] transition-colors ${
                         profileMethod === method
-                          ? 'border-amber-300 bg-amber-100 text-amber-900'
-                          : 'border-slate-300 bg-transparent text-slate-700 hover:border-amber-300'
+                          ? 'border-[#F5F1E8]/20 bg-white text-[#171717]'
+                          : 'border-[#F5F1E8]/10 bg-transparent text-[#F5F1E8]/72 hover:border-[#F5F1E8]/20'
                       }`}
                     >
                       {method === 'upload' ? 'Upload' : 'URL'}
@@ -353,16 +367,16 @@ export default function Dashboard() {
 
               {profileMethod === 'upload' ? (
                 <div className="flex items-center gap-4">
-                  <label className="flex h-24 w-24 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-slate-300 bg-white transition-colors hover:border-amber-400">
+                  <label className="flex h-24 w-24 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-[#F5F1E8]/15 bg-[#171717] transition-colors hover:border-[#F5F1E8]/25">
                     {profilePic ? (
                       <img src={profilePic} alt="Profile" className="h-full w-full object-cover" />
                     ) : (
-                      <span className="text-[10px] uppercase tracking-[0.2em] text-slate-600">Photo</span>
+                      <span className="text-[10px] uppercase tracking-[0.2em] text-[#F5F1E8]/52">Photo</span>
                     )}
-                    <input type="file" accept="image/jpeg,image/png,image/gif,image/webp" onChange={handleProfilePicChange} className="hidden" disabled={uploading} />
+                    <input type="file" accept="image/*" onChange={handleProfilePicChange} className="hidden" disabled={uploading} />
                   </label>
-                  <div className="text-sm text-slate-600">
-                    <p className="font-medium text-slate-800">Add your profile image</p>
+                  <div className="text-sm text-[#F5F1E8]/60">
+                    <p className="font-medium text-[#F5F1E8]/75">Add your profile image</p>
                     <p className="mt-1 text-xs">Square images work best</p>
                   </div>
                 </div>
@@ -375,46 +389,46 @@ export default function Dashboard() {
                     setProfilePic(e.target.value)
                   }}
                   placeholder="Paste image URL"
-                  className="w-full border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-500 focus:border-amber-600"
+                  className="w-full border border-[#F5F1E8]/10 bg-[#171717] px-3 py-2.5 text-sm text-[#F5F1E8] outline-none transition-colors placeholder:text-[#F5F1E8]/35 focus:border-[#e0bf6498]"
                 />
               )}
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
+            <div className="rounded-xl border border-[#F5F1E8]/5 bg-[#171717] p-4 sm:p-5">
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-sm font-medium uppercase tracking-[0.18em] text-slate-700">Profile details</h2>
+                <h2 className="text-sm font-medium uppercase tracking-[0.18em] text-[#F5F1E8]/65">Profile details</h2>
               </div>
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="md:col-span-2">
-                  <label className="mb-2 block text-sm text-slate-700">Full Name</label>
+                  <label className="mb-2 block text-sm text-[#F5F1E8]/72">Full Name</label>
                   <input
                     type="text"
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="w-full border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-500 focus:border-amber-600"
+                    className="w-full border border-[#F5F1E8]/10 bg-[#171717] px-3 py-2.5 text-sm text-[#F5F1E8] outline-none transition-colors placeholder:text-[#F5F1E8]/35 focus:border-[#e0bf6498]"
                   />
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="mb-2 block text-sm text-slate-700">Username</label>
+                  <label className="mb-2 block text-sm text-[#F5F1E8]/72">Username</label>
                   <input
                     type="text"
                     name="username"
                     value={formData.username}
                     onChange={handleInputChange}
-                    className="w-full border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-500 focus:border-amber-600"
+                    className="w-full border border-[#F5F1E8]/10 bg-[#171717] px-3 py-2.5 text-sm text-[#F5F1E8] outline-none transition-colors placeholder:text-[#F5F1E8]/35 focus:border-[#e0bf6498]"
                   />
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="mb-2 block text-sm text-slate-700">Email</label>
+                  <label className="mb-2 block text-sm text-[#F5F1E8]/72">Email</label>
                   <input
                     type="email"
-                    value={userEmail}
+                    value={session?.user?.email || ''}
                     disabled
-                    className="w-full border border-slate-300 bg-slate-100 px-3 py-2.5 text-sm text-slate-500 outline-none"
+                    className="w-full border border-[#F5F1E8]/10 bg-[#171717] px-3 py-2.5 text-sm text-[#F5F1E8]/52 outline-none"
                   />
                 </div>
               </div>
@@ -429,31 +443,31 @@ export default function Dashboard() {
               </button>
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
+            <div className="rounded-xl border border-[#F5F1E8]/5 bg-[#171717] p-4 sm:p-5">
               <div className="mb-4">
-                <h2 className="text-sm font-medium uppercase tracking-[0.18em] text-slate-700">Payment setup</h2>
+                <h2 className="text-sm font-medium uppercase tracking-[0.18em] text-[#F5F1E8]/65">Payment setup</h2>
               </div>
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                  <label className="mb-2 block text-sm text-slate-700">Razorpay ID</label>
+                  <label className="mb-2 block text-sm text-[#F5F1E8]/72">Razorpay ID</label>
                   <input
                     type="text"
                     name="razorpayId"
                     value={formData.razorpayId}
                     onChange={handleInputChange}
-                    className="w-full border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-500 focus:border-amber-600"
+                    className="w-full border border-[#F5F1E8]/10 bg-[#171717] px-3 py-2.5 text-sm text-[#F5F1E8] outline-none transition-colors placeholder:text-[#F5F1E8]/35 focus:border-[#e0bf6498]"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm text-slate-700">Razorpay Secret</label>
+                  <label className="mb-2 block text-sm text-[#F5F1E8]/72">Razorpay Secret</label>
                   <input
                     type="password"
                     name="razorpaySecret"
                     value={formData.razorpaySecret}
                     onChange={handleInputChange}
-                    className="w-full border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-500 focus:border-amber-600"
+                    className="w-full border border-[#F5F1E8]/10 bg-[#171717] px-3 py-2.5 text-sm text-[#F5F1E8] outline-none transition-colors placeholder:text-[#F5F1E8]/35 focus:border-[#e0bf6498]"
                   />
                 </div>
               </div>
@@ -463,8 +477,8 @@ export default function Dashboard() {
               <div
                 className={`rounded-md border px-3 py-2 text-sm ${
                   message.includes('Error') || message.includes('error')
-                    ? 'border-amber-300 bg-amber-50 text-amber-900'
-                    : 'border-amber-300 bg-amber-50 text-amber-900'
+                    ? 'border-[#e0bf6498]/30 bg-[#e0bf6498]/10 text-[#F5F1E8]'
+                    : 'border-[#e0bf6498]/30 bg-[#e0bf6498]/10 text-[#F5F1E8]'
                 }`}
               >
                 {message}
@@ -474,32 +488,32 @@ export default function Dashboard() {
             <button
               type="submit"
               disabled={loading || uploading}
-              className="w-full rounded-xl bg-amber-400 px-4 py-3 text-sm font-medium uppercase tracking-[0.14em] text-white transition-all hover:bg-amber-300 disabled:opacity-60"
+              className="w-full rounded-xl bg-white px-4 py-3 text-sm font-medium uppercase tracking-[0.14em] text-[#171717] transition-all hover:bg-[#F5F1E8] disabled:opacity-60"
             >
               {loading || uploading ? 'Saving...' : 'Save Profile'}
             </button>
           </form>
 
-          <aside className="self-start rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 lg:sticky lg:top-6">
+          <aside className="rounded-2xl border border-[#F5F1E8]/5 bg-[#1A1A1A] p-4 sm:p-5">
             <div className="mb-5 flex items-center justify-between">
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-600">Preview</p>
-              <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-slate-600">
+              <p className="text-xs uppercase tracking-[0.2em] text-[#F5F1E8]/55">Preview</p>
+              <span className="rounded-full border border-[#F5F1E8]/10 bg-[#171717] px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-[#F5F1E8]/60">
                 Live
               </span>
             </div>
 
-            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+            <div className="overflow-hidden rounded-2xl border border-[#F5F1E8]/5 bg-[#171717]">
               <div className="h-28 w-full bg-[radial-gradient(circle_at_top,_rgba(244,197,66,0.28),transparent_55%)] relative">
                 {coverPic ? (
                   <img src={coverPic} alt="Cover preview" className="h-full w-full object-cover" />
                 ) : (
-                  <div className="flex h-full items-center justify-center text-xs uppercase tracking-[0.2em] text-slate-500">Cover</div>
+                  <div className="flex h-full items-center justify-center text-xs uppercase tracking-[0.2em] text-[#F5F1E8]/45">Cover</div>
                 )}
               </div>
 
               <div className="relative px-4 pb-4">
                 <div className="-mt-8 mb-3 flex items-center gap-3">
-                  <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-slate-100 text-xs uppercase tracking-[0.18em] text-slate-600">
+                  <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border-2 border-[#171717] bg-[#171717] text-xs uppercase tracking-[0.18em] text-[#F5F1E8]/60">
                     {profilePic ? (
                       <img src={profilePic} alt="Profile preview" className="h-full w-full object-cover" />
                     ) : (
@@ -507,19 +521,19 @@ export default function Dashboard() {
                     )}
                   </div>
                   <div>
-                    <p className="text-base font-medium text-slate-900">{formData.name || 'Your name'}</p>
-                    <p className="text-xs text-slate-600">@{formData.username || 'yourusername'}</p>
+                    <p className="text-base font-medium text-[#F5F1E8]">{formData.name || 'Your name'}</p>
+                    <p className="text-xs text-[#F5F1E8]/55">@{formData.username || 'yourusername'}</p>
                   </div>
                 </div>
 
-                <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <div className="space-y-3 rounded-xl border border-[#F5F1E8]/5 bg-[#1A1A1A] p-3">
                   <div>
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-slate-600">Contact</p>
-                    <p className="mt-1 text-sm text-slate-700">{userEmail || 'you@example.com'}</p>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#F5F1E8]/45">Contact</p>
+                    <p className="mt-1 text-sm text-[#F5F1E8]/80">{session?.user?.email || 'you@example.com'}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-slate-600">Support</p>
-                    <p className="mt-1 text-sm text-slate-700">
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#F5F1E8]/45">Support</p>
+                    <p className="mt-1 text-sm text-[#F5F1E8]/80">
                       {formData.razorpayId ? 'Razorpay connected' : 'Connect payment details'}
                     </p>
                   </div>
