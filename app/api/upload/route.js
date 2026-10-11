@@ -1,15 +1,7 @@
 import { getCurrentUser } from '@/lib/auth/server'
-import { v2 as cloudinary } from 'cloudinary'
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 const IMAGE_TYPES = new Set(['image/gif', 'image/jpeg', 'image/png', 'image/webp'])
-const IMAGE_FOLDERS = new Set(['profile', 'cover'])
-
-cloudinary.config({
-  cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-})
 
 const hasValidImageSignature = (bytes, contentType) => {
   if (contentType === 'image/jpeg') {
@@ -47,7 +39,6 @@ export async function POST(req) {
 
     const formData = await req.formData()
     const file = formData.get('file')
-    const folder = formData.get('folder')
 
     if (!file || typeof file.arrayBuffer !== 'function') {
       return Response.json(
@@ -56,16 +47,9 @@ export async function POST(req) {
       )
     }
 
-    if (typeof folder !== 'string' || !IMAGE_FOLDERS.has(folder)) {
-      return Response.json(
-        { error: 'A valid image folder is required' },
-        { status: 400 }
-      )
-    }
-
     if (!IMAGE_TYPES.has(file.type)) {
       return Response.json(
-        { error: 'Only JPEG, JPG, PNG, GIF, and WebP images are allowed' },
+        { error: 'Only JPEG, JPG PNG, GIF, and WebP images are allowed' },
         { status: 400 }
       )
     }
@@ -87,17 +71,12 @@ export async function POST(req) {
       )
     }
 
-    const uploadResult = await cloudinary.uploader.upload(
-      `data:${file.type};base64,${buffer.toString('base64')}`,
-      {
-        folder: `earnesy/${folder}`,
-        resource_type: 'image',
-      }
-    )
+    const base64 = buffer.toString('base64')
+    const dataUrl = `data:${file.type};base64,${base64}`
 
     return Response.json({
       success: true,
-      url: uploadResult.secure_url,
+      url: dataUrl,
     })
   } catch (error) {
     console.error('Upload error:', error)
