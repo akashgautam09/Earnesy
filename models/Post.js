@@ -19,6 +19,14 @@ const postSchema = new mongoose.Schema({
     trim: true,
     maxlength: 5000,
   },
+  imageUrl:{
+    type:String,
+    default:null
+  },
+  likes:[{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"User"
+  }],
   status: {
     type: String,
     enum: ['published', 'draft'],

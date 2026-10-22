@@ -46,24 +46,6 @@
   --primary-foreground: #ffffff;
 }
 
-@theme inline {
-  --color-card: var(--card);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-muted: var(--muted);
-  --color-accent: var(--accent);
-  --color-border: var(--border);
-  --color-primary: var(--primary);
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-secondary: var(--secondary);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-font-mono: var(--font-mono);
-  --color-font-sans: var(--font-sans);
-  --color-font-serif: var(--font-serif);
-}
-
 html {
   scroll-behavior: smooth;
 }

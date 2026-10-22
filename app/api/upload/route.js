@@ -3,7 +3,7 @@ import { v2 as cloudinary } from 'cloudinary'
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 const IMAGE_TYPES = new Set(['image/gif', 'image/jpeg', 'image/png', 'image/webp'])
-const IMAGE_FOLDERS = new Set(['profile', 'cover'])
+const IMAGE_FOLDERS = new Set(['profile', 'cover', 'posts'])
 
 cloudinary.config({
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
