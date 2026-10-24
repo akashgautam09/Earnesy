@@ -33,8 +33,8 @@ export default function PayoutsPage() {
   if (error) return <div className="mx-auto max-w-4xl px-6 py-12 text-sm text-red-700">{error}</div>
 
   return (
-    <div className="min-h-screen bg-[var(--background)] px-4 py-8 sm:px-6 lg:px-10">
-      <div className="mx-auto max-w-6xl space-y-7">
+    <div className="min-h-screen bg-[#fcfbfb] px-4 py-8 sm:px-6 lg:px-10">
+      <div className="mx-auto max-w-3xl space-y-7">
         <AppPageHeader eyebrow="Payouts" title="Payment history" description="Track completed support and your total creator earnings." />
 
         <div className="grid gap-4 sm:grid-cols-3">

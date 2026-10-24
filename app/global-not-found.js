@@ -38,7 +38,7 @@ export default function GlobalNotFound() {
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8">
               <Link href="/" className="w-full sm:w-auto">
-                <button className="w-full px-8 py-4 bg-amber-400 text-slate-900 font-bold rounded-xl transition-all active:scale-95 text-lg">
+                <button className="w-full px-8 py-4 bg-amber-400 text-white font-bold rounded-xl transition-all active:scale-95 text-lg">
                   🏠 Go Home
                 </button>
               </Link>

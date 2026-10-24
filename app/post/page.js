@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { FileText, Send, Image as ImageIcon, X, Heart, Share2, Loader2, Check } from 'lucide-react'
+import { FileText, Send, Image as ImageIcon, X, Heart, Share2, Trash2, Loader2, Check } from 'lucide-react'
 import AppPageHeader from '@/components/AppPageHeader'
 
 export default function PostPage() {
@@ -14,6 +14,7 @@ export default function PostPage() {
   const [message, setMessage] = useState('')
   const [copiedId, setCopiedId] = useState(null)
   const [likingId, setLikingId] = useState(null)
+  const [deletingId, setDeletingId] = useState(null)
   const fileInputRef = useRef(null)
 
   const loadPosts = async () => {
@@ -137,14 +138,13 @@ export default function PostPage() {
 
       if (response.ok && data.success) {
         setPosts((current) =>
-          current.map((post) => 
+          current.map((post) =>
             post.id === postId
               ? { ...post, isLiked: data.isLiked, likesCount: data.likesCount }
               : post
           )
         )
       } else {
-        // Revert on failure
         loadPosts().catch(() => {})
       }
     } catch {
@@ -177,9 +177,32 @@ export default function PostPage() {
     }
   }
 
+  const handleDelete = async (postId) => {
+    if (!window.confirm('Are you sure you want to permanently delete this post?')) {
+      return
+    }
+
+    setDeletingId(postId)
+    try {
+      const response = await fetch(`/api/posts/${postId}`, { method: 'DELETE' })
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to delete post')
+      }
+
+      setPosts((current) => current.filter((p) => p.id !== postId))
+      setMessage('Post deleted successfully')
+    } catch (err) {
+      setMessage(err.message)
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-[var(--background)] px-4 py-8 sm:px-6 lg:px-10">
-      <div className="mx-auto max-w-5xl space-y-7">
+    <div className="min-h-screen bg-[#fcfbfb] px-4 py-8 sm:px-6 lg:px-10">
+      <div className="mx-auto max-w-3xl space-y-7">
         <AppPageHeader
           eyebrow="Post"
           title="Share with your world"
@@ -216,16 +239,16 @@ export default function PostPage() {
 
           {/* Image Preview */}
           {previewUrl && (
-            <div className="relative inline-block overflow-hidden rounded-lg border border-[var(--border)]">
+            <div className="relative inline-block overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--muted)]/20 p-1">
               <img
                 src={previewUrl}
                 alt="Upload preview"
-                className="max-h-64 max-w-full rounded-lg object-contain bg-[var(--muted)]"
+                className="max-h-80 max-w-full rounded-lg object-contain"
               />
               <button
                 type="button"
                 onClick={removeSelectedImage}
-                className="absolute right-2 top-2 rounded-full bg-black/70 p-1.5 text-white transition hover:bg-black"
+                className="absolute right-3 top-3 rounded-full bg-black/75 p-1.5 text-white transition hover:bg-black"
                 title="Remove image"
               >
                 <X size={16} />
@@ -282,7 +305,7 @@ export default function PostPage() {
         </form>
 
         {/* Posts Feed */}
-        <section className="space-y-4">
+        <section className="space-y-5">
           <h2 className="text-lg font-semibold text-[var(--foreground)]">Your posts</h2>
 
           {loading ? (
@@ -291,45 +314,37 @@ export default function PostPage() {
             posts.map((post) => (
               <article
                 key={post.id}
-                className="space-y-4 rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-[0_8px_24px_rgba(25,25,25,0.03)] sm:p-6"
+                className="space-y-4 rounded border border-[var(--border)] bg-[var(--card)] p-5 shadow-[0_8px_24px_rgba(25,25,25,0.03)] sm:p-6"
               >
-                <div className="flex flex-col justify-between gap-1 sm:flex-row sm:items-center">
+                <div>
                   <h3 className="text-lg font-semibold text-[var(--foreground)]">{post.title}</h3>
-                  <time className="text-xs text-[var(--muted-foreground)]">
-                    {new Date(post.createdAt).toLocaleDateString(undefined, {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                    })}
-                  </time>
                 </div>
 
                 <p className="whitespace-pre-wrap text-sm leading-6 text-[var(--muted-foreground)]">
                   {post.content}
                 </p>
 
-                {/* Post Image */}
                 {post.imageUrl && (
-                  <div className="overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--muted)]">
+                                  <div className="mx-auto aspect-[4/5] max-h-[600px] w-full overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--muted)]/20">
                     <img
                       src={post.imageUrl}
                       alt={post.title}
-                      className="max-h-[480px] w-full object-cover"
+                                      className="h-full w-full rounded-xl object-contain shadow-sm"
                       loading="lazy"
                     />
                   </div>
                 )}
 
-                {/* Actions: Likes and Share */}
-                <div className="flex items-center justify-between border-t border-[var(--border)] pt-3 text-xs text-[var(--muted-foreground)]">
-                  <div className="flex items-center gap-4">
+                {/* Actions: Likes, Share, Delete, and Date */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-[var(--border)] pt-3.5 text-xs text-[var(--muted-foreground)]">
+                  <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
                     {/* Like Button */}
                     <button
                       type="button"
                       onClick={() => handleLike(post.id)}
-                      className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 font-medium transition ${
+                      className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-medium transition ${
                         post.isLiked
-                          ? 'bg-rose-50 text-rose-600 hover:bg-rose-100'
+                          ? 'bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-950/40 dark:text-rose-400'
                           : 'hover:bg-[var(--muted)] hover:text-[var(--foreground)]'
                       }`}
                     >
@@ -344,7 +359,7 @@ export default function PostPage() {
                     <button
                       type="button"
                       onClick={() => handleShare(post)}
-                      className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 font-medium transition hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
+                      className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-medium transition hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
                     >
                       {copiedId === post.id ? (
                         <>
@@ -358,7 +373,31 @@ export default function PostPage() {
                         </>
                       )}
                     </button>
+
+                    {/* Delete Post Button */}
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(post.id)}
+                      disabled={deletingId === post.id}
+                      className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-medium text-rose-600 transition hover:bg-rose-50 dark:hover:bg-rose-950/40 disabled:opacity-50"
+                      title="Delete post"
+                    >
+                      {deletingId === post.id ? (
+                        <Loader2 size={15} className="animate-spin" />
+                      ) : (
+                        <Trash2 size={15} />
+                      )}
+                      <span>Delete</span>
+                    </button>
                   </div>
+
+                  <time className="text-xs text-[var(--muted-foreground)]">
+                    {new Date(post.createdAt).toLocaleDateString(undefined, {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                    })}
+                  </time>
                 </div>
               </article>
             ))

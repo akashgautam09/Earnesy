@@ -6,8 +6,8 @@ import AppPageHeader from '@/components/AppPageHeader'
 
 export default function MembershipsPage() {
   return (
-    <div className="min-h-screen bg-[var(--background)] px-4 py-8 sm:px-6 lg:px-10">
-      <div className="mx-auto max-w-5xl space-y-7">
+    <div className="min-h-screen bg-[#fcfbfb] px-4 py-8 sm:px-6 lg:px-10">
+      <div className="mx-auto max-w-3xl space-y-7">
         <AppPageHeader eyebrow="Memberships" title="Build your supporter community" description="Your creator account is ready for direct support. Membership tiers can be added when recurring plans are enabled." />
 
         <section className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">

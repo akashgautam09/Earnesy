@@ -11,52 +11,34 @@ export async function POST(req, { params }) {
     }
 
     const { id: postId } = await params
-
     if (!mongoose.Types.ObjectId.isValid(postId)) {
       return Response.json({ error: 'Invalid post ID' }, { status: 400 })
     }
 
-    if (mongoose.connection.readyState !== 1) {
-      await mongoose.connect(process.env.MONGODB_URI)
-    }
-
-    const post = await Post.findById(postId)
-    if (!post) {
+    // Fast index check instead of loading the entire document
+    if (!await Post.exists({ _id: postId })) {
       return Response.json({ error: 'Post not found' }, { status: 404 })
     }
 
-    // Check if the user has already liked this post
-    const existingLike = await Like.findOne({ postId, userId: user._id })
+    // Atomic toggle: delete if exists, otherwise create
+    const removedLike = await Like.findOneAndDelete({ postId, userId: user._id })
+    const isLiked = !removedLike
 
-    if (existingLike) {
-      // Unlike: Delete like record and decrement post likesCount
-      await Like.deleteOne({ _id: existingLike._id })
-      const updatedPost = await Post.findByIdAndUpdate(
-        postId,
-        { $inc: { likesCount: -1 } },
-        { new: true }
-      )
-
-      return Response.json({
-        success: true,
-        isLiked: false,
-        likesCount: Math.max(0, updatedPost?.likesCount ?? 0),
-      })
-    } else {
-      // Like: Create like record and increment post likesCount
+    if (isLiked) {
       await Like.create({ postId, userId: user._id })
-      const updatedPost = await Post.findByIdAndUpdate(
-        postId,
-        { $inc: { likesCount: 1 } },
-        { new: true }
-      )
-
-      return Response.json({
-        success: true,
-        isLiked: true,
-        likesCount: updatedPost?.likesCount ?? 1,
-      })
     }
+
+    const updated = await Post.findByIdAndUpdate(
+      postId,
+      { $inc: { likesCount: isLiked ? 1 : -1 } },
+      { new: true, select: 'likesCount' }
+    )
+
+    return Response.json({
+      success: true,
+      isLiked,
+      likesCount: Math.max(0, updated?.likesCount ?? 0),
+    })
   } catch (error) {
     console.error('Like toggle error:', error)
     return Response.json({ error: 'Failed to update like status' }, { status: 500 })
