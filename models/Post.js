@@ -23,10 +23,10 @@ const postSchema = new mongoose.Schema({
     type:String,
     default:null
   },
-  likes:[{
-    type:mongoose.Schema.Types.ObjectId,
-    ref:"User"
-  }],
+  likesCount:{
+    type:Number,
+    default:0
+  },
   status: {
     type: String,
     enum: ['published', 'draft'],
