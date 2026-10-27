@@ -145,10 +145,10 @@ export default function PostPage() {
           )
         )
       } else {
-        loadPosts().catch(() => {})
+        loadPosts().catch(() => { })
       }
     } catch {
-      loadPosts().catch(() => {})
+      loadPosts().catch(() => { })
     } finally {
       setLikingId(null)
     }
@@ -201,7 +201,7 @@ export default function PostPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fcfbfb] px-4 py-8 sm:px-6 lg:px-10">
+    <div className="min-h-screen bg-[#f4ecef5c] px-4 py-8 sm:px-6 lg:px-10">
       <div className="mx-auto max-w-3xl space-y-7">
         <AppPageHeader
           eyebrow="Post"
@@ -277,9 +277,8 @@ export default function PostPage() {
 
               {message && (
                 <p
-                  className={`text-xs ${
-                    message.includes('successfully') ? 'text-emerald-600 font-medium' : 'text-rose-500'
-                  }`}
+                  className={`text-xs ${message.includes('successfully') ? 'text-emerald-600 font-medium' : 'text-rose-500'
+                    }`}
                 >
                   {message}
                 </p>
@@ -325,11 +324,11 @@ export default function PostPage() {
                 </p>
 
                 {post.imageUrl && (
-                                  <div className="mx-auto aspect-[4/5] max-h-[600px] w-full overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--muted)]/20">
+                  <div className="mx-auto aspect-[4/5] max-h-[600px] w-full overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--muted)]/20">
                     <img
                       src={post.imageUrl}
                       alt={post.title}
-                                      className="h-full w-full rounded-xl object-contain shadow-sm"
+                      className="h-full w-full rounded-xl object-contain shadow-sm"
                       loading="lazy"
                     />
                   </div>
@@ -342,11 +341,10 @@ export default function PostPage() {
                     <button
                       type="button"
                       onClick={() => handleLike(post.id)}
-                      className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-medium transition ${
-                        post.isLiked
+                      className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-medium transition ${post.isLiked
                           ? 'text-rose-600 hover:bg-rose-100 dark:text-rose-400'
                           : 'hover:bg-[var(--muted)] hover:text-[var(--foreground)]'
-                      }`}
+                        }`}
                     >
                       <Heart
                         size={27}
@@ -363,12 +361,12 @@ export default function PostPage() {
                     >
                       {copiedId === post.id ? (
                         <>
-                          <Check size={ 21} className="text-emerald-600" />
+                          <Check size={21} className="text-emerald-600" />
                           <span className="text-emerald-600 font-semibold">Link Copied!</span>
                         </>
                       ) : (
                         <>
-                          <Share2 size={ 22} />
+                          <Share2 size={22} />
                           <span className="text-sm">Share</span>
                         </>
                       )}

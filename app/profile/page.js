@@ -40,7 +40,7 @@ export default function ProfilePage() {
   const displayName = profile?.name || clerkUser?.fullName || 'Creator'
 
   return (
-    <div className="min-h-screen bg-[#fcfbfb] px-4 py-8 sm:px-6 lg:px-10">
+    <div className="min-h-screen bg-[#f4ecef5c] px-4 py-8 sm:px-6 lg:px-10">
       <div className="mx-auto max-w-3xl space-y-7">
         <AppPageHeader
           eyebrow="Profile"

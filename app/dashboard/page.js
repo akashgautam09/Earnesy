@@ -14,6 +14,8 @@ export default function Dashboard() {
     name: '',
     email: '',
     username: '',
+    title: '',
+    bio: '',
     razorpayId: '',
     razorpaySecret: '',
   })
@@ -62,6 +64,8 @@ export default function Dashboard() {
           name: user.name || '',
           email: user.email || userEmail,
           username: user.username || '',
+          title: user.title || '',
+          bio: user.bio || '',
           razorpayId: user.razorpayId || '',
           // Secrets are write-only in the dashboard and must not be loaded into browser state.
           razorpaySecret: '',
@@ -202,6 +206,8 @@ export default function Dashboard() {
           name,
           email: userEmail,
           username,
+          title: formData.title,
+          bio: formData.bio,
           razorpayId: formData.razorpayId,
           razorpaySecret: formData.razorpaySecret,
           profileUrl: finalProfileUrl,
@@ -276,7 +282,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fcfbfb] px-4 py-8 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#f4ecef5c] px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-5xl">
         <div className="grid items-start gap-6 lg:grid-cols-[1.15fr_0.85fr]">
           <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
@@ -292,11 +298,10 @@ export default function Dashboard() {
                         setCoverMethod(method)
                         if (method === 'url') setCoverFile(null)
                       }}
-                      className={`rounded-md border px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.16em] transition-colors ${
-                        coverMethod === method
-                          ? 'border-amber-300 bg-amber-100 text-amber-900'
-                          : 'border-slate-300 bg-transparent text-slate-700 hover:border-amber-300'
-                      }`}
+                      className={`rounded-md border px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.16em] transition-colors ${coverMethod === method
+                        ? 'border-amber-300 bg-amber-100 text-amber-900'
+                        : 'border-slate-300 bg-transparent text-slate-700 hover:border-amber-300'
+                        }`}
                     >
                       {method === 'upload' ? 'Upload' : 'URL'}
                     </button>
@@ -339,11 +344,10 @@ export default function Dashboard() {
                         setProfileMethod(method)
                         if (method === 'url') setProfileFile(null)
                       }}
-                      className={`rounded-md border px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.16em] transition-colors ${
-                        profileMethod === method
-                          ? 'border-amber-300 bg-amber-100 text-amber-900'
-                          : 'border-slate-300 bg-transparent text-slate-700 hover:border-amber-300'
-                      }`}
+                      className={`rounded-md border px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.16em] transition-colors ${profileMethod === method
+                        ? 'border-amber-300 bg-amber-100 text-amber-900'
+                        : 'border-slate-300 bg-transparent text-slate-700 hover:border-amber-300'
+                        }`}
                     >
                       {method === 'upload' ? 'Upload' : 'URL'}
                     </button>
@@ -417,6 +421,32 @@ export default function Dashboard() {
                     className="w-full border border-slate-300 bg-slate-100 px-3 py-2.5 text-sm text-slate-500 outline-none"
                   />
                 </div>
+
+                <div className="md:col-span-2">
+                  <label className="mb-2 block text-sm text-slate-700">What are you creating? (Title / Headline)</label>
+                  <input
+                    type="text"
+                    name="title"
+                    maxLength={120}
+                    value={formData.title}
+                    onChange={handleInputChange}
+                    placeholder="e.g. Creating digital, art and web dev tutorials"
+                    className="w-full border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-500 focus:border-amber-600"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="mb-2 block text-sm text-slate-700">About (Bio)</label>
+                  <textarea
+                    name="bio"
+                    maxLength={1000}
+                    rows={3}
+                    value={formData.bio}
+                    onChange={handleInputChange}
+                    placeholder="Tell your supporters about yourself and your work..."
+                    className="w-full resize-y border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-500 focus:border-amber-600"
+                  />
+                </div>
               </div>
 
               <button
@@ -461,11 +491,10 @@ export default function Dashboard() {
 
             {message && (
               <div
-                className={`rounded-md border px-3 py-2 text-sm ${
-                  message.includes('Error') || message.includes('error')
-                    ? 'border-amber-300 bg-amber-50 text-amber-900'
-                    : 'border-amber-300 bg-amber-50 text-amber-900'
-                }`}
+                className={`rounded-md border px-3 py-2 text-sm ${message.includes('Error') || message.includes('error')
+                  ? 'border-amber-300 bg-amber-50 text-amber-900'
+                  : 'border-amber-300 bg-amber-50 text-amber-900'
+                  }`}
               >
                 {message}
               </div>

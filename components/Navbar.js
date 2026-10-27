@@ -2,14 +2,13 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useClerk, useUser } from '@clerk/nextjs';
+import { useClerk, useUser, Show } from '@clerk/nextjs';
 import { usePathname, useRouter } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 
 const Navbar = () => {
   const { isLoaded, isSignedIn, user } = useUser();
   const { signOut } = useClerk();
-  const isAuthenticated = isLoaded && isSignedIn;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -59,6 +58,8 @@ const Navbar = () => {
     { label: 'Contact', href: '/about#contact' },
   ];
 
+  const displayName = user?.fullName || user?.username || user?.primaryEmailAddress?.emailAddress || 'Account';
+
   return (
     <>
       <nav className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--background)]/90 shadow-[0_4px_18px_rgba(0,0,0,0.04)] backdrop-blur-sm">
@@ -90,7 +91,8 @@ const Navbar = () => {
               {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
 
-            {!isAuthenticated ? (
+            {/* Signed Out State: Login / Sign Up buttons */}
+            <Show when="signed-out">
               <div className="hidden items-center gap-2 md:flex">
                 <Link href="/login" className="px-3 py-2 text-sm font-medium uppercase tracking-[0.12em] text-[var(--muted-foreground)] transition-colors duration-[180ms] hover:text-[var(--primary)]">
                   Login
@@ -99,14 +101,22 @@ const Navbar = () => {
                   Sign Up
                 </Link>
               </div>
-            ) : (
+            </Show>
+
+            {/* Signed In State: User Menu Dropdown */}
+            <Show when="signed-in">
               <div className="relative hidden md:block" ref={dropdownRef}>
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-sm font-medium text-[var(--foreground)] transition-colors duration-180 hover:bg-[var(--muted)] active:scale-95"
+                  className="inline-flex min-h-11 items-center gap-2.5 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-sm font-medium text-[var(--foreground)] transition-colors duration-180 hover:bg-[var(--muted)] active:scale-95"
                 >
-                  <span className="max-w-[120px] truncate">{user?.fullName || user?.primaryEmailAddress?.emailAddress}</span>
-                  <span>▾</span>
+                  <img
+                    src={user?.imageUrl || '/tea.gif'}
+                    alt="Avatar"
+                    className="h-7 w-7 rounded-full object-cover border border-[var(--border)]"
+                  />
+                  <span className="max-w-[130px] truncate">{displayName}</span>
+                  <span className="text-xs text-[var(--muted-foreground)]">▾</span>
                 </button>
 
                 {isDropdownOpen && (
@@ -114,7 +124,7 @@ const Navbar = () => {
                     <div className="mb-2 flex items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--muted)] p-2">
                       <img src={user?.imageUrl || '/tea.gif'} alt="Profile" className="h-9 w-9 rounded-full object-cover" />
                       <div className="min-w-0">
-                        <div className="truncate text-sm font-medium text-slate-900">{user?.fullName || user?.primaryEmailAddress?.emailAddress}</div>
+                        <div className="truncate text-sm font-medium text-slate-900">{displayName}</div>
                         <div className="truncate text-xs text-slate-600">{user?.primaryEmailAddress?.emailAddress}</div>
                       </div>
                     </div>
@@ -144,10 +154,11 @@ const Navbar = () => {
                   </div>
                 )}
               </div>
-            )}
+            </Show>
           </div>
         </div>
 
+        {/* Mobile menu dropdown */}
         {isMobileMenuOpen && (
           <div className="border-t border-[var(--border)] bg-[var(--background)] px-5 py-5 md:hidden">
             <div className="space-y-2">
@@ -162,37 +173,35 @@ const Navbar = () => {
                 </Link>
               ))}
 
-              {!isAuthenticated ? (
-                <>
-                  <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="block rounded-lg px-3 py-2 text-sm font-medium uppercase tracking-[0.12em] text-[var(--muted-foreground)] transition-colors duration-[180ms] hover:bg-[var(--accent)] hover:text-[var(--primary)]">
-                    Login
-                  </Link>
-                  <Link href="/sign-up" onClick={() => setIsMobileMenuOpen(false)} className="premium-button mt-2 w-full rounded-lg uppercase tracking-[0.12em]">
-                    Sign Up
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <button
-                    onClick={() => openYourPage(() => setIsMobileMenuOpen(false))}
-                    className="block w-full rounded-md px-3 py-2 text-left text-sm uppercase tracking-[0.12em] text-slate-700 hover:bg-amber-50 hover:text-amber-700"
-                  >
-                    Your Page
-                  </button>
-                  <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="block rounded-md px-3 py-2 text-sm uppercase tracking-[0.12em] text-slate-700 hover:bg-amber-50 hover:text-amber-700">
-                    Dashboard
-                  </Link>
-                  <button
-                    onClick={() => {
-                      setIsMobileMenuOpen(false);
-                      signOut();
-                    }}
-                    className="block w-full rounded-md px-3 py-2 text-left text-sm uppercase tracking-[0.12em] text-slate-700 hover:bg-amber-50 hover:text-amber-700"
-                  >
-                    Sign Out
-                  </button>
-                </>
-              )}
+              <Show when="signed-out">
+                <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="block rounded-lg px-3 py-2 text-sm font-medium uppercase tracking-[0.12em] text-[var(--muted-foreground)] transition-colors duration-[180ms] hover:bg-[var(--accent)] hover:text-[var(--primary)]">
+                  Login
+                </Link>
+                <Link href="/sign-up" onClick={() => setIsMobileMenuOpen(false)} className="premium-button mt-2 w-full rounded-lg uppercase tracking-[0.12em]">
+                  Sign Up
+                </Link>
+              </Show>
+
+              <Show when="signed-in">
+                <button
+                  onClick={() => openYourPage(() => setIsMobileMenuOpen(false))}
+                  className="block w-full rounded-md px-3 py-2 text-left text-sm uppercase tracking-[0.12em] text-slate-700 hover:bg-amber-50 hover:text-amber-700"
+                >
+                  Your Page
+                </button>
+                <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="block rounded-md px-3 py-2 text-sm uppercase tracking-[0.12em] text-slate-700 hover:bg-amber-50 hover:text-amber-700">
+                  Dashboard
+                </Link>
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    signOut();
+                  }}
+                  className="block w-full rounded-md px-3 py-2 text-left text-sm uppercase tracking-[0.12em] text-slate-700 hover:bg-amber-50 hover:text-amber-700"
+                >
+                  Sign Out
+                </button>
+              </Show>
             </div>
           </div>
         )}

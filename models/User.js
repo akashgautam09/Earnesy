@@ -24,6 +24,19 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     trim: true,
   },
+  title: {
+    type: String,
+    required: true,
+    maxlength: 120,
+    default: '',
+    trim: true,
+  },
+  bio: {
+    type: String,
+    maxlength: 1000,
+    trim: true,
+    default: '',
+  },
   coverUrl:{
     type: String,
   },
