@@ -152,7 +152,7 @@ export default function SinglePostPage() {
 
   return (
     <div className="min-h-screen bg-[var(--background)] px-4 py-8 sm:px-6 lg:px-10">
-      <div className="mx-auto max-w-3xl space-y-6">
+      <div className="mx-auto max-w-3xl space-y-5">
         {/* Navigation link */}
         <Link
           href="/post"
@@ -162,9 +162,9 @@ export default function SinglePostPage() {
         </Link>
 
         {/* Post Container */}
-        <article className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.04)] sm:p-8">
+        <article className="space-y-4 rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-[0_8px_24px_rgba(25,25,25,0.03)] sm:p-6">
           {/* Author Header */}
-          <div className="flex items-center justify-between border-b border-[var(--border)] pb-5">
+          <div className="flex items-center justify-between">
             <Link
               href={post.author?.username ? `/${post.author.username}` : '#'}
               className="flex items-center gap-3 group"
@@ -184,32 +184,24 @@ export default function SinglePostPage() {
               </div>
             </Link>
 
-            <time className="text-xs text-[var(--muted-foreground)]">
-              {new Date(post.createdAt).toLocaleDateString(undefined, {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-              })}
-            </time>
           </div>
 
           {/* Post Content */}
-          <div className="space-y-4 py-6">
-            <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)] sm:text-3xl">
+          <div className="space-y-4">
+            <h1 className="text-[1.1rem] font-semibold text-[var(--foreground)]">
               {post.title}
             </h1>
 
-            <p className="whitespace-pre-wrap text-base leading-relaxed text-[var(--foreground)]/90">
+            <p className="whitespace-pre-wrap text-[1rem] leading-6 text-[var(--muted-foreground)]">
               {post.content}
             </p>
 
-            {/* Full Length & Width Image */}
             {post.imageUrl && (
-              <div className="mt-6 overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--muted)]/20">
+              <div className="mx-auto aspect-[4/5] max-h-[600px] w-full overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--muted)]/20">
                 <img
                   src={post.imageUrl}
                   alt={post.title}
-                  className="w-full h-auto max-w-full rounded-xl object-contain shadow-sm"
+                  className="h-full w-full rounded-xl object-contain shadow-sm"
                   loading="eager"
                 />
               </div>
@@ -217,63 +209,69 @@ export default function SinglePostPage() {
           </div>
 
           {/* Action Bar */}
-          <div className="flex items-center justify-between border-t border-[var(--border)] pt-4 text-sm">
-            <div className="flex items-center gap-3">
+          <div className="flex flex-col justify-between gap-3 border-t border-[var(--border)] pt-3.5 pr-2 text-xs text-[var(--muted-foreground)] sm:flex-row sm:items-center">
+            <div className="flex flex-wrap items-center gap-2 pl-3 sm:gap-3">
               {/* Like Button */}
               <button
                 type="button"
                 onClick={handleLike}
                 disabled={liking}
-                className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-2 font-medium transition ${
-                  post.isLiked
-                    ? 'bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-950/40 dark:text-rose-400'
+                className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-medium transition ${post.isLiked
+                    ? 'text-rose-600 hover:bg-rose-100 dark:text-rose-400'
                     : 'text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]'
-                }`}
+                  }`}
               >
                 <Heart
-                  size={18}
-                  className={post.isLiked ? 'fill-rose-500 text-rose-500' : ''}
+                  size={27}
+                  className={post.isLiked ? 'fill-rose-500 text-rose-500' : 'text-[var(--muted-foreground)]'}
                 />
-                <span>{post.likesCount || 0}</span>
+                <span className="text-lg">{post.likesCount || 0}</span>
               </button>
 
               {/* Share Button */}
               <button
                 type="button"
                 onClick={handleShare}
-                className="inline-flex items-center gap-2 rounded-lg px-3.5 py-2 font-medium text-[var(--muted-foreground)] transition hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
+                className="inline-flex items-center gap-2 rounded-lg px-2.5 py-1.5 font-medium transition hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
               >
                 {copied ? (
                   <>
-                    <Check size={18} className="text-emerald-600" />
+                    <Check size={21} className="text-emerald-600" />
                     <span className="text-emerald-600 font-semibold">Link Copied!</span>
                   </>
                 ) : (
                   <>
-                    <Share2 size={18} />
-                    <span>Share</span>
+                    <Share2 size={22} />
+                    <span className="text-sm">Share</span>
                   </>
                 )}
               </button>
+
+              {/* Author Delete Button */}
+              {post.isAuthor && (
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-medium text-rose-600 transition hover:bg-rose-50 dark:hover:bg-rose-950/40 disabled:opacity-50"
+                  title="Delete this post"
+                >
+                  {deleting ? (
+                    <Loader2 size={23} className="animate-spin" />
+                  ) : (
+                    <Trash2 size={23} />
+                  )}
+                </button>
+              )}
             </div>
 
-            {/* Author Delete Button */}
-            {post.isAuthor && (
-              <button
-                type="button"
-                onClick={handleDelete}
-                disabled={deleting}
-                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-50 dark:hover:bg-rose-950/40 disabled:opacity-50"
-                title="Delete this post"
-              >
-                {deleting ? (
-                  <Loader2 size={16} className="animate-spin" />
-                ) : (
-                  <Trash2 size={16} />
-                )}
-                <span>Delete</span>
-              </button>
-            )}
+            <time className="text-xs text-[var(--muted-foreground)]">
+              {new Date(post.createdAt).toLocaleDateString(undefined, {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+              })}
+            </time>
           </div>
         </article>
       </div>

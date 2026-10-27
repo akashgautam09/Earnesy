@@ -57,7 +57,7 @@ export default function Sidebar() {
   const username = localUsername ? `@${localUsername}` : 'Set up your public page'
 
   return (
-    <aside className="sticky top-0 z-40 w-full shrink-0 border-b border-[var(--border)] bg-[var(--card)] md:h-screen md:w-64 md:border-b-0 md:border-r">
+    <aside className="sticky top-0 z-40 w-full shrink-0 border-b border-[var(--border)] bg-[var(--card)] md:h-screen md:w-[18rem] md:border-b-0 md:border-r">
       <div className="flex h-full flex-col gap-5 px-3 py-4 sm:px-4 md:gap-6 md:px-5 md:py-6">
         {/* Brand Header */}
         <Link
@@ -75,13 +75,13 @@ export default function Sidebar() {
           className="flex min-w-0 items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--muted)]/50 p-3 transition hover:bg-[var(--muted)]"
         >
           <img
-            src={user?.imageUrl || '/tea.gif'}
+            src={user?.imageUrl || '/default-avatar.png'}
             alt={displayName}
             className="h-10 w-10 rounded-full border border-[var(--border)] object-cover shadow-xs"
           />
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-[var(--foreground)]">{displayName}</p>
-            <p className="truncate text-xs text-[var(--muted-foreground)]">{username}</p>
+            <p className="truncate text-sm tracking-wider font-semibold text-[var(--foreground)]">{displayName}</p>
+            <p className="truncate text-xs tracking-wider text-[var(--muted-foreground)]">{username}</p>
           </div>
         </Link>
 
@@ -118,7 +118,7 @@ export default function Sidebar() {
                   strokeWidth={active ? 2.2 : 1.9}
                   className={active ? 'text-[var(--primary)]' : 'font-semibold'}
                 />
-                <span className="truncate font-sans tracking-tight">{label}</span>
+                <span className="truncate font-sans tracking-wider">{label}</span>
               </Link>
             )
           })}
@@ -129,10 +129,10 @@ export default function Sidebar() {
           <button
             type="button"
             onClick={() => signOut({ redirectUrl: '/' })}
-            className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-[var(--muted-foreground)] transition-all hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/30"
+            className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-[var(--muted-foreground)] transition-all hover:bg-[var(--muted)] hover:text-rose-600"
           >
             <LogOut size={19} strokeWidth={1.9} />
-            <span className="tracking-tight">Sign Out</span>
+            <span className="tracking-wider">Sign Out</span>
           </button>
         </div>
       </div>

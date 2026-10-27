@@ -234,7 +234,7 @@ export default function PostPage() {
             onChange={(event) => setForm({ ...form, content: event.target.value })}
             placeholder="What would you like to share?"
             rows={5}
-            className="w-full resize-y rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-3 text-sm leading-6 text-[var(--foreground)] outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--accent)]"
+            className="w-full resize-y rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-3 text-sm leading-4 text-[var(--foreground)] outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--accent)]"
           />
 
           {/* Image Preview */}
@@ -314,13 +314,13 @@ export default function PostPage() {
             posts.map((post) => (
               <article
                 key={post.id}
-                className="space-y-4 rounded border border-[var(--border)] bg-[var(--card)] p-5 shadow-[0_8px_24px_rgba(25,25,25,0.03)] sm:p-6"
+                className="space-y-4 rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-[0_8px_24px_rgba(25,25,25,0.03)] sm:p-6"
               >
                 <div>
-                  <h3 className="text-lg font-semibold text-[var(--foreground)]">{post.title}</h3>
+                  <h3 className="text-[1.1rem] font-semibold text-[var(--foreground)]">{post.title}</h3>
                 </div>
 
-                <p className="whitespace-pre-wrap text-sm leading-6 text-[var(--muted-foreground)]">
+                <p className="whitespace-pre-wrap text-[1rem] leading-6 text-[var(--muted-foreground)]">
                   {post.content}
                 </p>
 
@@ -336,40 +336,40 @@ export default function PostPage() {
                 )}
 
                 {/* Actions: Likes, Share, Delete, and Date */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-[var(--border)] pt-3.5 text-xs text-[var(--muted-foreground)]">
-                  <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-[var(--border)] pt-3.5 pr-2 text-xs text-[var(--muted-foreground)]">
+                  <div className="flex items-center gap-2 pl-3 sm:gap-3 flex-wrap">
                     {/* Like Button */}
                     <button
                       type="button"
                       onClick={() => handleLike(post.id)}
                       className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-medium transition ${
                         post.isLiked
-                          ? 'bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-950/40 dark:text-rose-400'
+                          ? 'text-rose-600 hover:bg-rose-100 dark:text-rose-400'
                           : 'hover:bg-[var(--muted)] hover:text-[var(--foreground)]'
                       }`}
                     >
                       <Heart
-                        size={16}
+                        size={27}
                         className={post.isLiked ? 'fill-rose-500 text-rose-500' : 'text-[var(--muted-foreground)]'}
                       />
-                      <span>{post.likesCount || 0}</span>
+                      <span className="text-lg">{post.likesCount || 0}</span>
                     </button>
 
                     {/* Share Button */}
                     <button
                       type="button"
                       onClick={() => handleShare(post)}
-                      className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-medium transition hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
+                      className="inline-flex items-center gap-2 rounded-lg px-2.5 py-1.5 font-medium transition hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
                     >
                       {copiedId === post.id ? (
                         <>
-                          <Check size={16} className="text-emerald-600" />
+                          <Check size={ 21} className="text-emerald-600" />
                           <span className="text-emerald-600 font-semibold">Link Copied!</span>
                         </>
                       ) : (
                         <>
-                          <Share2 size={16} />
-                          <span>Share</span>
+                          <Share2 size={ 22} />
+                          <span className="text-sm">Share</span>
                         </>
                       )}
                     </button>
@@ -379,15 +379,14 @@ export default function PostPage() {
                       type="button"
                       onClick={() => handleDelete(post.id)}
                       disabled={deletingId === post.id}
-                      className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-medium text-rose-600 transition hover:bg-rose-50 dark:hover:bg-rose-950/40 disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-medium text-rose-600 transition hover:bg-rose-50 disabled:opacity-50"
                       title="Delete post"
                     >
                       {deletingId === post.id ? (
-                        <Loader2 size={15} className="animate-spin" />
+                        <Loader2 size={23} className="animate-spin" />
                       ) : (
-                        <Trash2 size={15} />
+                        <Trash2 size={23} />
                       )}
-                      <span>Delete</span>
                     </button>
                   </div>
 

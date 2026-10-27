@@ -4,42 +4,7 @@ import User from '@/models/User'
 import Payment from '@/models/Payment'
 import { getCurrentUser } from '@/lib/auth/server'
 import { getCreatorStats } from '@/lib/data/creator'
-import { v2 as cloudinary } from 'cloudinary'
-
-const getCloudinaryPublicId = (url) => {
-  if (typeof url !== 'string' || !url.includes('res.cloudinary.com')) {
-    return null
-  }
-
-  try {
-    const parsedUrl = new URL(url)
-    const uploadMarker = '/upload/'
-    const uploadIndex = parsedUrl.pathname.indexOf(uploadMarker)
-
-    if (uploadIndex === -1) {
-      return null
-    }
-
-    let publicPath = parsedUrl.pathname.slice(uploadIndex + uploadMarker.length)
-
-    if (publicPath.startsWith('v')) {
-      const versionSeparator = publicPath.indexOf('/')
-      if (versionSeparator === -1) {
-        return null
-      }
-      publicPath = publicPath.slice(versionSeparator + 1)
-    }
-
-    const extensionIndex = publicPath.lastIndexOf('.')
-    if (extensionIndex === -1) {
-      return null
-    }
-
-    return decodeURIComponent(publicPath.slice(0, extensionIndex))
-  } catch {
-    return null
-  }
-}
+import cloudinary, { getCloudinaryPublicId } from '@/lib/cloudinary'
 
 export async function GET(req) {
   try {
@@ -121,20 +86,6 @@ export async function POST(req) {
       coverUrl,
     } = body
 
-    if (profileUrl && currentUser.profileUrl && profileUrl !== currentUser.profileUrl) {
-      const previousProfileId = getCloudinaryPublicId(currentUser.profileUrl)
-      if (previousProfileId) {
-        await cloudinary.uploader.destroy(previousProfileId)
-      }
-    }
-
-    if (coverUrl && currentUser.coverUrl && coverUrl !== currentUser.coverUrl) {
-      const previousCoverId = getCloudinaryPublicId(currentUser.coverUrl)
-      if (previousCoverId) {
-        await cloudinary.uploader.destroy(previousCoverId)
-      }
-    }
-
     const normalizedName = typeof name === 'string' ? name.trim() : ''
     const normalizedUsername = typeof username === 'string' ? username.trim().toLowerCase() : ''
 
@@ -210,6 +161,19 @@ export async function POST(req) {
         { status: 404 }
       )
     }
+
+    const oldImageIds = [
+      profileUrl !== currentUser.profileUrl
+        ? getCloudinaryPublicId(currentUser.profileUrl)
+        : null,
+      coverUrl !== currentUser.coverUrl
+        ? getCloudinaryPublicId(currentUser.coverUrl)
+        : null,
+    ].filter(Boolean)
+
+    await Promise.all(
+      oldImageIds.map((publicId) => cloudinary.uploader.destroy(publicId))
+    )
 
     return Response.json({
       success: true,

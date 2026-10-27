@@ -1,15 +1,9 @@
 import { getCurrentUser } from '@/lib/auth/server'
-import { v2 as cloudinary } from 'cloudinary'
+import cloudinary from '@/lib/cloudinary'
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 const IMAGE_TYPES = new Set(['image/gif', 'image/jpeg', 'image/png', 'image/webp'])
 const IMAGE_FOLDERS = new Set(['profile', 'cover', 'posts'])
-
-cloudinary.config({
-  cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-})
 
 const hasValidImageSignature = (bytes, contentType) => {
   if (contentType === 'image/jpeg') {

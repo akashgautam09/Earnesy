@@ -3,6 +3,7 @@ import Post from '@/models/Post'
 import Like from '@/models/Like'
 import User from '@/models/User'
 import { getCurrentUser } from '@/lib/auth/server'
+import cloudinary, { getCloudinaryPublicId } from '@/lib/cloudinary'
 
 export async function GET(req, { params }) {
   try {
@@ -76,6 +77,11 @@ export async function DELETE(req, { params }) {
 
     if (post.authorId.toString() !== user._id.toString()) {
       return Response.json({ error: 'Forbidden: You can only delete your own posts' }, { status: 403 })
+    }
+
+    const imagePublicId = getCloudinaryPublicId(post.imageUrl)
+    if (imagePublicId) {
+      await cloudinary.uploader.destroy(imagePublicId)
     }
 
     // Run post and like deletions in parallel
