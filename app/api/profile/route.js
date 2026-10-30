@@ -51,6 +51,10 @@ export async function GET(req) {
         bio: user.bio || '',
         profileUrl: user.profileUrl,
         coverUrl: user.coverUrl,
+        discordServerId: user.discordServerId || '',
+        discordRoleId: user.discordRoleId || '',
+        discordInviteUrl: user.discordInviteUrl || '',
+        discordUserId: user.discordUserId || '',
         razorpayId,
         hasRazorpayCredentials,
         stats,
@@ -88,6 +92,10 @@ export async function POST(req) {
       disconnectRazorpay,
       profileUrl,
       coverUrl,
+      discordServerId,
+      discordRoleId,
+      discordInviteUrl,
+      discordUserId,
     } = body
 
     const normalizedName = typeof name === 'string' ? name.trim() : ''
@@ -127,6 +135,10 @@ export async function POST(req) {
       bio: typeof bio === 'string' ? bio.trim().slice(0, 1000) : '',
       profileUrl: profileUrl || undefined,
       coverUrl: coverUrl || undefined,
+      discordServerId: typeof discordServerId === 'string' ? discordServerId.trim() : '',
+      discordRoleId: typeof discordRoleId === 'string' ? discordRoleId.trim() : '',
+      discordInviteUrl: typeof discordInviteUrl === 'string' ? discordInviteUrl.trim() : '',
+      discordUserId: typeof discordUserId === 'string' ? discordUserId.trim() : '',
       updatedAt: new Date(),
     }
 
@@ -192,6 +204,10 @@ export async function POST(req) {
         bio: updatedUser.bio || '',
         profileUrl: updatedUser.profileUrl,
         coverUrl: updatedUser.coverUrl,
+        discordServerId: updatedUser.discordServerId || '',
+        discordRoleId: updatedUser.discordRoleId || '',
+        discordInviteUrl: updatedUser.discordInviteUrl || '',
+        discordUserId: updatedUser.discordUserId || '',
       },
     })
   } catch (error) {

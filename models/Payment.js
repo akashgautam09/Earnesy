@@ -27,10 +27,20 @@ const paymentSchema = new mongoose.Schema({
     },
     createdAt: {
         type: Date,
-        default: Date.now
-    },done: {
+        default: Date.now,
+    },
+    done: {
         type: Boolean,
-        default: false
+        default: false,
+    },
+    supporter_discord_id: {
+        type: String,
+        trim: true,
+        default: '',
+    },
+    discordRoleAssigned: {
+        type: Boolean,
+        default: false,
     }
 });
 

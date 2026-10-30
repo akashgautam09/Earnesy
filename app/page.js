@@ -11,7 +11,7 @@ export default async function Home() {
   }
 
   return (
-    <>
+    <main className="bg-[#f4ecef5c]"  >
       {/* Hero Section */}
       <div className='min-h-[80vh] flex flex-col items-center justify-center px-4 py-12 sm:py-20 gap-8 text-center' >
         <div className='max-w-2xl space-y-4'>
@@ -81,6 +81,6 @@ export default async function Home() {
           </div>
         </div>
       </div>
-    </>
+    </main>
   );
 }

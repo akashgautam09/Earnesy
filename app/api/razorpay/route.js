@@ -3,6 +3,7 @@ import { validatePaymentVerification } from "razorpay/dist/utils/razorpay-utils"
 import Payment from "@/models/Payment";
 import User from "@/models/User";
 import mongoose from "mongoose";
+import { assignDiscordRole } from "@/lib/discord";
 
 export const POST = async (request) => {
     try {
@@ -54,7 +55,28 @@ export const POST = async (request) => {
                 return NextResponse.json({ error: "Failed to update payment status" }, { status: 500 })
             }
 
-            return NextResponse.redirect(`${applicationUrl}/${encodeURIComponent(updatedDetails.to_user)}?paymentdone=true`)
+            // Assign Discord VIP Role if creator has Discord configured
+            let discordStatus = ''
+            if (user.discordServerId && user.discordRoleId && updatedDetails.supporter_discord_id) {
+                try {
+                    const discordResult = await assignDiscordRole({
+                        guildId: user.discordServerId,
+                        roleId: user.discordRoleId,
+                        userId: updatedDetails.supporter_discord_id,
+                    })
+
+                    if (discordResult.success) {
+                        await Payment.updateOne({ _id: updatedDetails._id }, { discordRoleAssigned: true })
+                        discordStatus = '&discordrole=assigned'
+                    } else if (discordResult.memberNotFound) {
+                        discordStatus = '&discordrole=not_in_server'
+                    }
+                } catch (discordErr) {
+                    console.error('Discord role assignment error:', discordErr)
+                }
+            }
+
+            return NextResponse.redirect(`${applicationUrl}/${encodeURIComponent(updatedDetails.to_user)}?paymentdone=true${discordStatus}`)
         }
         else {
             console.error(`Payment verification failed for order_id: ${body.razorpay_order_id}`)

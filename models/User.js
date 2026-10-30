@@ -55,6 +55,26 @@ const userSchema = new mongoose.Schema({
     set: (value) => value ? encrypt(value) : value,
     get: (value) => value ? decrypt(value) : value,
   },
+  discordServerId: {
+    type: String,
+    trim: true,
+    default: '',
+  },
+  discordRoleId: {
+    type: String,
+    trim: true,
+    default: '',
+  },
+  discordInviteUrl: {
+    type: String,
+    trim: true,
+    default: '',
+  },
+  discordUserId: {
+    type: String,
+    trim: true,
+    default: '',
+  },
   createdAt: {
     type: Date,
     default: Date.now

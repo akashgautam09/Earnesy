@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
+import { ExternalLink, HelpCircle, ChevronDown, ChevronUp, CheckCircle2, AlertCircle } from 'lucide-react'
 
 export default function Dashboard() {
   const { isLoaded, isSignedIn, user } = useUser()
@@ -16,9 +17,17 @@ export default function Dashboard() {
     username: '',
     title: '',
     bio: '',
+    discordServerId: '',
+    discordRoleId: '',
+    discordInviteUrl: '',
+    discordUserId: '',
     razorpayId: '',
     razorpaySecret: '',
   })
+
+  const [testingDiscord, setTestingDiscord] = useState(false)
+  const [discordTestResult, setDiscordTestResult] = useState(null)
+  const [showDiscordGuide, setShowDiscordGuide] = useState(false)
 
   const [profilePic, setProfilePic] = useState(null)
   const [coverPic, setCoverPic] = useState(null)
@@ -66,6 +75,10 @@ export default function Dashboard() {
           username: user.username || '',
           title: user.title || '',
           bio: user.bio || '',
+          discordServerId: user.discordServerId || '',
+          discordRoleId: user.discordRoleId || '',
+          discordInviteUrl: user.discordInviteUrl || '',
+          discordUserId: user.discordUserId || '',
           razorpayId: user.razorpayId || '',
           // Secrets are write-only in the dashboard and must not be loaded into browser state.
           razorpaySecret: '',
@@ -208,6 +221,10 @@ export default function Dashboard() {
           username,
           title: formData.title,
           bio: formData.bio,
+          discordServerId: formData.discordServerId,
+          discordRoleId: formData.discordRoleId,
+          discordInviteUrl: formData.discordInviteUrl,
+          discordUserId: formData.discordUserId,
           razorpayId: formData.razorpayId,
           razorpaySecret: formData.razorpaySecret,
           profileUrl: finalProfileUrl,
@@ -227,6 +244,44 @@ export default function Dashboard() {
       setTimeout(() => setMessage(''), 3000)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleTestDiscord = async () => {
+    if (!formData.discordServerId?.trim() || !formData.discordRoleId?.trim()) {
+      setDiscordTestResult({ success: false, message: 'Please enter both Server ID and Role ID to test.' })
+      return
+    }
+
+    setTestingDiscord(true)
+    setDiscordTestResult(null)
+
+    try {
+      const res = await fetch('/api/discord/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          serverId: formData.discordServerId.trim(),
+          roleId: formData.discordRoleId.trim(),
+        }),
+      })
+
+      const data = await res.json()
+      if (res.ok && data.success) {
+        setDiscordTestResult({
+          success: true,
+          message: `Connected to "${data.guildName}"! Bot has permission to assign @${data.roleName}.`,
+        })
+      } else {
+        setDiscordTestResult({
+          success: false,
+          message: data.error || 'Connection test failed',
+        })
+      }
+    } catch (err) {
+      setDiscordTestResult({ success: false, message: err.message || 'Network error testing Discord' })
+    } finally {
+      setTestingDiscord(false)
     }
   }
 
@@ -459,6 +514,141 @@ export default function Dashboard() {
               </button>
             </div>
 
+            {/* Discord Community & VIP Role Section */}
+            <div className="rounded-xl border border-indigo-200/90 bg-gradient-to-br from-indigo-50/50 via-white to-purple-50/30 p-4 sm:p-5 shadow-sm">
+              <div className="mb-4 flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between border-b border-indigo-100 pb-3">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#5865F2] text-white">
+                      <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24">
+                        <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028z" />
+                      </svg>
+                    </span>
+                    <h2 className="text-sm font-semibold tracking-wide text-slate-900">Discord Community & VIP Perks</h2>
+                  </div>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Automatically grant VIP roles to your supporters in Discord.
+                  </p>
+                </div>
+
+                <a
+                  href={process.env.NEXT_PUBLIC_DISCORD_BOT_INVITE_URL || 'https://discord.com/oauth2/authorize?client_id=1564681762754396180&permissions=268435456&integration_type=0&scope=bot'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 self-start sm:self-center rounded-lg bg-[#5865F2] px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-[#4752c4]"
+                >
+                  <span>Connect Discord</span>
+                  <ExternalLink size={13} />
+                </a>
+              </div>
+
+              {/* Collapsible 3-step setup guide */}
+              <div className="mb-4 rounded-lg border border-indigo-100 bg-white/80 p-3">
+                <button
+                  type="button"
+                  onClick={() => setShowDiscordGuide(!showDiscordGuide)}
+                  className="flex w-full items-center justify-between text-xs font-medium text-indigo-700 hover:text-indigo-900"
+                >
+                  <span className="flex items-center gap-1.5">
+                    <HelpCircle size={14} />
+                    How to setup Discord perks in 3 steps?
+                  </span>
+                  {showDiscordGuide ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                </button>
+
+                {showDiscordGuide && (
+                  <div className="mt-3 space-y-2 border-t border-indigo-50 pt-2.5 text-xs text-slate-600">
+                    <p className="flex items-start gap-2">
+                      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-[10px] font-bold text-indigo-700">1</span>
+                      <span>Click <strong>&quot;Add Bot to Discord&quot;</strong> and authorize Earnesy Bot into your server.</span>
+                    </p>
+                    <p className="flex items-start gap-2">
+                      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-[10px] font-bold text-indigo-700">2</span>
+                      <span>In Discord <strong>Server Settings &rarr; Roles</strong>, drag <strong>Earnesy Bot</strong> <em>above</em> your VIP Supporter role.</span>
+                    </p>
+                    <p className="flex items-start gap-2">
+                      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-[10px] font-bold text-indigo-700">3</span>
+                      <span>In Discord Settings &rarr; Advanced, turn on <strong>Developer Mode</strong>. Then right-click your server to copy <strong>Server ID</strong>, and right-click your VIP role to copy <strong>Role ID</strong>.</span>
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <div className="grid gap-3.5 sm:grid-cols-2">
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-slate-700">
+                    Discord Server (Guild) ID
+                  </label>
+                  <input
+                    type="text"
+                    name="discordServerId"
+                    value={formData.discordServerId}
+                    onChange={handleInputChange}
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-slate-700">
+                    Supporter Role ID
+                  </label>
+                  <input
+                    type="text"
+                    name="discordRoleId"
+                    value={formData.discordRoleId}
+                    onChange={handleInputChange}
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-slate-700">
+                    Discord Server Invite Link (Optional)
+                  </label>
+                  <input
+                    type="url"
+                    name="discordInviteUrl"
+                    value={formData.discordInviteUrl}
+                    onChange={handleInputChange}
+                    placeholder="https://discord.gg/your-server"
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-slate-700">
+                    Your Personal Discord ID (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    name="discordUserId"
+                    value={formData.discordUserId}
+                    onChange={handleInputChange}
+                    placeholder="Your Discord User ID"
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-indigo-100 pt-3">
+                <button
+                  type="button"
+                  onClick={handleTestDiscord}
+                  disabled={testingDiscord || !formData.discordServerId || !formData.discordRoleId}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-indigo-300 bg-white px-3 py-1.5 text-xs font-semibold text-indigo-700 shadow-sm transition hover:bg-indigo-50 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <span>{testingDiscord ? 'Testing...' : '⚡ Test Connection'}</span>
+                </button>
+
+                {discordTestResult && (
+                  <div className={`flex items-center gap-1.5 text-xs font-medium ${discordTestResult.success ? 'text-emerald-700' : 'text-rose-600'}`}>
+                    {discordTestResult.success ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />}
+                    <span>{discordTestResult.message}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
               <div className="mb-4">
                 <h2 className="text-sm font-medium uppercase tracking-[0.18em] text-slate-700">Payment setup</h2>
@@ -550,6 +740,12 @@ export default function Dashboard() {
                     <p className="text-[10px] uppercase tracking-[0.2em] text-slate-600">Support</p>
                     <p className="mt-1 text-sm text-slate-700">
                       {formData.razorpayId ? 'Razorpay connected' : 'Connect payment details'}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-slate-600">Discord</p>
+                    <p className="mt-1 text-sm text-slate-700">
+                      {formData.discordServerId && formData.discordRoleId ? 'VIP Perks Active' : 'Not connected'}
                     </p>
                   </div>
                 </div>

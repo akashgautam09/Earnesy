@@ -49,12 +49,15 @@ export const initiate = async (amount, to_user, paymentform) => {
 
         const x = await instance.orders.create(options)
 
+        const supporterDiscordId = paymentform?.discordUserId?.trim() || currentUser.discordUserId || ''
+
         await Payment.create({
             from_user: paymentform.name.trim(),
             amount: amountInPaise,
             to_user: user.username,
             creator_id: user._id,
             order_id: x.id,
+            supporter_discord_id: supporterDiscordId,
         })
 
         return x
@@ -90,6 +93,8 @@ export const fetchUserPage = async (username) => {
                 coverUrl: user.coverUrl,
                 razorpayId,
                 paymentsEnabled: Boolean(razorpayId && razorpaySecret),
+                hasDiscordRewards: Boolean(user.discordServerId && user.discordRoleId),
+                discordInviteUrl: user.discordInviteUrl || '',
             }
         }
         return null
