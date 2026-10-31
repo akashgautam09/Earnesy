@@ -1,11 +1,11 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { FileText, Send, Image as ImageIcon, X, Heart, Share2, Trash2, Loader2, Check } from 'lucide-react'
+import { FileText, Send, Image as ImageIcon, X, Heart, Share2, Trash2, Loader2, Check, Globe, Lock } from 'lucide-react'
 import AppPageHeader from '@/components/AppPageHeader'
 
 export default function PostPage() {
-  const [form, setForm] = useState({ title: '', content: '' })
+  const [form, setForm] = useState({ title: '', content: '', visibility: 'public' })
   const [selectedFile, setSelectedFile] = useState(null)
   const [previewUrl, setPreviewUrl] = useState('')
   const [posts, setPosts] = useState([])
@@ -101,6 +101,7 @@ export default function PostPage() {
           title: form.title,
           content: form.content,
           imageUrl,
+          visibility: form.visibility,
         }),
       })
 
@@ -108,7 +109,7 @@ export default function PostPage() {
       if (!response.ok) throw new Error(data.error || 'Could not create post')
 
       setPosts((current) => [data.post, ...current])
-      setForm({ title: '', content: '' })
+      setForm({ title: '', content: '', visibility: 'public' })
       removeSelectedImage()
       setMessage('Post published successfully')
     } catch (error) {
@@ -206,19 +207,52 @@ export default function PostPage() {
         <AppPageHeader
           eyebrow="Post"
           title="Share with your world"
-          description="Publish updates, photos, and moments from your work."
+          description="Publish updates, photos, and exclusive content for your community."
         />
 
         {/* Post Creation Form */}
         <form
+          suppressHydrationWarning
           onSubmit={handleSubmit}
           className="space-y-5 rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-[0_8px_24px_rgba(25,25,25,0.03)] sm:p-6"
         >
-          <div className="flex items-center gap-2 text-sm font-semibold text-[var(--foreground)]">
-            <FileText size={18} className="text-[var(--primary)]" /> New post
+          <div className="flex items-center justify-between text-sm font-semibold text-[var(--foreground)]">
+            <span className="flex items-center gap-2">
+              <FileText size={18} className="text-[var(--primary)]" /> New post
+            </span>
+            {/* Audience Toggle */}
+            <div className="flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--background)] p-1 text-xs">
+              <button
+                suppressHydrationWarning
+                type="button"
+                onClick={() => setForm({ ...form, visibility: 'public' })}
+                className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1 font-semibold transition ${
+                  form.visibility === 'public'
+                    ? 'bg-white shadow-xs text-slate-900 border border-slate-200'
+                    : 'text-slate-500 hover:text-slate-900'
+                }`}
+              >
+                <Globe size={13} className="text-slate-600" />
+                <span>Public</span>
+              </button>
+              <button
+                suppressHydrationWarning
+                type="button"
+                onClick={() => setForm({ ...form, visibility: 'members' })}
+                className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1 font-semibold transition ${
+                  form.visibility === 'members'
+                    ? 'bg-amber-50 shadow-xs text-amber-900 border border-amber-200'
+                    : 'text-slate-500 hover:text-slate-900'
+                }`}
+              >
+                <Lock size={13} className="text-amber-600" />
+                <span>Members Only</span>
+              </button>
+            </div>
           </div>
 
           <input
+            suppressHydrationWarning
             required
             maxLength={120}
             value={form.title}
@@ -228,13 +262,17 @@ export default function PostPage() {
           />
 
           <textarea
-            required
+            suppressHydrationWarning
             maxLength={5000}
             value={form.content}
             onChange={(event) => setForm({ ...form, content: event.target.value })}
-            placeholder="What would you like to share?"
+            placeholder={
+              form.visibility === 'members'
+                ? 'Share exclusive behind-the-scenes content, early previews, or private messages (Optional)...'
+                : 'What would you like to share with your audience? (Optional)'
+            }
             rows={5}
-            className="w-full resize-y rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-3 text-sm leading-4 text-[var(--foreground)] outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--accent)]"
+            className="w-full resize-y rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-3 text-sm leading-relaxed text-[var(--foreground)] outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--accent)]"
           />
 
           {/* Image Preview */}
@@ -277,8 +315,9 @@ export default function PostPage() {
 
               {message && (
                 <p
-                  className={`text-xs ${message.includes('successfully') ? 'text-emerald-600 font-medium' : 'text-rose-500'
-                    }`}
+                  className={`text-xs ${
+                    message.includes('successfully') ? 'text-emerald-600 font-medium' : 'text-rose-500'
+                  }`}
                 >
                   {message}
                 </p>
@@ -286,6 +325,7 @@ export default function PostPage() {
             </div>
 
             <button
+              suppressHydrationWarning
               disabled={saving}
               type="submit"
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
@@ -296,7 +336,7 @@ export default function PostPage() {
                 </>
               ) : (
                 <>
-                  Publish post <Send size={16} />
+                  {form.visibility === 'members' ? 'Publish Member Post' : 'Publish post'} <Send size={16} />
                 </>
               )}
             </button>
@@ -315,92 +355,98 @@ export default function PostPage() {
                 key={post.id}
                 className="space-y-4 rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-[0_8px_24px_rgba(25,25,25,0.03)] sm:p-6"
               >
-                <div>
+                <div className="flex items-start justify-between gap-3">
                   <h3 className="text-[1.1rem] font-semibold text-[var(--foreground)]">{post.title}</h3>
+                  <span
+                    className={`shrink-0 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide border ${
+                      post.visibility === 'members'
+                        ? 'bg-amber-50 text-amber-800 border-amber-200'
+                        : 'bg-slate-100 text-slate-600 border-slate-200'
+                    }`}
+                  >
+                    {post.visibility === 'members' ? (
+                      <>
+                        <Lock size={10} /> Members Only
+                      </>
+                    ) : (
+                      <>
+                        <Globe size={10} /> Public
+                      </>
+                    )}
+                  </span>
                 </div>
 
-                <p className="whitespace-pre-wrap text-[1rem] leading-6 text-[var(--muted-foreground)]">
+                <p className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--muted-foreground)]">
                   {post.content}
                 </p>
 
                 {post.imageUrl && (
-                  <div className="mx-auto aspect-[4/5] max-h-[600px] w-full overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--muted)]/20">
+                  <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--muted)]/20 p-1">
                     <img
                       src={post.imageUrl}
                       alt={post.title}
-                      className="h-full w-full rounded-xl object-contain shadow-sm"
-                      loading="lazy"
+                      className="max-h-96 w-full rounded-lg object-contain"
                     />
                   </div>
                 )}
 
-                {/* Actions: Likes, Share, Delete, and Date */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-[var(--border)] pt-3.5 pr-2 text-xs text-[var(--muted-foreground)]">
-                  <div className="flex items-center gap-2 pl-3 sm:gap-3 flex-wrap">
-                    {/* Like Button */}
+                <div className="flex items-center justify-between border-t border-[var(--border)] pt-4 text-xs text-[var(--muted-foreground)]">
+                  <div className="flex items-center gap-3">
                     <button
                       type="button"
+                      disabled={likingId === post.id}
                       onClick={() => handleLike(post.id)}
-                      className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-medium transition ${post.isLiked
-                          ? 'text-rose-600 hover:bg-rose-100 dark:text-rose-400'
-                          : 'hover:bg-[var(--muted)] hover:text-[var(--foreground)]'
-                        }`}
+                      className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 font-medium transition ${
+                        post.isLiked
+                          ? 'border-rose-200 bg-rose-50 text-rose-600'
+                          : 'border-[var(--border)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]'
+                      }`}
                     >
                       <Heart
-                        size={27}
-                        className={post.isLiked ? 'fill-rose-500 text-rose-500' : 'text-[var(--muted-foreground)]'}
+                        size={14}
+                        className={post.isLiked ? 'fill-rose-500 text-rose-500' : ''}
                       />
-                      <span className="text-lg">{post.likesCount || 0}</span>
+                      <span>{post.likesCount || 0}</span>
                     </button>
 
-                    {/* Share Button */}
                     <button
                       type="button"
                       onClick={() => handleShare(post)}
-                      className="inline-flex items-center gap-2 rounded-lg px-2.5 py-1.5 font-medium transition hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 py-1.5 font-medium transition hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
                     >
                       {copiedId === post.id ? (
                         <>
-                          <Check size={21} className="text-emerald-600" />
-                          <span className="text-emerald-600 font-semibold">Link Copied!</span>
+                          <Check size={14} className="text-emerald-600" />
+                          <span className="text-emerald-600">Copied</span>
                         </>
                       ) : (
                         <>
-                          <Share2 size={22} />
-                          <span className="text-sm">Share</span>
+                          <Share2 size={14} />
+                          <span>Share</span>
                         </>
-                      )}
-                    </button>
-
-                    {/* Delete Post Button */}
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(post.id)}
-                      disabled={deletingId === post.id}
-                      className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-medium text-rose-600 transition hover:bg-rose-50 disabled:opacity-50"
-                      title="Delete post"
-                    >
-                      {deletingId === post.id ? (
-                        <Loader2 size={23} className="animate-spin" />
-                      ) : (
-                        <Trash2 size={23} />
                       )}
                     </button>
                   </div>
 
-                  <time className="text-xs text-[var(--muted-foreground)]">
-                    {new Date(post.createdAt).toLocaleDateString(undefined, {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                    })}
-                  </time>
+                  <button
+                    type="button"
+                    disabled={deletingId === post.id}
+                    onClick={() => handleDelete(post.id)}
+                    className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600 disabled:opacity-50"
+                    title="Delete post"
+                  >
+                    {deletingId === post.id ? (
+                      <Loader2 size={15} className="animate-spin text-rose-600" />
+                    ) : (
+                      <Trash2 size={15} />
+                    )}
+                  </button>
                 </div>
               </article>
             ))
           ) : (
-            <div className="rounded-xl border border-dashed border-[var(--border)] p-10 text-center text-sm text-[var(--muted-foreground)]">
-              Your published posts will appear here.
+            <div className="rounded-xl border border-dashed border-[var(--border)] p-12 text-center text-sm text-[var(--muted-foreground)]">
+              No posts published yet. Share your first update above!
             </div>
           )}
         </section>

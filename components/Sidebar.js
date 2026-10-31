@@ -127,6 +127,7 @@ export default function Sidebar() {
         {/* Sign Out Action */}
         <div className="mt-auto hidden border-t border-[var(--border)] pt-4 md:block">
           <button
+            suppressHydrationWarning
             type="button"
             onClick={() => signOut({ redirectUrl: '/' })}
             className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-[var(--muted-foreground)] transition-all hover:bg-[var(--muted)] hover:text-rose-600"

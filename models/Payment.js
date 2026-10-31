@@ -1,8 +1,13 @@
 import mongoose from "mongoose";
 import { Schema, model } from "mongoose";
+
 // payment details
 const paymentSchema = new mongoose.Schema({
     creator_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+    },
+    supporter_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
     },

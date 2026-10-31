@@ -56,6 +56,7 @@ export const initiate = async (amount, to_user, paymentform) => {
         const tierRoleId = typeof paymentform?.tierRoleId === 'string' ? paymentform.tierRoleId.trim() : ''
 
         await Payment.create({
+            supporter_id: currentUser._id,
             from_user: paymentform.name.trim(),
             amount: amountInPaise,
             to_user: user.username,
@@ -123,11 +124,11 @@ export const fetchPayments = async (username) => {
     }
 }
 
-// Fetch published posts for the public creator profile
+// Fetch published posts for the public creator profile with access control
 export const fetchUserPosts = async (username) => {
     try {
         await mongoose.connect(process.env.MONGODB_URI)
-        const user = await User.findOne({ username: username?.trim().toLowerCase() }).select('_id').lean()
+        const user = await User.findOne({ username: username?.trim().toLowerCase() }).select('_id username').lean()
         if (!user) return []
 
         const currentUser = await getCurrentUser()
@@ -135,20 +136,43 @@ export const fetchUserPosts = async (username) => {
         const postIds = posts.map(p => p._id)
 
         let userLikesSet = new Set()
+        let isAuthor = false
+        let isMember = false
+
         if (currentUser) {
-            const userLikes = await Like.find({ userId: currentUser._id, postId: { $in: postIds } }).select('postId').lean()
+            isAuthor = currentUser._id.toString() === user._id.toString()
+            const [userLikes, memberPayment] = await Promise.all([
+                Like.find({ userId: currentUser._id, postId: { $in: postIds } }).select('postId').lean(),
+                Payment.exists({
+                    creator_id: user._id,
+                    done: true,
+                    $or: [
+                        { supporter_id: currentUser._id },
+                        { from_user: currentUser.name },
+                        { from_user: currentUser.username }
+                    ]
+                })
+            ])
             userLikesSet = new Set(userLikes.map(l => l.postId.toString()))
+            isMember = Boolean(memberPayment)
         }
 
-        return posts.map(post => ({
-            id: post._id.toString(),
-            title: post.title,
-            content: post.content,
-            imageUrl: post.imageUrl || null,
-            likesCount: post.likesCount || 0,
-            isLiked: userLikesSet.has(post._id.toString()),
-            createdAt: post.createdAt ? post.createdAt.toISOString() : new Date().toISOString(),
-        }))
+        return posts.map(post => {
+            const isMembersOnly = post.visibility === 'members'
+            const hasAccess = !isMembersOnly || isAuthor || isMember
+
+            return {
+                id: post._id.toString(),
+                title: post.title,
+                content: hasAccess ? post.content : (post.content ? post.content.slice(0, 100) + '...' : ''),
+                imageUrl: hasAccess ? (post.imageUrl || null) : null,
+                likesCount: post.likesCount || 0,
+                isLiked: userLikesSet.has(post._id.toString()),
+                visibility: post.visibility || 'public',
+                isLocked: !hasAccess,
+                createdAt: post.createdAt ? post.createdAt.toISOString() : new Date().toISOString(),
+            }
+        })
     } catch (error) {
         console.error('Fetch user posts error:', error)
         return []

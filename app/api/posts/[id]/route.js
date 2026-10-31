@@ -2,6 +2,7 @@ import mongoose from 'mongoose'
 import Post from '@/models/Post'
 import Like from '@/models/Like'
 import User from '@/models/User'
+import Payment from '@/models/Payment'
 import { getCurrentUser } from '@/lib/auth/server'
 import cloudinary, { getCloudinaryPublicId } from '@/lib/cloudinary'
 
@@ -26,24 +27,43 @@ export async function GET(req, { params }) {
       return Response.json({ error: 'Post not found' }, { status: 404 })
     }
 
-    const [isLiked, isAuthor] = currentUser
-      ? [
-          Boolean(await Like.exists({ postId, userId: currentUser._id })),
-          post.authorId?._id?.toString() === currentUser._id?.toString(),
-        ]
-      : [false, false]
+    const isAuthor = currentUser && post.authorId?._id?.toString() === currentUser._id?.toString()
+    let isLiked = false
+    let isMember = false
+
+    if (currentUser) {
+      const [likeExists, memberPayment] = await Promise.all([
+        Like.exists({ postId, userId: currentUser._id }),
+        Payment.exists({
+          creator_id: post.authorId?._id,
+          done: true,
+          $or: [
+            { supporter_id: currentUser._id },
+            { from_user: currentUser.name },
+            { from_user: currentUser.username }
+          ]
+        })
+      ])
+      isLiked = Boolean(likeExists)
+      isMember = Boolean(memberPayment)
+    }
+
+    const isMembersOnly = post.visibility === 'members'
+    const hasAccess = !isMembersOnly || isAuthor || isMember
 
     return Response.json({
       success: true,
       post: {
         id: post._id.toString(),
         title: post.title,
-        content: post.content,
-        imageUrl: post.imageUrl || null,
+        content: hasAccess ? post.content : (post.content ? post.content.slice(0, 100) + '...' : ''),
+        imageUrl: hasAccess ? (post.imageUrl || null) : null,
         likesCount: post.likesCount || 0,
         isLiked,
         isAuthor,
         status: post.status,
+        visibility: post.visibility || 'public',
+        isLocked: !hasAccess,
         createdAt: post.createdAt,
         author: {
           name: post.authorId?.name || 'Creator',

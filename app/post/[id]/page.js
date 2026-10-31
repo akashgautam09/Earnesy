@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Heart, Share2, Trash2, ArrowLeft, Check, Loader2 } from 'lucide-react'
+import { Heart, Share2, Trash2, ArrowLeft, Check, Loader2, Lock, ArrowRight } from 'lucide-react'
 
 export default function SinglePostPage() {
   const params = useParams()
@@ -155,10 +155,10 @@ export default function SinglePostPage() {
       <div className="mx-auto max-w-3xl space-y-5">
         {/* Navigation link */}
         <Link
-          href="/post"
+          href={post.author?.username ? `/${post.author.username}` : '/post'}
           className="inline-flex items-center gap-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:text-[var(--foreground)]"
         >
-          <ArrowLeft size={14} /> Back to all posts
+          <ArrowLeft size={14} /> Back to {post.author?.name || 'profile'}
         </Link>
 
         {/* Post Container */}
@@ -184,27 +184,86 @@ export default function SinglePostPage() {
               </div>
             </Link>
 
+            {post.visibility === 'members' && (
+              <span
+                className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider border ${
+                  post.isLocked
+                    ? 'bg-amber-50 text-amber-800 border-amber-200'
+                    : 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                }`}
+              >
+                {post.isLocked ? (
+                  <>
+                    <Lock size={11} /> Members Only
+                  </>
+                ) : (
+                  <>
+                    <Check size={11} /> Unlocked Member Post
+                  </>
+                )}
+              </span>
+            )}
           </div>
 
           {/* Post Content */}
-          <div className="space-y-4">
-            <h1 className="text-[1.1rem] font-semibold text-[var(--foreground)]">
+          <div className="space-y-4 pt-2">
+            <h1 className="text-xl font-bold text-[var(--foreground)]">
               {post.title}
             </h1>
 
-            <p className="whitespace-pre-wrap text-[1rem] leading-6 text-[var(--muted-foreground)]">
-              {post.content}
-            </p>
+            {post.isLocked ? (
+              <div className="space-y-4 pt-2">
+                {post.content ? (
+                  <div className="relative">
+                    <p className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--muted-foreground)] blur-[1.5px] select-none">
+                      {post.content}
+                    </p>
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[var(--card)]/50 to-[var(--card)]" />
+                  </div>
+                ) : null}
 
-            {post.imageUrl && (
-              <div className="mx-auto aspect-[4/5] max-h-[600px] w-full overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--muted)]/20">
-                <img
-                  src={post.imageUrl}
-                  alt={post.title}
-                  className="h-full w-full rounded-xl object-contain shadow-sm"
-                  loading="eager"
-                />
+                <div className="rounded-2xl border border-amber-200/90 bg-gradient-to-br from-amber-50/70 via-white to-orange-50/30 p-6 text-center space-y-3 shadow-xs">
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+                    <Lock size={22} />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900">
+                      This post is exclusive to members
+                    </h3>
+                    <p className="mt-1 text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
+                      Join any membership tier by {post.author?.name || 'this creator'} to unlock this full post, exclusive photos, and upcoming member updates.
+                    </p>
+                  </div>
+                  {post.author?.username && (
+                    <Link
+                      href={`/${post.author.username}`}
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white px-5 py-2.5 text-xs font-bold shadow-xs transition"
+                    >
+                      <span>Unlock on @{post.author.username}&apos;s Page</span>
+                      <ArrowRight size={13} />
+                    </Link>
+                  )}
+                </div>
               </div>
+            ) : (
+              <>
+                {post.content ? (
+                  <p className="whitespace-pre-wrap text-[1rem] leading-7 text-[var(--foreground)]/90">
+                    {post.content}
+                  </p>
+                ) : null}
+
+                {post.imageUrl && (
+                  <div className="mx-auto aspect-[4/5] max-h-[600px] w-full overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--muted)]/20">
+                    <img
+                      src={post.imageUrl}
+                      alt={post.title}
+                      className="h-full w-full rounded-xl object-contain shadow-sm"
+                      loading="eager"
+                    />
+                  </div>
+                )}
+              </>
             )}
           </div>
 
@@ -216,16 +275,17 @@ export default function SinglePostPage() {
                 type="button"
                 onClick={handleLike}
                 disabled={liking}
-                className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-medium transition ${post.isLiked
+                className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-medium transition ${
+                  post.isLiked
                     ? 'text-rose-600 hover:bg-rose-100 dark:text-rose-400'
                     : 'text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]'
-                  }`}
+                }`}
               >
                 <Heart
-                  size={27}
+                  size={20}
                   className={post.isLiked ? 'fill-rose-500 text-rose-500' : 'text-[var(--muted-foreground)]'}
                 />
-                <span className="text-lg">{post.likesCount || 0}</span>
+                <span className="text-sm">{post.likesCount || 0}</span>
               </button>
 
               {/* Share Button */}
@@ -236,13 +296,13 @@ export default function SinglePostPage() {
               >
                 {copied ? (
                   <>
-                    <Check size={21} className="text-emerald-600" />
-                    <span className="text-emerald-600 font-semibold">Link Copied!</span>
+                    <Check size={18} className="text-emerald-600" />
+                    <span className="text-emerald-600 font-semibold text-xs">Link Copied!</span>
                   </>
                 ) : (
                   <>
-                    <Share2 size={22} />
-                    <span className="text-sm">Share</span>
+                    <Share2 size={18} />
+                    <span className="text-xs">Share</span>
                   </>
                 )}
               </button>
@@ -257,9 +317,9 @@ export default function SinglePostPage() {
                   title="Delete this post"
                 >
                   {deleting ? (
-                    <Loader2 size={23} className="animate-spin" />
+                    <Loader2 size={18} className="animate-spin" />
                   ) : (
-                    <Trash2 size={23} />
+                    <Trash2 size={18} />
                   )}
                 </button>
               )}

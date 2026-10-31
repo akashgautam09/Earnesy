@@ -21,7 +21,8 @@ import {
     X,
     ExternalLink,
     Loader2,
-    ArrowRight
+    ArrowRight,
+    Lock
 } from 'lucide-react'
 
 export const PaymentPage = ({ username }) => {
@@ -675,29 +676,90 @@ export const PaymentPage = ({ username }) => {
                                             >
                                                 {post.title}
                                             </Link>
-                                            <time className="text-xs text-[var(--muted-foreground)] shrink-0">
-                                                {new Date(post.createdAt).toLocaleDateString(undefined, {
-                                                    month: 'short',
-                                                    day: 'numeric',
-                                                })}
-                                            </time>
+                                            <div className="flex items-center gap-2 shrink-0">
+                                                {post.visibility === 'members' && (
+                                                    <span
+                                                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider border ${
+                                                            post.isLocked
+                                                                ? 'bg-amber-50 text-amber-800 border-amber-200'
+                                                                : 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                                                        }`}
+                                                    >
+                                                        {post.isLocked ? (
+                                                            <>
+                                                                <Lock size={10} /> Members Only
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <Check size={10} /> Unlocked
+                                                            </>
+                                                        )}
+                                                    </span>
+                                                )}
+                                                <time className="text-xs text-[var(--muted-foreground)]">
+                                                    {new Date(post.createdAt).toLocaleDateString(undefined, {
+                                                        month: 'short',
+                                                        day: 'numeric',
+                                                    })}
+                                                </time>
+                                            </div>
                                         </div>
 
-                                        {/* Post Text Content */}
-                                        <p className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--foreground)]/85">
-                                            {post.content}
-                                        </p>
+                                        {/* Post Content / Locked Gate */}
+                                        {post.isLocked ? (
+                                            <div className="space-y-3 pt-1">
+                                                {post.content ? (
+                                                    <div className="relative overflow-hidden rounded-lg">
+                                                        <p className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--muted-foreground)] blur-[1.5px] select-none">
+                                                            {post.content}
+                                                        </p>
+                                                        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[var(--card)]/50 to-[var(--card)]" />
+                                                    </div>
+                                                ) : null}
 
-                                        {/* Post Full Image */}
-                                        {post.imageUrl && (
-                                            <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--muted)]/20">
-                                                <img
-                                                    src={post.imageUrl}
-                                                    alt={post.title}
-                                                    className="w-full h-auto max-w-full rounded-xl object-contain shadow-sm"
-                                                    loading="lazy"
-                                                />
+                                                <div className="rounded-2xl border border-amber-200/90 bg-gradient-to-br from-amber-50/70 via-white to-orange-50/30 p-5 text-center space-y-3 shadow-xs">
+                                                    <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+                                                        <Lock size={18} />
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="text-sm font-bold text-slate-900">
+                                                            Exclusive Members-Only Post
+                                                        </h4>
+                                                        <p className="mt-1 text-xs text-slate-600 max-w-sm mx-auto">
+                                                            Join any membership tier by @{username} to unlock this full post, photos, and future exclusive updates.
+                                                        </p>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setActiveTab('memberships')}
+                                                        className="inline-flex items-center gap-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 text-xs font-bold shadow-xs transition"
+                                                    >
+                                                        <span>Unlock with Membership</span>
+                                                        <ArrowRight size={13} />
+                                                    </button>
+                                                </div>
                                             </div>
+                                        ) : (
+                                            <>
+                                                {/* Post Text Content */}
+                                                {post.content ? (
+                                                    <p className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--foreground)]/85">
+                                                        {post.content}
+                                                    </p>
+                                                ) : null}
+
+                                                {/* Post Full Image */}
+                                                {post.imageUrl && (
+                                                    <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--muted)]/20">
+                                                        <img
+                                                            src={post.imageUrl}
+                                                            alt={post.title}
+                                                            className="w-full h-auto max-w-full rounded-xl object-contain shadow-sm"
+                                                            loading="lazy"
+                                                        />
+                                                    </div>
+                                                )}
+                                            </>
                                         )}
 
                                         {/* Action Bar: Like & Share */}
