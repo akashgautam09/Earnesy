@@ -47,7 +47,6 @@ const PRESET_TIERS = [
 ]
 
 const QUICK_PERK_SUGGESTIONS = [
-  'Exclusive VIP Discord Role',
   'Supporter-only posts & behind-the-scenes',
   'Early access to new releases',
   'Name in video/post credits',

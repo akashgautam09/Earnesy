@@ -57,11 +57,12 @@ export const POST = async (request) => {
 
             // Assign Discord VIP Role if creator has Discord configured
             let discordStatus = ''
-            if (user.discordServerId && user.discordRoleId && updatedDetails.supporter_discord_id) {
+            const roleToAssign = updatedDetails.tier_role_id || user.discordRoleId
+            if (user.discordServerId && roleToAssign && updatedDetails.supporter_discord_id) {
                 try {
                     const discordResult = await assignDiscordRole({
                         guildId: user.discordServerId,
-                        roleId: user.discordRoleId,
+                        roleId: roleToAssign,
                         userId: updatedDetails.supporter_discord_id,
                     })
 
@@ -76,7 +77,8 @@ export const POST = async (request) => {
                 }
             }
 
-            return NextResponse.redirect(`${applicationUrl}/${encodeURIComponent(updatedDetails.to_user)}?paymentdone=true${discordStatus}`)
+            const tierQuery = updatedDetails.tier_title ? `&tier=${encodeURIComponent(updatedDetails.tier_title)}` : ''
+            return NextResponse.redirect(`${applicationUrl}/${encodeURIComponent(updatedDetails.to_user)}?paymentdone=true${discordStatus}${tierQuery}`)
         }
         else {
             console.error(`Payment verification failed for order_id: ${body.razorpay_order_id}`)

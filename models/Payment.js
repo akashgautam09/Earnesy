@@ -41,6 +41,20 @@ const paymentSchema = new mongoose.Schema({
     discordRoleAssigned: {
         type: Boolean,
         default: false,
+    },
+    tier_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Tier",
+    },
+    tier_title: {
+        type: String,
+        trim: true,
+        default: '',
+    },
+    tier_role_id: {
+        type: String,
+        trim: true,
+        default: '',
     }
 });
 

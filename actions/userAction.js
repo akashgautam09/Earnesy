@@ -6,6 +6,7 @@ import User from "@/models/User"
 import Payment from "@/models/Payment"
 import Post from "@/models/Post"
 import Like from "@/models/Like"
+import Tier from "@/models/Tier"
 import { getCurrentUser } from "@/lib/auth/server"
 
 export const initiate = async (amount, to_user, paymentform) => {
@@ -50,6 +51,9 @@ export const initiate = async (amount, to_user, paymentform) => {
         const x = await instance.orders.create(options)
 
         const supporterDiscordId = paymentform?.discordUserId?.trim() || currentUser.discordUserId || ''
+        const tierId = paymentform?.tierId && mongoose.Types.ObjectId.isValid(paymentform.tierId) ? paymentform.tierId : null
+        const tierTitle = typeof paymentform?.tierTitle === 'string' ? paymentform.tierTitle.trim() : ''
+        const tierRoleId = typeof paymentform?.tierRoleId === 'string' ? paymentform.tierRoleId.trim() : ''
 
         await Payment.create({
             from_user: paymentform.name.trim(),
@@ -58,6 +62,9 @@ export const initiate = async (amount, to_user, paymentform) => {
             creator_id: user._id,
             order_id: x.id,
             supporter_discord_id: supporterDiscordId,
+            tier_id: tierId,
+            tier_title: tierTitle,
+            tier_role_id: tierRoleId,
         })
 
         return x
@@ -144,6 +151,32 @@ export const fetchUserPosts = async (username) => {
         }))
     } catch (error) {
         console.error('Fetch user posts error:', error)
+        return []
+    }
+}
+
+// Fetch active tiers for the public creator profile
+export const fetchUserTiers = async (username) => {
+    try {
+        if (!process.env.MONGODB_URI) return []
+        if (mongoose.connection.readyState !== 1) {
+            await mongoose.connect(process.env.MONGODB_URI)
+        }
+        const user = await User.findOne({ username: username?.trim().toLowerCase() }).select('_id').lean()
+        if (!user) return []
+
+        const tiers = await Tier.find({ creatorId: user._id, isActive: true }).sort({ price: 1, order: 1 }).lean()
+        return tiers.map(t => ({
+            id: t._id.toString(),
+            title: t.title,
+            price: t.price,
+            description: t.description || '',
+            perks: t.perks || [],
+            discordPerk: Boolean(t.discordPerk),
+            discordRoleId: t.discordRoleId || '',
+        }))
+    } catch (error) {
+        console.error('Fetch user tiers error:', error)
         return []
     }
 }
