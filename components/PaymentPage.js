@@ -772,12 +772,12 @@ export const PaymentPage = ({ username }) => {
                                                     disabled={likingPostId === post.id}
                                                     className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-medium transition ${
                                                         post.isLiked
-                                                            ? 'bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-950/40 dark:text-rose-400'
+                                                            ? 'text-rose-600 hover:bg-rose-100 dark:text-rose-400'
                                                             : 'hover:bg-[var(--muted)] hover:text-[var(--foreground)]'
                                                     }`}
                                                 >
                                                     <Heart
-                                                        size={16}
+                                                        size={20}
                                                         className={post.isLiked ? 'fill-rose-500 text-rose-500' : ''}
                                                     />
                                                     <span>{post.likesCount || 0}</span>

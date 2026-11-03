@@ -15,7 +15,17 @@ export async function GET() {
     }
 
     const [payments, stats] = await Promise.all([
-      Payment.find({ to_user: user.username, done: true })
+      Payment.find({
+        $and: [
+          { done: true },
+          {
+            $or: [
+              { to_user: user.username?.trim().toLowerCase() },
+              { creator_id: user._id },
+            ],
+          },
+        ],
+      })
         .sort({ createdAt: -1 })
         .lean(),
       getCreatorStats(user),
@@ -31,6 +41,11 @@ export async function GET() {
         paymentId: payment.payment_id,
         orderId: payment.order_id,
         createdAt: payment.createdAt,
+        isTier: Boolean(payment.tier_id || payment.tier_title),
+        tierTitle: payment.tier_title || '',
+        tierId: payment.tier_id ? payment.tier_id.toString() : null,
+        discordRoleAssigned: Boolean(payment.discordRoleAssigned),
+        supporterDiscordId: payment.supporter_discord_id || '',
       })),
     })
   } catch (error) {

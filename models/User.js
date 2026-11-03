@@ -26,7 +26,6 @@ const userSchema = new mongoose.Schema({
   },
   title: {
     type: String,
-    required: true,
     maxlength: 120,
     default: '',
     trim: true,
@@ -84,5 +83,9 @@ const userSchema = new mongoose.Schema({
     default: Date.now
   }
 });
+
+if (process.env.NODE_ENV !== 'production') {
+  delete mongoose.models.User
+}
 
 export default mongoose.models.User || model("User", userSchema);
