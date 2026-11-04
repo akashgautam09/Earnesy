@@ -10,6 +10,7 @@ import {
   LayoutDashboard,
   CircleUserRound,
   UsersRound,
+  HeartHandshake,
   PenLine,
   WalletCards,
   LogOut,
@@ -22,6 +23,7 @@ const navigation = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Profile', href: '/profile', icon: CircleUserRound },
   { label: 'Memberships', href: '/memberships', icon: UsersRound },
+  { label: 'My Subscriptions', href: '/my-memberships', icon: HeartHandshake },
   { label: 'Post', href: '/post', icon: PenLine },
   { label: 'Payouts', href: '/payouts', icon: WalletCards },
 ]

@@ -3,12 +3,20 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useUser } from '@clerk/nextjs'
-import { ArrowUpRight, BadgeCheck, CalendarDays, Coins, ExternalLink, HeartHandshake, UsersRound } from 'lucide-react'
+import {
+  ArrowUpRight,
+  BadgeCheck,
+  CalendarDays,
+  Coins,
+  ExternalLink,
+  HeartHandshake,
+  UsersRound,
+} from 'lucide-react'
 import AppPageHeader from '@/components/AppPageHeader'
 import AppStatCard from '@/components/AppStatCard'
 
 const formatAmount = (amount) => `₹${(Number(amount || 0) / 100).toLocaleString('en-IN')}`
-const formatDate = (date) => date ? new Date(date).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : 'Recently'
+const formatDate = (date) => (date ? new Date(date).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : 'Recently')
 
 export default function ProfilePage() {
   const { user: clerkUser } = useUser()
@@ -46,9 +54,24 @@ export default function ProfilePage() {
           eyebrow="Profile"
           title="Your creator profile"
           description="A clear view of your audience, earnings, and membership."
-          action={<Link href="/dashboard" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90">
-            Edit profile <ArrowUpRight size={16} />
-          </Link>}
+          action={
+            <div className="flex flex-wrap items-center gap-2">
+              <Link
+                href="/my-memberships"
+                className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3.5 py-2.5 text-sm font-semibold text-[var(--foreground)] shadow-xs transition hover:bg-[var(--muted)]"
+              >
+                <HeartHandshake size={16} className="text-purple-600" />
+                <span>My Subscriptions</span>
+              </Link>
+              <Link
+                href="/dashboard"
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+              >
+                <span>Edit profile</span>
+                <ArrowUpRight size={16} />
+              </Link>
+            </div>
+          }
         />
 
         <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-[0_8px_24px_rgba(25,25,25,0.03)]">
