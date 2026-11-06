@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { validatePaymentVerification } from "razorpay/dist/utils/razorpay-utils";
 import Payment from "@/models/Payment";
 import User from "@/models/User";
+import Notification from "@/models/Notification";
 import mongoose from "mongoose";
 import { assignDiscordRole } from "@/lib/discord";
 
@@ -75,6 +76,24 @@ export const POST = async (request) => {
                 } catch (discordErr) {
                     console.error('Discord role assignment error:', discordErr)
                 }
+            }
+
+            // Trigger in-app notification for the creator
+            try {
+                const isTier = Boolean(updatedDetails.tier_title || updatedDetails.tier_id)
+                const amountFormatted = `₹${Math.round((updatedDetails.amount || 0) / 100)}`
+                await Notification.create({
+                    userId: user._id,
+                    type: isTier ? 'membership' : 'coffee',
+                    fromName: updatedDetails.from_user || 'Supporter',
+                    title: isTier ? `New Member: ${updatedDetails.tier_title}!` : 'New Coffee Tip!',
+                    message: isTier
+                        ? `${updatedDetails.from_user} joined ${updatedDetails.tier_title} (${amountFormatted})`
+                        : `${updatedDetails.from_user} sent you a ${amountFormatted} coffee tip!`,
+                    link: isTier ? '/memberships?tab=members' : '/payouts',
+                })
+            } catch (notifErr) {
+                console.error('Failed to create payment notification:', notifErr)
             }
 
             const tierQuery = updatedDetails.tier_title ? `&tier=${encodeURIComponent(updatedDetails.tier_title)}` : ''

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useClerk, useUser, Show } from '@clerk/nextjs';
 import { usePathname, useRouter } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
+import NotificationBell from '@/components/NotificationBell';
 
 const Navbar = () => {
   const { isLoaded, isSignedIn, user } = useUser();
@@ -54,6 +55,7 @@ const Navbar = () => {
 
   const navLinks = [
     { label: 'Home', href: '/' },
+    { label: 'Explore', href: '/explore' },
     { label: 'About', href: '/about' },
     { label: 'Contact', href: '/about#contact' },
   ];
@@ -105,7 +107,9 @@ const Navbar = () => {
 
             {/* Signed In State: User Menu Dropdown */}
             <Show when="signed-in">
-              <div className="relative hidden md:block" ref={dropdownRef}>
+              <div className="flex items-center gap-2">
+                <NotificationBell />
+                <div className="relative hidden md:block" ref={dropdownRef}>
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   className="inline-flex min-h-11 items-center gap-2.5 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-sm font-medium text-[var(--foreground)] transition-colors duration-180 hover:bg-[var(--muted)] active:scale-95"
@@ -154,7 +158,8 @@ const Navbar = () => {
                   </div>
                 )}
               </div>
-            </Show>
+            </div>
+          </Show>
           </div>
         </div>
 

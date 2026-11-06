@@ -37,6 +37,11 @@ export default async function Home() {
               <ArrowRight size={18} className='group-hover:translate-x-1 transition-transform' />
             </button>
           </Link>
+          <Link href="/explore" className='group'>
+            <button className='px-8 sm:px-10 py-3 sm:py-4 bg-white hover:bg-slate-50 text-slate-900 font-semibold rounded-xl border border-slate-300 shadow-sm transition-all duration-200 active:scale-95 w-full sm:w-auto'>
+              Explore Creators
+            </button>
+          </Link>
           <Link href="/about" className='group'>
             <button className='px-8 sm:px-10 py-3 sm:py-4 bg-transparent hover:bg-amber-50 text-slate-800 font-semibold rounded-xl border border-slate-300 transition-all duration-200 active:scale-95 w-full sm:w-auto'>
               Learn More

@@ -40,5 +40,6 @@ next-env.d.ts
 
 ENCRYPTION_GUIDE.md
 IMPLEMENTATION_GUIDE.md
+REMAINING_PLAN.md
 
 # End of gitignore

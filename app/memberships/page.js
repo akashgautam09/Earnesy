@@ -171,17 +171,21 @@ export default function MembershipsPage() {
   }
 
   useEffect(() => {
-    loadTiers()
-    loadMembers()
-    loadProfile()
+    const timer = window.setTimeout(() => {
+      loadTiers()
+      loadMembers()
+      loadProfile()
 
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search)
-      const tabParam = params.get('tab')
-      if (tabParam === 'members' || tabParam === 'subscribers') {
-        setActiveTab('members')
+      if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search)
+        const tabParam = params.get('tab')
+        if (tabParam === 'members' || tabParam === 'subscribers') {
+          setActiveTab('members')
+        }
       }
-    }
+    }, 0)
+
+    return () => window.clearTimeout(timer)
   }, [])
 
   const handleOpenNewBuilder = (preset = null) => {

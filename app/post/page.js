@@ -1,10 +1,31 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { FileText, Send, Image as ImageIcon, X, Heart, Share2, Trash2, Loader2, Check, Globe, Lock } from 'lucide-react'
+import Link from 'next/link'
+import { useUser } from '@clerk/nextjs'
+import {
+  FileText,
+  Send,
+  Image as ImageIcon,
+  X,
+  Heart,
+  Share2,
+  Trash2,
+  Loader2,
+  Check,
+  Globe,
+  Lock,
+  MessageSquare,
+  CornerDownRight,
+  ExternalLink,
+  ArrowRight,
+} from 'lucide-react'
 import AppPageHeader from '@/components/AppPageHeader'
 
 export default function PostPage() {
+  const { user } = useUser()
+
+  // Creation form state
   const [form, setForm] = useState({ title: '', content: '', visibility: 'public' })
   const [selectedFile, setSelectedFile] = useState(null)
   const [previewUrl, setPreviewUrl] = useState('')
@@ -16,6 +37,17 @@ export default function PostPage() {
   const [likingId, setLikingId] = useState(null)
   const [deletingId, setDeletingId] = useState(null)
   const fileInputRef = useRef(null)
+
+  // Comments / Discussion states
+  const [expandedPosts, setExpandedPosts] = useState({})
+  const [commentsByPost, setCommentsByPost] = useState({})
+  const [loadingComments, setLoadingComments] = useState({})
+  const [commentInputs, setCommentInputs] = useState({})
+  const [submittingComment, setSubmittingComment] = useState({})
+  const [replyingToId, setReplyingToId] = useState(null)
+  const [replyInputs, setReplyInputs] = useState({})
+  const [submittingReply, setSubmittingReply] = useState({})
+  const [deletingCommentId, setDeletingCommentId] = useState(null)
 
   const loadPosts = async () => {
     const response = await fetch('/api/posts')
@@ -162,7 +194,7 @@ export default function PostPage() {
       try {
         await navigator.share({
           title: post.title,
-          text: post.content.slice(0, 100),
+          text: post.content ? post.content.slice(0, 100) : post.title,
           url: postUrl,
         })
         return
@@ -198,6 +230,144 @@ export default function PostPage() {
       setMessage(err.message)
     } finally {
       setDeletingId(null)
+    }
+  }
+
+  // Toggle discussion drawer & load comments for a post
+  const handleToggleComments = async (postId) => {
+    const isCurrentlyExpanded = Boolean(expandedPosts[postId])
+    const nextExpanded = !isCurrentlyExpanded
+
+    setExpandedPosts((prev) => ({ ...prev, [postId]: nextExpanded }))
+
+    // Fetch comments on open if not already loaded
+    if (nextExpanded && !commentsByPost[postId]) {
+      setLoadingComments((prev) => ({ ...prev, [postId]: true }))
+      try {
+        const res = await fetch(`/api/posts/${postId}/comments`)
+        const data = await res.json()
+        if (res.ok) {
+          setCommentsByPost((prev) => ({ ...prev, [postId]: data.comments || [] }))
+          setPosts((current) =>
+            current.map((p) =>
+              p.id === postId ? { ...p, commentsCount: data.totalCount ?? p.commentsCount } : p
+            )
+          )
+        }
+      } catch (e) {
+        console.error('Failed to load comments:', e)
+      } finally {
+        setLoadingComments((prev) => ({ ...prev, [postId]: false }))
+      }
+    }
+  }
+
+  // Submit top-level comment
+  const handleAddComment = async (e, postId) => {
+    e.preventDefault()
+    const content = (commentInputs[postId] || '').trim()
+    if (!content || submittingComment[postId]) return
+
+    setSubmittingComment((prev) => ({ ...prev, [postId]: true }))
+    try {
+      const res = await fetch(`/api/posts/${postId}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed to submit comment')
+
+      setCommentInputs((prev) => ({ ...prev, [postId]: '' }))
+      setCommentsByPost((prev) => ({
+        ...prev,
+        [postId]: [...(prev[postId] || []), data.comment],
+      }))
+      setPosts((current) =>
+        current.map((p) =>
+          p.id === postId ? { ...p, commentsCount: (p.commentsCount || 0) + 1 } : p
+        )
+      )
+    } catch (err) {
+      alert(err.message)
+    } finally {
+      setSubmittingComment((prev) => ({ ...prev, [postId]: false }))
+    }
+  }
+
+  // Submit reply to a comment
+  const handleAddReply = async (postId, parentCommentId) => {
+    const content = (replyInputs[parentCommentId] || '').trim()
+    if (!content || submittingReply[parentCommentId]) return
+
+    setSubmittingReply((prev) => ({ ...prev, [parentCommentId]: true }))
+    try {
+      const res = await fetch(`/api/posts/${postId}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content, parentCommentId }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed to submit reply')
+
+      setReplyInputs((prev) => ({ ...prev, [parentCommentId]: '' }))
+      setReplyingToId(null)
+      setCommentsByPost((prev) => ({
+        ...prev,
+        [postId]: (prev[postId] || []).map((c) =>
+          c.id === parentCommentId
+            ? { ...c, replies: [...(c.replies || []), data.comment] }
+            : c
+        ),
+      }))
+      setPosts((current) =>
+        current.map((p) =>
+          p.id === postId ? { ...p, commentsCount: (p.commentsCount || 0) + 1 } : p
+        )
+      )
+    } catch (err) {
+      alert(err.message)
+    } finally {
+      setSubmittingReply((prev) => ({ ...prev, [parentCommentId]: false }))
+    }
+  }
+
+  // Delete comment or reply
+  const handleDeleteComment = async (postId, commentId, parentCommentId = null) => {
+    if (!window.confirm('Delete this comment?')) return
+
+    setDeletingCommentId(commentId)
+    try {
+      const res = await fetch(`/api/posts/${postId}/comments?commentId=${commentId}`, {
+        method: 'DELETE',
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed to delete comment')
+
+      const countDelta = data.deletedCount || 1
+
+      setCommentsByPost((prev) => ({
+        ...prev,
+        [postId]: parentCommentId
+          ? (prev[postId] || []).map((c) =>
+              c.id === parentCommentId
+                ? { ...c, replies: (c.replies || []).filter((r) => r.id !== commentId) }
+                : c
+            )
+          : (prev[postId] || []).filter((c) => c.id !== commentId),
+      }))
+
+      setPosts((current) =>
+        current.map((p) =>
+          p.id === postId
+            ? { ...p, commentsCount: Math.max(0, (p.commentsCount || 0) - countDelta) }
+            : p
+        )
+      )
+    } catch (err) {
+      alert(err.message)
+    } finally {
+      setDeletingCommentId(null)
     }
   }
 
@@ -390,8 +560,10 @@ export default function PostPage() {
                   </div>
                 )}
 
+                {/* Post Action Bar */}
                 <div className="flex items-center justify-between border-t border-[var(--border)] pt-4 text-xs text-[var(--muted-foreground)]">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
+                    {/* Like button */}
                     <button
                       type="button"
                       disabled={likingId === post.id}
@@ -409,6 +581,28 @@ export default function PostPage() {
                       <span>{post.likesCount || 0}</span>
                     </button>
 
+                    {/* Comments Toggle Button */}
+                    <button
+                      type="button"
+                      onClick={() => handleToggleComments(post.id)}
+                      className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 font-medium transition ${
+                        expandedPosts[post.id]
+                          ? 'border-[var(--primary)] bg-[var(--accent)] text-[var(--primary)]'
+                          : 'border-[var(--border)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]'
+                      }`}
+                      title="View and reply to comments"
+                    >
+                      <MessageSquare
+                        size={14}
+                        className={expandedPosts[post.id] ? 'text-[var(--primary)]' : ''}
+                      />
+                      <span>{post.commentsCount || 0}</span>
+                      <span className="hidden sm:inline text-[11px]">
+                        {expandedPosts[post.id] ? 'Hide' : 'Comments'}
+                      </span>
+                    </button>
+
+                    {/* Share button */}
                     <button
                       type="button"
                       onClick={() => handleShare(post)}
@@ -426,8 +620,19 @@ export default function PostPage() {
                         </>
                       )}
                     </button>
+
+                    {/* Standalone post link */}
+                    <Link
+                      href={`/post/${post.id}`}
+                      className="inline-flex items-center gap-1 rounded-lg border border-[var(--border)] px-2.5 py-1.5 font-medium transition hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
+                      title="Open standalone post page"
+                    >
+                      <ExternalLink size={13} />
+                      <span className="hidden sm:inline">Page</span>
+                    </Link>
                   </div>
 
+                  {/* Delete post button */}
                   <button
                     type="button"
                     disabled={deletingId === post.id}
@@ -442,6 +647,317 @@ export default function PostPage() {
                     )}
                   </button>
                 </div>
+
+                {/* ========================================================= */}
+                {/* INLINE COMMUNITY DISCUSSION & COMMENTS DRAWER */}
+                {/* ========================================================= */}
+                {expandedPosts[post.id] && (
+                  <div className="mt-4 border-t border-[var(--border)] pt-4 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <MessageSquare size={16} className="text-[var(--primary)]" />
+                        <h4 className="text-xs font-bold text-[var(--foreground)]">
+                          Discussion ({post.commentsCount || 0})
+                        </h4>
+                      </div>
+                      <Link
+                        href={`/post/${post.id}#discussion`}
+                        className="text-[11px] font-semibold text-[var(--primary)] hover:underline inline-flex items-center gap-1"
+                      >
+                        <span>Open full page</span>
+                        <ArrowRight size={11} />
+                      </Link>
+                    </div>
+
+                    {/* New Comment Input Form */}
+                    <form
+                      onSubmit={(e) => handleAddComment(e, post.id)}
+                      className="space-y-2"
+                    >
+                      <div className="flex items-start gap-2.5">
+                        {user?.imageUrl ? (
+                          <img
+                            src={user.imageUrl}
+                            alt=""
+                            className="h-7 w-7 rounded-full object-cover border border-[var(--border)] mt-0.5"
+                          />
+                        ) : (
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--primary)] text-white font-bold text-[10px] mt-0.5">
+                            {user?.fullName?.charAt(0) || 'C'}
+                          </div>
+                        )}
+                        <div className="flex-1 space-y-1.5">
+                          <textarea
+                            rows={2}
+                            value={commentInputs[post.id] || ''}
+                            onChange={(e) =>
+                              setCommentInputs((prev) => ({
+                                ...prev,
+                                [post.id]: e.target.value,
+                              }))
+                            }
+                            placeholder="Add a comment or reply to your community..."
+                            maxLength={1000}
+                            className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] p-2.5 text-xs text-[var(--foreground)] outline-none transition focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]"
+                          />
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] text-[var(--muted-foreground)]">
+                              {1000 - ((commentInputs[post.id] || '').length)} chars left
+                            </span>
+                            <button
+                              type="submit"
+                              disabled={
+                                !(commentInputs[post.id] || '').trim() ||
+                                submittingComment[post.id]
+                              }
+                              className="inline-flex items-center gap-1 rounded-lg bg-[var(--primary)] px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+                            >
+                              {submittingComment[post.id] ? (
+                                <Loader2 size={12} className="animate-spin" />
+                              ) : (
+                                <Send size={12} />
+                              )}
+                              <span>Comment</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </form>
+
+                    {/* Comments List */}
+                    {loadingComments[post.id] ? (
+                      <div className="py-6 text-center text-xs text-[var(--muted-foreground)] flex items-center justify-center gap-2">
+                        <Loader2 size={14} className="animate-spin text-[var(--primary)]" />
+                        <span>Loading comments...</span>
+                      </div>
+                    ) : commentsByPost[post.id] && commentsByPost[post.id].length > 0 ? (
+                      <div className="space-y-3.5 divide-y divide-[var(--border)]/60 pt-1">
+                        {commentsByPost[post.id].map((comment) => (
+                          <div key={comment.id} className="pt-3 first:pt-0 space-y-2">
+                            {/* Comment header */}
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-2">
+                                {comment.author?.profileUrl ? (
+                                  <img
+                                    src={comment.author.profileUrl}
+                                    alt=""
+                                    className="h-6 w-6 rounded-full object-cover border border-[var(--border)]"
+                                  />
+                                ) : (
+                                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-800 text-white font-bold text-[10px]">
+                                    {comment.author?.name?.charAt(0).toUpperCase() || 'U'}
+                                  </div>
+                                )}
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className="text-xs font-semibold text-[var(--foreground)]">
+                                    {comment.author?.name || 'Anonymous'}
+                                  </span>
+
+                                  {comment.author?.roleBadge === 'creator' && (
+                                    <span className="inline-flex items-center rounded-full bg-amber-100 px-1.5 py-0.2 text-[9px] font-bold text-amber-800">
+                                      👑 Creator
+                                    </span>
+                                  )}
+                                  {comment.author?.roleBadge === 'member' && (
+                                    <span className="inline-flex items-center rounded-full bg-purple-100 px-1.5 py-0.2 text-[9px] font-bold text-purple-800">
+                                      💎 VIP Member
+                                    </span>
+                                  )}
+                                  {comment.author?.roleBadge === 'supporter' && (
+                                    <span className="inline-flex items-center rounded-full bg-orange-100 px-1.5 py-0.2 text-[9px] font-bold text-orange-800">
+                                      ☕ Supporter
+                                    </span>
+                                  )}
+
+                                  <span className="text-[10px] text-[var(--muted-foreground)]">
+                                    {new Date(comment.createdAt).toLocaleDateString('en-IN', {
+                                      month: 'short',
+                                      day: 'numeric',
+                                      hour: '2-digit',
+                                      minute: '2-digit',
+                                    })}
+                                  </span>
+                                </div>
+                              </div>
+
+                              {comment.canDelete && (
+                                <button
+                                  type="button"
+                                  disabled={deletingCommentId === comment.id}
+                                  onClick={() => handleDeleteComment(post.id, comment.id)}
+                                  className="text-slate-400 hover:text-rose-600 transition p-1"
+                                  title="Delete comment"
+                                >
+                                  {deletingCommentId === comment.id ? (
+                                    <Loader2 size={12} className="animate-spin text-rose-600" />
+                                  ) : (
+                                    <Trash2 size={12} />
+                                  )}
+                                </button>
+                              )}
+                            </div>
+
+                            {/* Comment content */}
+                            <p className="text-xs leading-relaxed text-[var(--foreground)] pl-8 whitespace-pre-wrap">
+                              {comment.content}
+                            </p>
+
+                            {/* Reply button & form */}
+                            <div className="pl-8">
+                              {replyingToId === comment.id ? (
+                                <div className="mt-2 space-y-2 rounded-lg bg-[var(--muted)]/40 p-2.5 border border-[var(--border)]">
+                                  <div className="flex items-center justify-between text-[10px] font-semibold text-[var(--muted-foreground)]">
+                                    <span className="flex items-center gap-1">
+                                      <CornerDownRight size={11} /> Replying to{' '}
+                                      {comment.author?.name}
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setReplyingToId(null)
+                                        setReplyInputs((prev) => ({
+                                          ...prev,
+                                          [comment.id]: '',
+                                        }))
+                                      }}
+                                      className="text-slate-400 hover:text-slate-600"
+                                    >
+                                      <X size={12} />
+                                    </button>
+                                  </div>
+                                  <textarea
+                                    rows={2}
+                                    value={replyInputs[comment.id] || ''}
+                                    onChange={(e) =>
+                                      setReplyInputs((prev) => ({
+                                        ...prev,
+                                        [comment.id]: e.target.value,
+                                      }))
+                                    }
+                                    placeholder="Write a reply..."
+                                    maxLength={1000}
+                                    className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] p-2 text-xs text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
+                                  />
+                                  <div className="flex justify-end gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => setReplyingToId(null)}
+                                      className="rounded-md px-2 py-1 text-[11px] text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
+                                    >
+                                      Cancel
+                                    </button>
+                                    <button
+                                      type="button"
+                                      disabled={
+                                        !(replyInputs[comment.id] || '').trim() ||
+                                        submittingReply[comment.id]
+                                      }
+                                      onClick={() => handleAddReply(post.id, comment.id)}
+                                      className="inline-flex items-center gap-1 rounded-md bg-[var(--primary)] px-2.5 py-1 text-[11px] font-semibold text-white disabled:opacity-50"
+                                    >
+                                      {submittingReply[comment.id] && (
+                                        <Loader2 size={10} className="animate-spin" />
+                                      )}
+                                      <span>Reply</span>
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setReplyingToId(comment.id)
+                                    setReplyInputs((prev) => ({
+                                      ...prev,
+                                      [comment.id]: '',
+                                    }))
+                                  }}
+                                  className="text-[11px] font-semibold text-[var(--muted-foreground)] hover:text-[var(--primary)] transition flex items-center gap-1"
+                                >
+                                  <CornerDownRight size={11} />
+                                  <span>Reply</span>
+                                </button>
+                              )}
+                            </div>
+
+                            {/* Nested replies */}
+                            {comment.replies && comment.replies.length > 0 && (
+                              <div className="ml-6 mt-2 pl-3 border-l-2 border-[var(--border)] space-y-2.5">
+                                {comment.replies.map((reply) => (
+                                  <div key={reply.id} className="space-y-1 pt-1.5">
+                                    <div className="flex items-center justify-between">
+                                      <div className="flex items-center gap-1.5">
+                                        {reply.author?.profileUrl ? (
+                                          <img
+                                            src={reply.author.profileUrl}
+                                            alt=""
+                                            className="h-5 w-5 rounded-full object-cover"
+                                          />
+                                        ) : (
+                                          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-700 text-white font-bold text-[9px]">
+                                            {reply.author?.name?.charAt(0) || 'U'}
+                                          </div>
+                                        )}
+                                        <span className="font-semibold text-[11px] text-[var(--foreground)]">
+                                          {reply.author?.name}
+                                        </span>
+                                        {reply.author?.roleBadge === 'creator' && (
+                                          <span className="inline-flex items-center rounded-full bg-amber-100 px-1.5 py-0.1 text-[9px] font-bold text-amber-800">
+                                            👑 Creator
+                                          </span>
+                                        )}
+                                        {reply.author?.roleBadge === 'member' && (
+                                          <span className="inline-flex items-center rounded-full bg-purple-100 px-1.5 py-0.1 text-[9px] font-bold text-purple-800">
+                                            💎 VIP
+                                          </span>
+                                        )}
+                                        {reply.author?.roleBadge === 'supporter' && (
+                                          <span className="inline-flex items-center rounded-full bg-orange-100 px-1.5 py-0.1 text-[9px] font-bold text-orange-800">
+                                            ☕ Supporter
+                                          </span>
+                                        )}
+                                        <span className="text-[10px] text-[var(--muted-foreground)]">
+                                          {new Date(reply.createdAt).toLocaleDateString(
+                                            'en-IN',
+                                            {
+                                              month: 'short',
+                                              day: 'numeric',
+                                            }
+                                          )}
+                                        </span>
+                                      </div>
+
+                                      {reply.canDelete && (
+                                        <button
+                                          type="button"
+                                          disabled={deletingCommentId === reply.id}
+                                          onClick={() =>
+                                            handleDeleteComment(post.id, reply.id, comment.id)
+                                          }
+                                          className="text-slate-400 hover:text-rose-600 transition"
+                                          title="Delete reply"
+                                        >
+                                          <Trash2 size={11} />
+                                        </button>
+                                      )}
+                                    </div>
+                                    <p className="text-xs text-[var(--foreground)] pl-6 whitespace-pre-wrap">
+                                      {reply.content}
+                                    </p>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="py-4 text-center text-xs text-[var(--muted-foreground)]">
+                        No comments yet. Start the conversation with your community!
+                      </div>
+                    )}
+                  </div>
+                )}
               </article>
             ))
           ) : (

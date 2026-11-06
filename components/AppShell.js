@@ -1,18 +1,27 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
+import { useUser } from '@clerk/nextjs'
 import Navbar from '@/components/Navbar'
 import Sidebar from '@/components/Sidebar'
 
-const appRoutes = ['/dashboard', '/profile', '/memberships', '/post', '/payouts']
+const workspaceRoutes = ['/dashboard', '/profile', '/memberships', '/my-memberships', '/payouts']
 
-const hasSidebar = (pathname) => appRoutes.some(
-  (route) => pathname === route || pathname.startsWith(`${route}/`)
-)
+const isWorkspaceRoute = (pathname) => {
+  if (!pathname) return false
+  // /post is the creator workspace to publish posts, but /post/[id] is a public standalone post page
+  if (pathname === '/post') return true
+  return workspaceRoutes.some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`)
+  )
+}
 
 export default function AppShell({ children }) {
   const pathname = usePathname()
-  const showSidebar = hasSidebar(pathname)
+  const { isLoaded, isSignedIn } = useUser()
+
+  // Only show the creator workspace sidebar when authenticated AND on a designated workspace route
+  const showSidebar = Boolean(isLoaded && isSignedIn && isWorkspaceRoute(pathname))
 
   if (!showSidebar) {
     return (

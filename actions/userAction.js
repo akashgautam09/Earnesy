@@ -31,6 +31,15 @@ export const initiate = async (amount, to_user, paymentform) => {
             return { error: 'Recipient user not found.' }
         }
 
+        // Prevent self-payment (creator paying themselves or purchasing own tier)
+        if (
+            currentUser._id.toString() === user._id.toString() ||
+            currentUser.username?.toLowerCase() === user.username?.toLowerCase() ||
+            currentUser.email?.toLowerCase() === user.email?.toLowerCase()
+        ) {
+            return { error: 'You cannot pay yourself or purchase your own membership tier.' }
+        }
+
         const keyId = user.razorpayId?.trim()
         const keySecret = user.razorpaySecret?.trim()
 
@@ -91,6 +100,14 @@ export const fetchUserPage = async (username) => {
                 console.error('Payment credentials could not be read')
             }
 
+            const currentUser = await getCurrentUser().catch(() => null)
+            const isOwner = Boolean(
+                currentUser &&
+                (currentUser._id?.toString() === user._id?.toString() ||
+                 currentUser.username?.toLowerCase() === user.username?.toLowerCase() ||
+                 currentUser.email?.toLowerCase() === user.email?.toLowerCase())
+            )
+
             return {
                 id: user._id.toString(),
                 name: user.name,
@@ -103,6 +120,7 @@ export const fetchUserPage = async (username) => {
                 paymentsEnabled: Boolean(razorpayId && razorpaySecret),
                 hasDiscordRewards: Boolean(user.discordServerId && user.discordRoleId),
                 discordInviteUrl: user.discordInviteUrl || '',
+                isOwner,
             }
         }
         return null
@@ -167,6 +185,7 @@ export const fetchUserPosts = async (username) => {
                 content: hasAccess ? post.content : (post.content ? post.content.slice(0, 100) + '...' : ''),
                 imageUrl: hasAccess ? (post.imageUrl || null) : null,
                 likesCount: post.likesCount || 0,
+                commentsCount: post.commentsCount || 0,
                 isLiked: userLikesSet.has(post._id.toString()),
                 visibility: post.visibility || 'public',
                 isLocked: !hasAccess,

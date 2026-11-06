@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useClerk, useUser } from '@clerk/nextjs'
+import NotificationBell from '@/components/NotificationBell'
 import {
   House,
   Globe,
@@ -11,6 +12,7 @@ import {
   CircleUserRound,
   UsersRound,
   HeartHandshake,
+  Compass,
   PenLine,
   WalletCards,
   LogOut,
@@ -19,6 +21,7 @@ import {
 
 const navigation = [
   { label: 'Home', href: '/', icon: House },
+  { label: 'Explore', href: '/explore', icon: Compass },
   { label: 'My Page', href: null, icon: Globe },
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Profile', href: '/profile', icon: CircleUserRound },
@@ -30,13 +33,15 @@ const navigation = [
 
 export default function Sidebar() {
   const pathname = usePathname()
-  const { user } = useUser()
+  const { isLoaded, isSignedIn, user } = useUser()
   const { signOut } = useClerk()
   const [myPageHref, setMyPageHref] = useState('/dashboard')
   const [localUsername, setLocalUsername] = useState('')
 
   useEffect(() => {
     let cancelled = false
+
+    if (!isSignedIn) return
 
     const loadProfileLink = async () => {
       const response = await fetch('/api/profile')
@@ -53,7 +58,11 @@ export default function Sidebar() {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [isSignedIn])
+
+  if (!isLoaded || !isSignedIn || !user) {
+    return null
+  }
 
   const displayName = user?.fullName || user?.primaryEmailAddress?.emailAddress || 'Creator'
   const username = localUsername ? `@${localUsername}` : 'Set up your public page'
@@ -62,14 +71,18 @@ export default function Sidebar() {
     <aside className="sticky top-0 z-40 w-full shrink-0 border-b border-[var(--border)] bg-[var(--card)] md:h-screen md:w-[18rem] md:border-b-0 md:border-r">
       <div className="flex h-full flex-col gap-5 px-3 py-4 sm:px-4 md:gap-6 md:px-5 md:py-6">
         {/* Brand Header */}
-        <Link
-          href="/"
-          className="group hidden items-center gap-3 px-2 transition md:flex"
-        >
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--primary)] text-white shadow-sm transition group-hover:scale-105">
-            <Coffee size={19} className="stroke-[2.2]" />
-          </div>
-        </Link>
+        <div className="hidden items-center justify-between px-2 md:flex">
+          <Link
+            href="/"
+            className="group flex items-center gap-3 transition"
+          >
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--primary)] text-white shadow-sm transition group-hover:scale-105">
+              <Coffee size={19} className="stroke-[2.2]" />
+            </div>
+            <span className="font-bold text-base text-[var(--foreground)] tracking-wide">Earnesy</span>
+          </Link>
+          <NotificationBell align="left" />
+        </div>
 
         {/* User Card */}
         <Link

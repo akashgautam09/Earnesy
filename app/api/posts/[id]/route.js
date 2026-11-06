@@ -59,6 +59,7 @@ export async function GET(req, { params }) {
         content: hasAccess ? post.content : (post.content ? post.content.slice(0, 100) + '...' : ''),
         imageUrl: hasAccess ? (post.imageUrl || null) : null,
         likesCount: post.likesCount || 0,
+        commentsCount: post.commentsCount || 0,
         isLiked,
         isAuthor,
         status: post.status,
