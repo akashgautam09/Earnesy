@@ -18,10 +18,14 @@ export async function GET(request) {
 
     const { searchParams } = new URL(request.url)
     const query = searchParams.get('query')?.trim().toLowerCase() || ''
-    const category = searchParams.get('category')?.trim().toLowerCase() || ''
+    const category = searchParams.get('category')?.trim() || ''
 
     const filter = {
       username: { $exists: true, $ne: '' },
+    }
+
+    if (category && category !== 'All') {
+      filter.category = category
     }
 
     if (query) {
@@ -30,12 +34,13 @@ export async function GET(request) {
         { username: { $regex: query, $options: 'i' } },
         { title: { $regex: query, $options: 'i' } },
         { bio: { $regex: query, $options: 'i' } },
+        { category: { $regex: query, $options: 'i' } },
       ]
     }
 
     // Fetch creators
     const users = await User.find(filter)
-      .select('_id name username title bio profileUrl coverUrl createdAt paymentsEnabled razorpayId discordServerId')
+      .select('_id name username title bio category profileUrl coverUrl createdAt paymentsEnabled razorpayId discordServerId')
       .sort({ createdAt: -1 })
       .limit(30)
       .lean()
@@ -77,6 +82,7 @@ export async function GET(request) {
         name: u.name || u.username,
         username: u.username,
         title: u.title || '',
+        category: u.category || '',
         bio: u.bio || '',
         profileUrl: u.profileUrl || null,
         coverUrl: u.coverUrl || null,

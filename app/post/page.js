@@ -19,6 +19,7 @@ import {
   CornerDownRight,
   ExternalLink,
   ArrowRight,
+  Pencil,
 } from 'lucide-react'
 import AppPageHeader from '@/components/AppPageHeader'
 
@@ -36,6 +37,9 @@ export default function PostPage() {
   const [copiedId, setCopiedId] = useState(null)
   const [likingId, setLikingId] = useState(null)
   const [deletingId, setDeletingId] = useState(null)
+  const [editingPostId, setEditingPostId] = useState(null)
+  const [editForm, setEditForm] = useState({ title: '', content: '', visibility: 'public' })
+  const [savingEdit, setSavingEdit] = useState(false)
   const fileInputRef = useRef(null)
 
   // Comments / Discussion states
@@ -230,6 +234,62 @@ export default function PostPage() {
       setMessage(err.message)
     } finally {
       setDeletingId(null)
+    }
+  }
+
+  const handleStartEdit = (post) => {
+    setEditingPostId(post.id)
+    setEditForm({
+      title: post.title || '',
+      content: post.content || '',
+      visibility: post.visibility || 'public',
+    })
+  }
+
+  const handleCancelEdit = () => {
+    setEditingPostId(null)
+    setEditForm({ title: '', content: '', visibility: 'public' })
+  }
+
+  const handleSaveEdit = async (e, postId) => {
+    e.preventDefault()
+    if (!editForm.title.trim() || savingEdit) return
+
+    setSavingEdit(true)
+    try {
+      const response = await fetch(`/api/posts/${postId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: editForm.title,
+          content: editForm.content,
+          visibility: editForm.visibility,
+        }),
+      })
+
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error || 'Failed to update post')
+
+      setPosts((current) =>
+        current.map((p) =>
+          p.id === postId
+            ? {
+                ...p,
+                title: data.post.title,
+                content: data.post.content,
+                visibility: data.post.visibility,
+              }
+            : p
+        )
+      )
+
+      setEditingPostId(null)
+      setMessage('Post updated successfully')
+      setTimeout(() => setMessage(''), 3000)
+    } catch (err) {
+      alert(err.message)
+    } finally {
+      setSavingEdit(false)
     }
   }
 
@@ -525,128 +585,213 @@ export default function PostPage() {
                 key={post.id}
                 className="space-y-4 rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-[0_8px_24px_rgba(25,25,25,0.03)] sm:p-6"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <h3 className="text-[1.1rem] font-semibold text-[var(--foreground)]">{post.title}</h3>
-                  <span
-                    className={`shrink-0 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide border ${
-                      post.visibility === 'members'
-                        ? 'bg-amber-50 text-amber-800 border-amber-200'
-                        : 'bg-slate-100 text-slate-600 border-slate-200'
-                    }`}
-                  >
-                    {post.visibility === 'members' ? (
-                      <>
-                        <Lock size={10} /> Members Only
-                      </>
-                    ) : (
-                      <>
-                        <Globe size={10} /> Public
-                      </>
-                    )}
-                  </span>
-                </div>
-
-                <p className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--muted-foreground)]">
-                  {post.content}
-                </p>
-
-                {post.imageUrl && (
-                  <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--muted)]/20 p-1">
-                    <img
-                      src={post.imageUrl}
-                      alt={post.title}
-                      className="max-h-96 w-full rounded-lg object-contain"
-                    />
-                  </div>
-                )}
-
-                {/* Post Action Bar */}
-                <div className="flex items-center justify-between border-t border-[var(--border)] pt-4 text-xs text-[var(--muted-foreground)]">
-                  <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
-                    {/* Like button */}
-                    <button
-                      type="button"
-                      disabled={likingId === post.id}
-                      onClick={() => handleLike(post.id)}
-                      className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 font-medium transition ${
-                        post.isLiked
-                          ? 'border-rose-200 bg-rose-50 text-rose-600'
-                          : 'border-[var(--border)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]'
-                      }`}
-                    >
-                      <Heart
-                        size={14}
-                        className={post.isLiked ? 'fill-rose-500 text-rose-500' : ''}
-                      />
-                      <span>{post.likesCount || 0}</span>
-                    </button>
-
-                    {/* Comments Toggle Button */}
-                    <button
-                      type="button"
-                      onClick={() => handleToggleComments(post.id)}
-                      className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 font-medium transition ${
-                        expandedPosts[post.id]
-                          ? 'border-[var(--primary)] bg-[var(--accent)] text-[var(--primary)]'
-                          : 'border-[var(--border)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]'
-                      }`}
-                      title="View and reply to comments"
-                    >
-                      <MessageSquare
-                        size={14}
-                        className={expandedPosts[post.id] ? 'text-[var(--primary)]' : ''}
-                      />
-                      <span>{post.commentsCount || 0}</span>
-                      <span className="hidden sm:inline text-[11px]">
-                        {expandedPosts[post.id] ? 'Hide' : 'Comments'}
+                {editingPostId === post.id ? (
+                  <form onSubmit={(e) => handleSaveEdit(e, post.id)} className="space-y-4">
+                    <div className="flex items-center justify-between gap-2 border-b border-[var(--border)] pb-3">
+                      <span className="flex items-center gap-1.5 text-xs font-bold text-[var(--primary)]">
+                        <Pencil size={13} /> Edit post
                       </span>
-                    </button>
+                      {/* Visibility Toggle */}
+                      <div className="flex items-center gap-1 rounded-lg border border-[var(--border)] bg-[var(--background)] p-0.5 text-xs">
+                        <button
+                          type="button"
+                          onClick={() => setEditForm((prev) => ({ ...prev, visibility: 'public' }))}
+                          className={`inline-flex items-center gap-1 rounded px-2.5 py-1 font-semibold transition ${
+                            editForm.visibility === 'public'
+                              ? 'bg-white shadow-xs text-slate-900 border border-slate-200'
+                              : 'text-slate-500 hover:text-slate-800'
+                          }`}
+                        >
+                          <Globe size={11} /> Public
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEditForm((prev) => ({ ...prev, visibility: 'members' }))}
+                          className={`inline-flex items-center gap-1 rounded px-2.5 py-1 font-semibold transition ${
+                            editForm.visibility === 'members'
+                              ? 'bg-amber-50 text-amber-900 border border-amber-200 shadow-xs'
+                              : 'text-slate-500 hover:text-slate-800'
+                          }`}
+                        >
+                          <Lock size={11} /> Members Only
+                        </button>
+                      </div>
+                    </div>
 
-                    {/* Share button */}
-                    <button
-                      type="button"
-                      onClick={() => handleShare(post)}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 py-1.5 font-medium transition hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
-                    >
-                      {copiedId === post.id ? (
-                        <>
-                          <Check size={14} className="text-emerald-600" />
-                          <span className="text-emerald-600">Copied</span>
-                        </>
-                      ) : (
-                        <>
-                          <Share2 size={14} />
-                          <span>Share</span>
-                        </>
-                      )}
-                    </button>
+                    <input
+                      required
+                      maxLength={120}
+                      value={editForm.title}
+                      onChange={(e) => setEditForm((prev) => ({ ...prev, title: e.target.value }))}
+                      placeholder="Post title"
+                      className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2.5 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--primary)]"
+                    />
 
-                    {/* Standalone post link */}
-                    <Link
-                      href={`/post/${post.id}`}
-                      className="inline-flex items-center gap-1 rounded-lg border border-[var(--border)] px-2.5 py-1.5 font-medium transition hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
-                      title="Open standalone post page"
-                    >
-                      <ExternalLink size={13} />
-                      <span className="hidden sm:inline">Page</span>
-                    </Link>
-                  </div>
+                    <textarea
+                      rows={4}
+                      maxLength={5000}
+                      value={editForm.content}
+                      onChange={(e) => setEditForm((prev) => ({ ...prev, content: e.target.value }))}
+                      placeholder="Post content (optional)..."
+                      className="w-full resize-y rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2.5 text-sm leading-relaxed text-[var(--foreground)] outline-none transition focus:border-[var(--primary)]"
+                    />
 
-                  {/* Delete post button */}
-                  <button
-                    type="button"
-                    disabled={deletingId === post.id}
-                    onClick={() => handleDelete(post.id)}
-                    className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600 disabled:opacity-50"
-                    title="Delete post"
-                  >
-                    {deletingId === post.id ? (
-                      <Loader2 size={15} className="animate-spin text-rose-600" />
-                    ) : (
-                      <Trash2 size={15} />
+                    <div className="flex items-center justify-end gap-2 border-t border-[var(--border)] pt-3">
+                      <button
+                        type="button"
+                        disabled={savingEdit}
+                        onClick={handleCancelEdit}
+                        className="rounded-lg px-3 py-1.5 text-xs font-semibold text-[var(--muted-foreground)] hover:bg-[var(--muted)] transition"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={savingEdit || !editForm.title.trim()}
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-4 py-1.5 text-xs font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+                      >
+                        {savingEdit && <Loader2 size={13} className="animate-spin" />}
+                        <span>Save Changes</span>
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <>
+                    <div className="flex items-start justify-between gap-3">
+                      <h3 className="text-[1.1rem] font-semibold text-[var(--foreground)]">{post.title}</h3>
+                      <span
+                        className={`shrink-0 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide border ${
+                          post.visibility === 'members'
+                            ? 'bg-amber-50 text-amber-800 border-amber-200'
+                            : 'bg-slate-100 text-slate-600 border-slate-200'
+                        }`}
+                      >
+                        {post.visibility === 'members' ? (
+                          <>
+                            <Lock size={10} /> Members Only
+                          </>
+                        ) : (
+                          <>
+                            <Globe size={10} /> Public
+                          </>
+                        )}
+                      </span>
+                    </div>
+
+                    <p className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--muted-foreground)]">
+                      {post.content}
+                    </p>
+
+                    {post.imageUrl && (
+                      <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--muted)]/20 p-1">
+                        <img
+                          src={post.imageUrl}
+                          alt={post.title}
+                          className="max-h-96 w-full rounded-lg object-contain"
+                        />
+                      </div>
                     )}
-                  </button>
-                </div>
+
+                    {/* Post Action Bar */}
+                    <div className="flex items-center justify-between border-t border-[var(--border)] pt-4 text-xs text-[var(--muted-foreground)]">
+                      <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
+                        {/* Like button */}
+                        <button
+                          type="button"
+                          disabled={likingId === post.id}
+                          onClick={() => handleLike(post.id)}
+                          className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 font-medium transition ${
+                            post.isLiked
+                              ? 'border-rose-200 bg-rose-50 text-rose-600'
+                              : 'border-[var(--border)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]'
+                          }`}
+                        >
+                          <Heart
+                            size={14}
+                            className={post.isLiked ? 'fill-rose-500 text-rose-500' : ''}
+                          />
+                          <span>{post.likesCount || 0}</span>
+                        </button>
+
+                        {/* Comments Toggle Button */}
+                        <button
+                          type="button"
+                          onClick={() => handleToggleComments(post.id)}
+                          className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 font-medium transition ${
+                            expandedPosts[post.id]
+                              ? 'border-[var(--primary)] bg-[var(--accent)] text-[var(--primary)]'
+                              : 'border-[var(--border)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]'
+                          }`}
+                          title="View and reply to comments"
+                        >
+                          <MessageSquare
+                            size={14}
+                            className={expandedPosts[post.id] ? 'text-[var(--primary)]' : ''}
+                          />
+                          <span>{post.commentsCount || 0}</span>
+                          <span className="hidden sm:inline text-[11px]">
+                            {expandedPosts[post.id] ? 'Hide' : 'Comments'}
+                          </span>
+                        </button>
+
+                        {/* Share button */}
+                        <button
+                          type="button"
+                          onClick={() => handleShare(post)}
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 py-1.5 font-medium transition hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
+                        >
+                          {copiedId === post.id ? (
+                            <>
+                              <Check size={14} className="text-emerald-600" />
+                              <span className="text-emerald-600">Copied</span>
+                            </>
+                          ) : (
+                            <>
+                              <Share2 size={14} />
+                              <span>Share</span>
+                            </>
+                          )}
+                        </button>
+
+                        {/* Standalone post link */}
+                        <Link
+                          href={`/post/${post.id}`}
+                          className="inline-flex items-center gap-1 rounded-lg border border-[var(--border)] px-2.5 py-1.5 font-medium transition hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
+                          title="Open standalone post page"
+                        >
+                          <ExternalLink size={13} />
+                          <span className="hidden sm:inline">Page</span>
+                        </Link>
+                      </div>
+
+                      {/* Post Management Actions: Edit & Delete */}
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => handleStartEdit(post)}
+                          className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+                          title="Edit post"
+                        >
+                          <Pencil size={15} />
+                        </button>
+
+                        <button
+                          type="button"
+                          disabled={deletingId === post.id}
+                          onClick={() => handleDelete(post.id)}
+                          className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600 disabled:opacity-50"
+                          title="Delete post"
+                        >
+                          {deletingId === post.id ? (
+                            <Loader2 size={15} className="animate-spin text-rose-600" />
+                          ) : (
+                            <Trash2 size={15} />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
 
                 {/* ========================================================= */}
                 {/* INLINE COMMUNITY DISCUSSION & COMMENTS DRAWER */}

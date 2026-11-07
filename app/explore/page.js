@@ -18,11 +18,14 @@ import {
 const CATEGORIES = [
   'All',
   'Tech & Coding',
-  'Art & Design',
-  'Writing',
-  'Podcasts & Audio',
-  'Gaming',
-  'Education',
+  'Art & Illustration',
+  'Writing & Literature',
+  'Gaming Community',
+  'Education & Tutorials',
+  'Music & Audio',
+  'Photography',
+  'Comics & Animation',
+  'Community & Discord',
 ]
 
 export default function ExplorePage() {
@@ -61,6 +64,13 @@ export default function ExplorePage() {
 
   const filteredCreators = creators.filter((creator) => {
     if (selectedCategory === 'All') return true
+
+    // 1. Direct match if creator has explicitly selected this category
+    if (creator.category && creator.category.toLowerCase() === selectedCategory.toLowerCase()) {
+      return true
+    }
+
+    // 2. Fallback keyword match in name, title, bio
     const text = `${creator.name} ${creator.title} ${creator.bio}`.toLowerCase()
     const catWords = selectedCategory.toLowerCase().split('&').map((w) => w.trim())
     return catWords.some((w) => text.includes(w))
@@ -177,15 +187,22 @@ export default function ExplorePage() {
                         </div>
                       )}
 
-                      {creator.hasDiscord && (
-                        <span
-                          title="Offers Discord VIP Role rewards"
-                          className="inline-flex items-center gap-1 rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-0.5 text-[11px] font-semibold text-indigo-700"
-                        >
-                          <ShieldCheck size={13} />
-                          Discord VIP
-                        </span>
-                      )}
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {creator.category && (
+                          <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-semibold text-slate-700 border border-slate-200">
+                            {creator.category}
+                          </span>
+                        )}
+                        {creator.hasDiscord && (
+                          <span
+                            title="Offers Discord VIP Role rewards"
+                            className="inline-flex items-center gap-1 rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-0.5 text-[11px] font-semibold text-indigo-700"
+                          >
+                            <ShieldCheck size={13} />
+                            Discord VIP
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     <div className="mt-3">

@@ -17,6 +17,8 @@ import {
   Send,
   CornerDownRight,
   X,
+  Pencil,
+  Globe,
 } from 'lucide-react'
 
 export default function SinglePostPage() {
@@ -42,6 +44,9 @@ export default function SinglePostPage() {
   const [replyInput, setReplyInput] = useState('')
   const [submittingReply, setSubmittingReply] = useState(false)
   const [deletingCommentId, setDeletingCommentId] = useState(null)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editForm, setEditForm] = useState({ title: '', content: '', visibility: 'public' })
+  const [savingEdit, setSavingEdit] = useState(false)
 
   useEffect(() => {
     if (!postId) return
@@ -170,6 +175,43 @@ export default function SinglePostPage() {
     } catch (err) {
       alert(err.message)
       setDeleting(false)
+    }
+  }
+
+  const handleStartEdit = () => {
+    setIsEditing(true)
+    setEditForm({
+      title: post.title || '',
+      content: post.content || '',
+      visibility: post.visibility || 'public',
+    })
+  }
+
+  const handleSaveEdit = async (e) => {
+    e.preventDefault()
+    if (!editForm.title.trim() || savingEdit) return
+
+    setSavingEdit(true)
+    try {
+      const response = await fetch(`/api/posts/${post.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editForm),
+      })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error || 'Failed to update post')
+
+      setPost((prev) => ({
+        ...prev,
+        title: data.post.title,
+        content: data.post.content,
+        visibility: data.post.visibility,
+      }))
+      setIsEditing(false)
+    } catch (err) {
+      alert(err.message)
+    } finally {
+      setSavingEdit(false)
     }
   }
 
@@ -340,67 +382,138 @@ export default function SinglePostPage() {
             )}
           </div>
 
-          {/* Post Content */}
-          <div className="space-y-4 pt-2">
-            <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">
-              {post.title}
-            </h1>
-
-            {post.isLocked ? (
-              <div className="space-y-4 pt-2">
-                {post.content ? (
-                  <div className="relative">
-                    <p className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--muted-foreground)] blur-[1.5px] select-none">
-                      {post.content}
-                    </p>
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[var(--card)]/50 to-[var(--card)]" />
-                  </div>
-                ) : null}
-
-                <div className="rounded-2xl border border-amber-200/90 bg-gradient-to-br from-amber-50/70 via-white to-orange-50/30 p-6 text-center space-y-3 shadow-xs">
-                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 text-amber-700">
-                    <Lock size={22} />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-slate-900">
-                      This post is exclusive to members
-                    </h3>
-                    <p className="mt-1 text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
-                      Join any membership tier by {post.author?.name || 'this creator'} to unlock this full post, photos, and future discussions.
-                    </p>
-                  </div>
-                  {post.author?.username && (
-                    <Link
-                      href={`/${post.author.username}`}
-                      className="inline-flex items-center gap-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white px-5 py-2.5 text-xs font-bold shadow-xs transition"
-                    >
-                      <span>Unlock on @{post.author.username}&apos;s Page</span>
-                      <ArrowRight size={13} />
-                    </Link>
-                  )}
+          {/* Post Content or Inline Edit Form */}
+          {isEditing ? (
+            <form onSubmit={handleSaveEdit} className="space-y-4 pt-2">
+              <div className="flex items-center justify-between gap-2 border-b border-[var(--border)] pb-3">
+                <span className="flex items-center gap-1.5 text-xs font-bold text-[var(--primary)]">
+                  <Pencil size={13} /> Editing post
+                </span>
+                <div className="flex items-center gap-1 rounded-lg border border-[var(--border)] bg-[var(--background)] p-0.5 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => setEditForm((prev) => ({ ...prev, visibility: 'public' }))}
+                    className={`inline-flex items-center gap-1 rounded px-2.5 py-1 font-semibold transition ${
+                      editForm.visibility === 'public'
+                        ? 'bg-white shadow-xs text-slate-900 border border-slate-200'
+                        : 'text-slate-500 hover:text-slate-800'
+                    }`}
+                  >
+                    <Globe size={11} /> Public
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditForm((prev) => ({ ...prev, visibility: 'members' }))}
+                    className={`inline-flex items-center gap-1 rounded px-2.5 py-1 font-semibold transition ${
+                      editForm.visibility === 'members'
+                        ? 'bg-amber-50 text-amber-900 border border-amber-200 shadow-xs'
+                        : 'text-slate-500 hover:text-slate-800'
+                    }`}
+                  >
+                    <Lock size={11} /> Members Only
+                  </button>
                 </div>
               </div>
-            ) : (
-              <>
-                {post.content ? (
-                  <p className="whitespace-pre-wrap text-[1rem] leading-7 text-[var(--foreground)]/90">
-                    {post.content}
-                  </p>
-                ) : null}
 
-                {post.imageUrl && (
-                  <div className="mx-auto aspect-[4/5] max-h-[600px] w-full overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--muted)]/20">
-                    <img
-                      src={post.imageUrl}
-                      alt={post.title}
-                      className="h-full w-full rounded-xl object-contain shadow-sm"
-                      loading="eager"
-                    />
+              <input
+                required
+                maxLength={120}
+                value={editForm.title}
+                onChange={(e) => setEditForm((prev) => ({ ...prev, title: e.target.value }))}
+                placeholder="Post title"
+                className="w-full rounded-xl border border-[var(--border)] bg-[var(--background)] px-3.5 py-2.5 text-lg font-bold text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
+              />
+
+              <textarea
+                rows={6}
+                maxLength={5000}
+                value={editForm.content}
+                onChange={(e) => setEditForm((prev) => ({ ...prev, content: e.target.value }))}
+                placeholder="Write your post content..."
+                className="w-full resize-y rounded-xl border border-[var(--border)] bg-[var(--background)] p-3 text-sm leading-relaxed text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
+              />
+
+              <div className="flex items-center justify-end gap-2 border-t border-[var(--border)] pt-3">
+                <button
+                  type="button"
+                  disabled={savingEdit}
+                  onClick={() => setIsEditing(false)}
+                  className="rounded-lg px-3.5 py-1.5 text-xs font-semibold text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingEdit || !editForm.title.trim()}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-4 py-1.5 text-xs font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+                >
+                  {savingEdit && <Loader2 size={13} className="animate-spin" />}
+                  <span>Save Changes</span>
+                </button>
+              </div>
+            </form>
+          ) : (
+            <div className="space-y-4 pt-2">
+              <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">
+                {post.title}
+              </h1>
+
+              {post.isLocked ? (
+                <div className="space-y-4 pt-2">
+                  {post.content ? (
+                    <div className="relative">
+                      <p className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--muted-foreground)] blur-[1.5px] select-none">
+                        {post.content}
+                      </p>
+                      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[var(--card)]/50 to-[var(--card)]" />
+                    </div>
+                  ) : null}
+
+                  <div className="rounded-2xl border border-amber-200/90 bg-gradient-to-br from-amber-50/70 via-white to-orange-50/30 p-6 text-center space-y-3 shadow-xs">
+                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+                      <Lock size={22} />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-bold text-slate-900">
+                        This post is exclusive to members
+                      </h3>
+                      <p className="mt-1 text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
+                        Join any membership tier by {post.author?.name || 'this creator'} to unlock this full post, photos, and future discussions.
+                      </p>
+                    </div>
+                    {post.author?.username && (
+                      <Link
+                        href={`/${post.author.username}`}
+                        className="inline-flex items-center gap-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white px-5 py-2.5 text-xs font-bold shadow-xs transition"
+                      >
+                        <span>Unlock on @{post.author.username}&apos;s Page</span>
+                        <ArrowRight size={13} />
+                      </Link>
+                    )}
                   </div>
-                )}
-              </>
-            )}
-          </div>
+                </div>
+              ) : (
+                <>
+                  {post.content ? (
+                    <p className="whitespace-pre-wrap text-[1rem] leading-7 text-[var(--foreground)]/90">
+                      {post.content}
+                    </p>
+                  ) : null}
+
+                  {post.imageUrl && (
+                    <div className="mx-auto aspect-[4/5] max-h-[600px] w-full overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--muted)]/20">
+                      <img
+                        src={post.imageUrl}
+                        alt={post.title}
+                        className="h-full w-full rounded-xl object-contain shadow-sm"
+                        loading="eager"
+                      />
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          )}
 
           {/* Action Bar */}
           <div className="flex flex-col justify-between gap-3 border-t border-[var(--border)] pt-3.5 pr-2 text-xs text-[var(--muted-foreground)] sm:flex-row sm:items-center">
@@ -451,21 +564,32 @@ export default function SinglePostPage() {
                 )}
               </button>
 
-              {/* Author Delete Button */}
+              {/* Author Actions: Edit & Delete */}
               {post.isAuthor && (
-                <button
-                  type="button"
-                  onClick={handleDelete}
-                  disabled={deleting}
-                  className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-medium text-rose-600 transition hover:bg-rose-50 dark:hover:bg-rose-950/40 disabled:opacity-50"
-                  title="Delete this post"
-                >
-                  {deleting ? (
-                    <Loader2 size={18} className="animate-spin" />
-                  ) : (
-                    <Trash2 size={18} />
-                  )}
-                </button>
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={handleStartEdit}
+                    className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-medium text-slate-600 transition hover:bg-slate-100 dark:hover:bg-slate-800"
+                    title="Edit this post"
+                  >
+                    <Pencil size={17} />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleDelete}
+                    disabled={deleting}
+                    className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-medium text-rose-600 transition hover:bg-rose-50 dark:hover:bg-rose-950/40 disabled:opacity-50"
+                    title="Delete this post"
+                  >
+                    {deleting ? (
+                      <Loader2 size={18} className="animate-spin" />
+                    ) : (
+                      <Trash2 size={18} />
+                    )}
+                  </button>
+                </div>
               )}
             </div>
 

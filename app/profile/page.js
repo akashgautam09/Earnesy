@@ -82,7 +82,15 @@ export default function ProfilePage() {
             <img src={profile?.profileUrl || clerkUser?.imageUrl || '/tea.gif'} alt="" className="-mt-12 h-24 w-24 rounded-full border-4 border-[var(--card)] bg-[var(--muted)] object-cover sm:-mt-14 sm:h-28 sm:w-28" />
             <div className="mt-4 flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
               <div>
-                <div className="flex flex-wrap items-center gap-2"><h2 className="text-2xl font-semibold tracking-tight text-[var(--foreground)]">{displayName}</h2><BadgeCheck size={18} className="text-[var(--primary)]" /></div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="text-2xl font-semibold tracking-tight text-[var(--foreground)]">{displayName}</h2>
+                  <BadgeCheck size={18} className="text-[var(--primary)]" />
+                  {profile?.category && (
+                    <span className="inline-flex items-center rounded-full bg-[var(--primary)]/10 px-2.5 py-0.5 text-xs font-semibold text-[var(--primary)] border border-[var(--primary)]/20">
+                      {profile.category}
+                    </span>
+                  )}
+                </div>
                 <p className="mt-1 text-sm text-[var(--muted-foreground)]">@{profile?.username || 'yourusername'}</p>
                 <p className="mt-3 break-all text-sm text-[var(--muted-foreground)]">{profile?.email || clerkUser?.primaryEmailAddress?.emailAddress}</p>
               </div>

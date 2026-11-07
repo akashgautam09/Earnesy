@@ -568,10 +568,15 @@ export const PaymentPage = ({ username }) => {
 
             {/* Profile Intro & Bio */}
             <div className="max-w-3xl mx-auto text-center px-4 space-y-3 mb-8">
-                <div className="flex items-center justify-center gap-1.5">
+                <div className="flex flex-wrap items-center justify-center gap-2">
                     <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--foreground)]">
                         {displayName}
                     </h1>
+                    {currentUser.category && (
+                        <span className="inline-flex items-center rounded-full bg-[var(--primary)]/10 px-2.5 py-0.5 text-xs font-semibold text-[var(--primary)] border border-[var(--primary)]/20 shadow-xs">
+                            {currentUser.category}
+                        </span>
+                    )}
                 </div>
 
                 {tagline && (

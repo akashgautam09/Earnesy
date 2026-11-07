@@ -79,6 +79,78 @@ export async function GET(req, { params }) {
   }
 }
 
+export async function PUT(req, { params }) {
+  try {
+    const user = await getCurrentUser()
+    if (!user) {
+      return Response.json({ error: 'Unauthorized: Please login first' }, { status: 401 })
+    }
+
+    const { id: postId } = await params
+    if (!mongoose.Types.ObjectId.isValid(postId)) {
+      return Response.json({ error: 'Invalid post ID' }, { status: 400 })
+    }
+
+    if (mongoose.connection.readyState !== 1) {
+      await mongoose.connect(process.env.MONGODB_URI)
+    }
+
+    const post = await Post.findById(postId)
+    if (!post) {
+      return Response.json({ error: 'Post not found' }, { status: 404 })
+    }
+
+    if (post.authorId.toString() !== user._id.toString()) {
+      return Response.json({ error: 'Forbidden: You can only edit your own posts' }, { status: 403 })
+    }
+
+    const body = await req.json()
+    const { title, content, visibility } = body
+
+    const cleanTitle = typeof title === 'string' ? title.trim() : ''
+    const cleanContent = typeof content === 'string' ? content.trim() : ''
+    const cleanVisibility = visibility === 'members' ? 'members' : 'public'
+
+    if (!cleanTitle) {
+      return Response.json({ error: 'Post title is required' }, { status: 400 })
+    }
+
+    if (cleanTitle.length > 120) {
+      return Response.json({ error: 'Title must be 120 characters or fewer' }, { status: 400 })
+    }
+
+    if (cleanContent.length > 5000) {
+      return Response.json({ error: 'Content must be 5000 characters or fewer' }, { status: 400 })
+    }
+
+    post.title = cleanTitle
+    post.content = cleanContent
+    post.visibility = cleanVisibility
+    post.updatedAt = new Date()
+
+    await post.save()
+
+    return Response.json({
+      success: true,
+      post: {
+        id: post._id.toString(),
+        title: post.title,
+        content: post.content,
+        imageUrl: post.imageUrl || null,
+        likesCount: post.likesCount || 0,
+        commentsCount: post.commentsCount || 0,
+        visibility: post.visibility,
+        status: post.status,
+        createdAt: post.createdAt,
+        updatedAt: post.updatedAt,
+      },
+    })
+  } catch (error) {
+    console.error('Post update error:', error)
+    return Response.json({ error: error.message || 'Failed to update post' }, { status: 500 })
+  }
+}
+
 export async function DELETE(req, { params }) {
   try {
     const user = await getCurrentUser()

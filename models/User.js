@@ -30,6 +30,13 @@ const userSchema = new mongoose.Schema({
     default: '',
     trim: true,
   },
+  category: {
+    type: String,
+    default: '',
+    trim: true,
+    maxlength: 40,
+    index: true,
+  },
   bio: {
     type: String,
     maxlength: 1000,

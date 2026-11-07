@@ -113,6 +113,7 @@ export const fetchUserPage = async (username) => {
                 name: user.name,
                 username: user.username,
                 title: user.title || '',
+                category: user.category || '',
                 bio: user.bio || '',
                 profileUrl: user.profileUrl,
                 coverUrl: user.coverUrl,

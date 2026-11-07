@@ -5,6 +5,18 @@ import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { ExternalLink, HelpCircle, ChevronDown, ChevronUp, CheckCircle2, AlertCircle } from 'lucide-react'
 
+const PREDEFINED_CATEGORIES = [
+  'Tech & Coding',
+  'Art & Illustration',
+  'Writing & Literature',
+  'Gaming Community',
+  'Education & Tutorials',
+  'Music & Audio',
+  'Photography',
+  'Comics & Animation',
+  'Community & Discord',
+]
+
 export default function Dashboard() {
   const { isLoaded, isSignedIn, user } = useUser()
   const status = !isLoaded ? 'loading' : isSignedIn ? 'authenticated' : 'unauthenticated'
@@ -16,6 +28,7 @@ export default function Dashboard() {
     email: '',
     username: '',
     title: '',
+    category: '',
     bio: '',
     discordServerId: '',
     discordRoleId: '',
@@ -28,6 +41,9 @@ export default function Dashboard() {
   const [testingDiscord, setTestingDiscord] = useState(false)
   const [discordTestResult, setDiscordTestResult] = useState(null)
   const [showDiscordGuide, setShowDiscordGuide] = useState(false)
+
+  const [selectedCategoryType, setSelectedCategoryType] = useState('')
+  const [customCategory, setCustomCategory] = useState('')
 
   const [profilePic, setProfilePic] = useState(null)
   const [coverPic, setCoverPic] = useState(null)
@@ -74,6 +90,7 @@ export default function Dashboard() {
           email: user.email || userEmail,
           username: user.username || '',
           title: user.title || '',
+          category: user.category || '',
           bio: user.bio || '',
           discordServerId: user.discordServerId || '',
           discordRoleId: user.discordRoleId || '',
@@ -83,6 +100,18 @@ export default function Dashboard() {
           // Secrets are write-only in the dashboard and must not be loaded into browser state.
           razorpaySecret: '',
         }))
+
+        const userCat = user.category || ''
+        if (PREDEFINED_CATEGORIES.includes(userCat)) {
+          setSelectedCategoryType(userCat)
+          setCustomCategory('')
+        } else if (userCat) {
+          setSelectedCategoryType('custom')
+          setCustomCategory(userCat)
+        } else {
+          setSelectedCategoryType('')
+          setCustomCategory('')
+        }
 
         if (user.profileUrl) {
           setProfilePic(user.profileUrl)
@@ -166,6 +195,22 @@ export default function Dashboard() {
     }
   }
 
+  const handleCategorySelect = (e) => {
+    const value = e.target.value
+    setSelectedCategoryType(value)
+    if (value === 'custom') {
+      setFormData((previous) => ({ ...previous, category: customCategory.trim() }))
+    } else {
+      setFormData((previous) => ({ ...previous, category: value }))
+    }
+  }
+
+  const handleCustomCategoryChange = (e) => {
+    const value = e.target.value.slice(0, 35)
+    setCustomCategory(value)
+    setFormData((previous) => ({ ...previous, category: value }))
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
 
@@ -220,6 +265,7 @@ export default function Dashboard() {
           email: userEmail,
           username,
           title: formData.title,
+          category: formData.category,
           bio: formData.bio,
           discordServerId: formData.discordServerId,
           discordRoleId: formData.discordRoleId,
@@ -488,6 +534,50 @@ export default function Dashboard() {
                     placeholder="e.g. Creating digital, art and web dev tutorials"
                     className="w-full border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-500 focus:border-amber-600"
                   />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="mb-2 block text-sm text-slate-700">
+                    Creative Category (Explore Directory)
+                  </label>
+                  <select
+                    value={selectedCategoryType}
+                    onChange={handleCategorySelect}
+                    className="w-full border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition-colors focus:border-amber-600"
+                  >
+                    <option value="">Select your primary category...</option>
+                    <option value="Tech & Coding">💻 Tech & Coding</option>
+                    <option value="Art & Illustration">🎨 Art & Illustration</option>
+                    <option value="Writing & Literature">✍️ Writing & Literature</option>
+                    <option value="Gaming Community">🎮 Gaming Community</option>
+                    <option value="Education & Tutorials">📚 Education & Tutorials</option>
+                    <option value="Music & Audio">🎵 Music & Audio</option>
+                    <option value="Photography">📷 Photography</option>
+                    <option value="Comics & Animation">🖌️ Comics & Animation</option>
+                    <option value="Community & Discord">👥 Community & Discord</option>
+                    <option value="custom">✨ Custom Category (type your own)...</option>
+                  </select>
+
+                  {selectedCategoryType === 'custom' && (
+                    <div className="mt-2.5 space-y-1">
+                      <input
+                        type="text"
+                        maxLength={35}
+                        value={customCategory}
+                        onChange={handleCustomCategoryChange}
+                        placeholder="Enter your custom niche (e.g. Science & Research, 3D Assets, Cooking)"
+                        className="w-full border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-amber-600"
+                      />
+                      <div className="flex items-center justify-between text-[11px] text-slate-500">
+                        <span>Type a descriptive category for your profile badge</span>
+                        <span>{35 - customCategory.length} chars left</span>
+                      </div>
+                    </div>
+                  )}
+
+                  <p className="mt-1 text-xs text-slate-500">
+                    Choose a preset category or enter your own custom niche to help supporters find you.
+                  </p>
                 </div>
 
                 <div className="md:col-span-2">
