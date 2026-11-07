@@ -31,6 +31,10 @@ const commentSchema = new mongoose.Schema({
   },
 }, { timestamps: true })
 
+// Production indexes for threaded comment queries
+commentSchema.index({ postId: 1, createdAt: 1 })
+commentSchema.index({ postId: 1, parentCommentId: 1 })
+
 if (process.env.NODE_ENV !== 'production') {
   delete mongoose.models.Comment
 }

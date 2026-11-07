@@ -36,6 +36,10 @@ const notificationSchema = new mongoose.Schema({
   },
 }, { timestamps: true })
 
+// Production indexes for unread count and chronologically sorted user feeds
+notificationSchema.index({ userId: 1, createdAt: -1 })
+notificationSchema.index({ userId: 1, isRead: 1 })
+
 if (process.env.NODE_ENV !== 'production') {
   delete mongoose.models.Notification
 }

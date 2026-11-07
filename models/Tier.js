@@ -54,5 +54,12 @@ const tierSchema = new Schema(
   }
 );
 
+// Production index for active creator tiers in priority order
+tierSchema.index({ creatorId: 1, isActive: 1, order: 1 });
+
+if (process.env.NODE_ENV !== 'production') {
+  delete mongoose.models.Tier;
+}
+
 export default mongoose.models.Tier || model("Tier", tierSchema);
 

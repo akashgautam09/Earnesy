@@ -91,6 +91,10 @@ const userSchema = new mongoose.Schema({
   }
 });
 
+// Production indexes for Explore directory and sorting
+userSchema.index({ createdAt: -1 });
+userSchema.index({ category: 1, createdAt: -1 });
+
 if (process.env.NODE_ENV !== 'production') {
   delete mongoose.models.User
 }

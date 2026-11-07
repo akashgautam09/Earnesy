@@ -9,6 +9,15 @@ import Like from "@/models/Like"
 import Tier from "@/models/Tier"
 import { getCurrentUser } from "@/lib/auth/server"
 
+const ensureDb = async () => {
+    if (mongoose.connection.readyState !== 1) {
+        if (!process.env.MONGODB_URI) {
+            throw new Error('MONGODB_URI is not defined')
+        }
+        await mongoose.connect(process.env.MONGODB_URI)
+    }
+}
+
 export const initiate = async (amount, to_user, paymentform) => {
     try {
         const currentUser = await getCurrentUser()
@@ -25,7 +34,7 @@ export const initiate = async (amount, to_user, paymentform) => {
             return { error: 'Your name is required.' }
         }
 
-        await mongoose.connect(process.env.MONGODB_URI)
+        await ensureDb()
         const user = await User.findOne({ username: to_user?.trim().toLowerCase() })
         if (!user) {
             return { error: 'Recipient user not found.' }
@@ -87,7 +96,7 @@ export const initiate = async (amount, to_user, paymentform) => {
 // Return only safe public fields. Never return the Razorpay secret.
 export const fetchUserPage = async (username) => {
     try {
-        await mongoose.connect(process.env.MONGODB_URI)
+        await ensureDb()
         const user = await User.findOne({ username: username?.trim().toLowerCase() })
         if (user) {
             let razorpayId = ''
@@ -134,7 +143,7 @@ export const fetchUserPage = async (username) => {
 // Return completed payments from highest to lowest amount.
 export const fetchPayments = async (username) => {
     try {
-        await mongoose.connect(process.env.MONGODB_URI)
+        await ensureDb()
         const payments = await Payment.find({ to_user: username?.trim().toLowerCase(), done: true }).sort({ amount: -1 })
         return payments.map(payment => payment.toObject({ flattenObjectIds: true }))
     } catch (error) {
@@ -146,7 +155,7 @@ export const fetchPayments = async (username) => {
 // Fetch published posts for the public creator profile with access control
 export const fetchUserPosts = async (username) => {
     try {
-        await mongoose.connect(process.env.MONGODB_URI)
+        await ensureDb()
         const user = await User.findOne({ username: username?.trim().toLowerCase() }).select('_id username').lean()
         if (!user) return []
 
@@ -202,10 +211,7 @@ export const fetchUserPosts = async (username) => {
 // Fetch active tiers for the public creator profile
 export const fetchUserTiers = async (username) => {
     try {
-        if (!process.env.MONGODB_URI) return []
-        if (mongoose.connection.readyState !== 1) {
-            await mongoose.connect(process.env.MONGODB_URI)
-        }
+        await ensureDb()
         const user = await User.findOne({ username: username?.trim().toLowerCase() }).select('_id').lean()
         if (!user) return []
 

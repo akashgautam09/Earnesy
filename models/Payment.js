@@ -63,4 +63,15 @@ const paymentSchema = new mongoose.Schema({
     }
 });
 
+// Production indexes for high-frequency queries and leaderboards
+paymentSchema.index({ to_user: 1, done: 1, createdAt: -1 });
+paymentSchema.index({ to_user: 1, done: 1, amount: -1 });
+paymentSchema.index({ creator_id: 1, done: 1 });
+paymentSchema.index({ supporter_id: 1, done: 1 });
+paymentSchema.index({ order_id: 1 });
+
+if (process.env.NODE_ENV !== 'production') {
+    delete mongoose.models.Payment;
+}
+
 export default mongoose.models.Payment || model("Payment", paymentSchema);

@@ -43,6 +43,10 @@ const postSchema = new mongoose.Schema({
   },
 }, { timestamps: true })
 
+// Compound indexes for optimal production query performance
+postSchema.index({ authorId: 1, createdAt: -1 })
+postSchema.index({ authorId: 1, status: 1, createdAt: -1 })
+
 // In development, clear cached model so schema updates take effect without server restart
 if (process.env.NODE_ENV !== 'production') {
   delete mongoose.models.Post

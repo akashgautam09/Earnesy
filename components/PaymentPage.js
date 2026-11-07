@@ -59,6 +59,7 @@ export const PaymentPage = ({ username }) => {
     // Inline post comments state for public page
     const [expandedPosts, setExpandedPosts] = useState({})
     const [commentsByPost, setCommentsByPost] = useState({})
+    const [showAllComments, setShowAllComments] = useState({})
     const [loadingComments, setLoadingComments] = useState({})
     const [commentInputs, setCommentInputs] = useState({})
     const [submittingComment, setSubmittingComment] = useState({})
@@ -1136,8 +1137,35 @@ export const PaymentPage = ({ username }) => {
                                                                 <span>Loading comments...</span>
                                                             </div>
                                                         ) : commentsByPost[post.id] && commentsByPost[post.id].length > 0 ? (
-                                                            <div className="space-y-3.5 divide-y divide-[var(--border)]/60 pt-1">
-                                                                {commentsByPost[post.id].map((comment) => (
+                                                            (() => {
+                                                                const allComments = commentsByPost[post.id] || []
+                                                                const isExpanded = Boolean(showAllComments[post.id])
+                                                                const displayedComments = isExpanded || allComments.length <= 3 ? allComments : allComments.slice(-3)
+                                                                return (
+                                                                    <div className="space-y-3 pt-1">
+                                                                        {allComments.length > 3 && (
+                                                                            <div className="flex items-center justify-between pb-1 border-b border-[var(--border)]/60">
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() =>
+                                                                                        setShowAllComments((prev) => ({
+                                                                                            ...prev,
+                                                                                            [post.id]: !prev[post.id],
+                                                                                        }))
+                                                                                    }
+                                                                                    className="text-xs font-semibold text-[var(--primary)] hover:underline inline-flex items-center gap-1"
+                                                                                >
+                                                                                    {isExpanded
+                                                                                        ? 'Show fewer comments'
+                                                                                        : `View all ${allComments.length} comments`}
+                                                                                </button>
+                                                                                <span className="text-[10px] text-[var(--muted-foreground)]">
+                                                                                    Showing {isExpanded ? `all ${allComments.length}` : `latest ${displayedComments.length}`}
+                                                                                </span>
+                                                                            </div>
+                                                                        )}
+                                                                        <div className="space-y-3.5 divide-y divide-[var(--border)]/60">
+                                                                            {displayedComments.map((comment) => (
                                                                     <div key={comment.id} className="pt-3 first:pt-0 space-y-2">
                                                                         {/* Comment Header */}
                                                                         <div className="flex items-center justify-between gap-2">
@@ -1351,7 +1379,10 @@ export const PaymentPage = ({ username }) => {
                                                                         )}
                                                                     </div>
                                                                 ))}
-                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                )
+                                                            })()
                                                         ) : (
                                                             <div className="py-4 text-center text-xs text-[var(--muted-foreground)]">
                                                                 No comments yet. Start the conversation with @{username}!

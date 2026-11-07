@@ -45,6 +45,7 @@ export default function PostPage() {
   // Comments / Discussion states
   const [expandedPosts, setExpandedPosts] = useState({})
   const [commentsByPost, setCommentsByPost] = useState({})
+  const [showAllComments, setShowAllComments] = useState({})
   const [loadingComments, setLoadingComments] = useState({})
   const [commentInputs, setCommentInputs] = useState({})
   const [submittingComment, setSubmittingComment] = useState({})
@@ -274,11 +275,11 @@ export default function PostPage() {
         current.map((p) =>
           p.id === postId
             ? {
-                ...p,
-                title: data.post.title,
-                content: data.post.content,
-                visibility: data.post.visibility,
-              }
+              ...p,
+              title: data.post.title,
+              content: data.post.content,
+              visibility: data.post.visibility,
+            }
             : p
         )
       )
@@ -410,10 +411,10 @@ export default function PostPage() {
         ...prev,
         [postId]: parentCommentId
           ? (prev[postId] || []).map((c) =>
-              c.id === parentCommentId
-                ? { ...c, replies: (c.replies || []).filter((r) => r.id !== commentId) }
-                : c
-            )
+            c.id === parentCommentId
+              ? { ...c, replies: (c.replies || []).filter((r) => r.id !== commentId) }
+              : c
+          )
           : (prev[postId] || []).filter((c) => c.id !== commentId),
       }))
 
@@ -456,11 +457,10 @@ export default function PostPage() {
                 suppressHydrationWarning
                 type="button"
                 onClick={() => setForm({ ...form, visibility: 'public' })}
-                className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1 font-semibold transition ${
-                  form.visibility === 'public'
+                className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1 font-semibold transition ${form.visibility === 'public'
                     ? 'bg-white shadow-xs text-slate-900 border border-slate-200'
                     : 'text-slate-500 hover:text-slate-900'
-                }`}
+                  }`}
               >
                 <Globe size={13} className="text-slate-600" />
                 <span>Public</span>
@@ -469,11 +469,10 @@ export default function PostPage() {
                 suppressHydrationWarning
                 type="button"
                 onClick={() => setForm({ ...form, visibility: 'members' })}
-                className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1 font-semibold transition ${
-                  form.visibility === 'members'
+                className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1 font-semibold transition ${form.visibility === 'members'
                     ? 'bg-amber-50 shadow-xs text-amber-900 border border-amber-200'
                     : 'text-slate-500 hover:text-slate-900'
-                }`}
+                  }`}
               >
                 <Lock size={13} className="text-amber-600" />
                 <span>Members Only</span>
@@ -545,9 +544,8 @@ export default function PostPage() {
 
               {message && (
                 <p
-                  className={`text-xs ${
-                    message.includes('successfully') ? 'text-emerald-600 font-medium' : 'text-rose-500'
-                  }`}
+                  className={`text-xs ${message.includes('successfully') ? 'text-emerald-600 font-medium' : 'text-rose-500'
+                    }`}
                 >
                   {message}
                 </p>
@@ -596,22 +594,20 @@ export default function PostPage() {
                         <button
                           type="button"
                           onClick={() => setEditForm((prev) => ({ ...prev, visibility: 'public' }))}
-                          className={`inline-flex items-center gap-1 rounded px-2.5 py-1 font-semibold transition ${
-                            editForm.visibility === 'public'
+                          className={`inline-flex items-center gap-1 rounded px-2.5 py-1 font-semibold transition ${editForm.visibility === 'public'
                               ? 'bg-white shadow-xs text-slate-900 border border-slate-200'
                               : 'text-slate-500 hover:text-slate-800'
-                          }`}
+                            }`}
                         >
                           <Globe size={11} /> Public
                         </button>
                         <button
                           type="button"
                           onClick={() => setEditForm((prev) => ({ ...prev, visibility: 'members' }))}
-                          className={`inline-flex items-center gap-1 rounded px-2.5 py-1 font-semibold transition ${
-                            editForm.visibility === 'members'
+                          className={`inline-flex items-center gap-1 rounded px-2.5 py-1 font-semibold transition ${editForm.visibility === 'members'
                               ? 'bg-amber-50 text-amber-900 border border-amber-200 shadow-xs'
                               : 'text-slate-500 hover:text-slate-800'
-                          }`}
+                            }`}
                         >
                           <Lock size={11} /> Members Only
                         </button>
@@ -660,11 +656,10 @@ export default function PostPage() {
                     <div className="flex items-start justify-between gap-3">
                       <h3 className="text-[1.1rem] font-semibold text-[var(--foreground)]">{post.title}</h3>
                       <span
-                        className={`shrink-0 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide border ${
-                          post.visibility === 'members'
+                        className={`shrink-0 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide border ${post.visibility === 'members'
                             ? 'bg-amber-50 text-amber-800 border-amber-200'
                             : 'bg-slate-100 text-slate-600 border-slate-200'
-                        }`}
+                          }`}
                       >
                         {post.visibility === 'members' ? (
                           <>
@@ -700,11 +695,10 @@ export default function PostPage() {
                           type="button"
                           disabled={likingId === post.id}
                           onClick={() => handleLike(post.id)}
-                          className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 font-medium transition ${
-                            post.isLiked
+                          className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 font-medium transition ${post.isLiked
                               ? 'border-rose-200 bg-rose-50 text-rose-600'
                               : 'border-[var(--border)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]'
-                          }`}
+                            }`}
                         >
                           <Heart
                             size={14}
@@ -717,11 +711,10 @@ export default function PostPage() {
                         <button
                           type="button"
                           onClick={() => handleToggleComments(post.id)}
-                          className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 font-medium transition ${
-                            expandedPosts[post.id]
+                          className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 font-medium transition ${expandedPosts[post.id]
                               ? 'border-[var(--primary)] bg-[var(--accent)] text-[var(--primary)]'
                               : 'border-[var(--border)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]'
-                          }`}
+                            }`}
                           title="View and reply to comments"
                         >
                           <MessageSquare
@@ -876,226 +869,253 @@ export default function PostPage() {
                         <span>Loading comments...</span>
                       </div>
                     ) : commentsByPost[post.id] && commentsByPost[post.id].length > 0 ? (
-                      <div className="space-y-3.5 divide-y divide-[var(--border)]/60 pt-1">
-                        {commentsByPost[post.id].map((comment) => (
-                          <div key={comment.id} className="pt-3 first:pt-0 space-y-2">
-                            {/* Comment header */}
-                            <div className="flex items-center justify-between gap-2">
-                              <div className="flex items-center gap-2">
-                                {comment.author?.profileUrl ? (
-                                  <img
-                                    src={comment.author.profileUrl}
-                                    alt=""
-                                    className="h-6 w-6 rounded-full object-cover border border-[var(--border)]"
-                                  />
-                                ) : (
-                                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-800 text-white font-bold text-[10px]">
-                                    {comment.author?.name?.charAt(0).toUpperCase() || 'U'}
-                                  </div>
-                                )}
-                                <div className="flex items-center gap-1.5 flex-wrap">
-                                  <span className="text-xs font-semibold text-[var(--foreground)]">
-                                    {comment.author?.name || 'Anonymous'}
-                                  </span>
-
-                                  {comment.author?.roleBadge === 'creator' && (
-                                    <span className="inline-flex items-center rounded-full bg-amber-100 px-1.5 py-0.2 text-[9px] font-bold text-amber-800">
-                                      👑 Creator
-                                    </span>
-                                  )}
-                                  {comment.author?.roleBadge === 'member' && (
-                                    <span className="inline-flex items-center rounded-full bg-purple-100 px-1.5 py-0.2 text-[9px] font-bold text-purple-800">
-                                      💎 VIP Member
-                                    </span>
-                                  )}
-                                  {comment.author?.roleBadge === 'supporter' && (
-                                    <span className="inline-flex items-center rounded-full bg-orange-100 px-1.5 py-0.2 text-[9px] font-bold text-orange-800">
-                                      ☕ Supporter
-                                    </span>
-                                  )}
-
-                                  <span className="text-[10px] text-[var(--muted-foreground)]">
-                                    {new Date(comment.createdAt).toLocaleDateString('en-IN', {
-                                      month: 'short',
-                                      day: 'numeric',
-                                      hour: '2-digit',
-                                      minute: '2-digit',
-                                    })}
-                                  </span>
-                                </div>
-                              </div>
-
-                              {comment.canDelete && (
+                      (() => {
+                        const allComments = commentsByPost[post.id] || []
+                        const isExpanded = Boolean(showAllComments[post.id])
+                        const displayedComments = isExpanded || allComments.length <= 3 ? allComments : allComments.slice(-3)
+                        return (
+                          <div className="space-y-3 pt-1">
+                            {allComments.length > 3 && (
+                              <div className="flex items-center justify-between pb-1 border-b border-[var(--border)]/60">
                                 <button
                                   type="button"
-                                  disabled={deletingCommentId === comment.id}
-                                  onClick={() => handleDeleteComment(post.id, comment.id)}
-                                  className="text-slate-400 hover:text-rose-600 transition p-1"
-                                  title="Delete comment"
-                                >
-                                  {deletingCommentId === comment.id ? (
-                                    <Loader2 size={12} className="animate-spin text-rose-600" />
-                                  ) : (
-                                    <Trash2 size={12} />
-                                  )}
-                                </button>
-                              )}
-                            </div>
-
-                            {/* Comment content */}
-                            <p className="text-xs leading-relaxed text-[var(--foreground)] pl-8 whitespace-pre-wrap">
-                              {comment.content}
-                            </p>
-
-                            {/* Reply button & form */}
-                            <div className="pl-8">
-                              {replyingToId === comment.id ? (
-                                <div className="mt-2 space-y-2 rounded-lg bg-[var(--muted)]/40 p-2.5 border border-[var(--border)]">
-                                  <div className="flex items-center justify-between text-[10px] font-semibold text-[var(--muted-foreground)]">
-                                    <span className="flex items-center gap-1">
-                                      <CornerDownRight size={11} /> Replying to{' '}
-                                      {comment.author?.name}
-                                    </span>
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        setReplyingToId(null)
-                                        setReplyInputs((prev) => ({
-                                          ...prev,
-                                          [comment.id]: '',
-                                        }))
-                                      }}
-                                      className="text-slate-400 hover:text-slate-600"
-                                    >
-                                      <X size={12} />
-                                    </button>
-                                  </div>
-                                  <textarea
-                                    rows={2}
-                                    value={replyInputs[comment.id] || ''}
-                                    onChange={(e) =>
-                                      setReplyInputs((prev) => ({
-                                        ...prev,
-                                        [comment.id]: e.target.value,
-                                      }))
-                                    }
-                                    placeholder="Write a reply..."
-                                    maxLength={1000}
-                                    className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] p-2 text-xs text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
-                                  />
-                                  <div className="flex justify-end gap-2">
-                                    <button
-                                      type="button"
-                                      onClick={() => setReplyingToId(null)}
-                                      className="rounded-md px-2 py-1 text-[11px] text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
-                                    >
-                                      Cancel
-                                    </button>
-                                    <button
-                                      type="button"
-                                      disabled={
-                                        !(replyInputs[comment.id] || '').trim() ||
-                                        submittingReply[comment.id]
-                                      }
-                                      onClick={() => handleAddReply(post.id, comment.id)}
-                                      className="inline-flex items-center gap-1 rounded-md bg-[var(--primary)] px-2.5 py-1 text-[11px] font-semibold text-white disabled:opacity-50"
-                                    >
-                                      {submittingReply[comment.id] && (
-                                        <Loader2 size={10} className="animate-spin" />
-                                      )}
-                                      <span>Reply</span>
-                                    </button>
-                                  </div>
-                                </div>
-                              ) : (
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setReplyingToId(comment.id)
-                                    setReplyInputs((prev) => ({
+                                  onClick={() =>
+                                    setShowAllComments((prev) => ({
                                       ...prev,
-                                      [comment.id]: '',
+                                      [post.id]: !prev[post.id],
                                     }))
-                                  }}
-                                  className="text-[11px] font-semibold text-[var(--muted-foreground)] hover:text-[var(--primary)] transition flex items-center gap-1"
+                                  }
+                                  className="text-xs font-semibold text-[var(--primary)] hover:underline inline-flex items-center gap-1"
                                 >
-                                  <CornerDownRight size={11} />
-                                  <span>Reply</span>
+                                  {isExpanded
+                                    ? 'Show fewer comments'
+                                    : `View all ${allComments.length} comments`}
                                 </button>
-                              )}
-                            </div>
-
-                            {/* Nested replies */}
-                            {comment.replies && comment.replies.length > 0 && (
-                              <div className="ml-6 mt-2 pl-3 border-l-2 border-[var(--border)] space-y-2.5">
-                                {comment.replies.map((reply) => (
-                                  <div key={reply.id} className="space-y-1 pt-1.5">
-                                    <div className="flex items-center justify-between">
-                                      <div className="flex items-center gap-1.5">
-                                        {reply.author?.profileUrl ? (
-                                          <img
-                                            src={reply.author.profileUrl}
-                                            alt=""
-                                            className="h-5 w-5 rounded-full object-cover"
-                                          />
-                                        ) : (
-                                          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-700 text-white font-bold text-[9px]">
-                                            {reply.author?.name?.charAt(0) || 'U'}
-                                          </div>
-                                        )}
-                                        <span className="font-semibold text-[11px] text-[var(--foreground)]">
-                                          {reply.author?.name}
+                              </div>
+                            )}
+                            <div className="space-y-3.5 divide-y divide-[var(--border)]/60">
+                              {displayedComments.map((comment) => (
+                                <div key={comment.id} className="pt-3 first:pt-0 space-y-2">
+                                  {/* Comment header */}
+                                  <div className="flex items-center justify-between gap-2">
+                                    <div className="flex items-center gap-2">
+                                      {comment.author?.profileUrl ? (
+                                        <img
+                                          src={comment.author.profileUrl}
+                                          alt=""
+                                          className="h-6 w-6 rounded-full object-cover border border-[var(--border)]"
+                                        />
+                                      ) : (
+                                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-800 text-white font-bold text-[10px]">
+                                          {comment.author?.name?.charAt(0).toUpperCase() || 'U'}
+                                        </div>
+                                      )}
+                                      <div className="flex items-center gap-1.5 flex-wrap">
+                                        <span className="text-xs font-semibold text-[var(--foreground)]">
+                                          {comment.author?.name || 'Anonymous'}
                                         </span>
-                                        {reply.author?.roleBadge === 'creator' && (
-                                          <span className="inline-flex items-center rounded-full bg-amber-100 px-1.5 py-0.1 text-[9px] font-bold text-amber-800">
+
+                                        {comment.author?.roleBadge === 'creator' && (
+                                          <span className="inline-flex items-center rounded-full bg-amber-100 px-1.5 py-0.2 text-[9px] font-bold text-amber-800">
                                             👑 Creator
                                           </span>
                                         )}
-                                        {reply.author?.roleBadge === 'member' && (
-                                          <span className="inline-flex items-center rounded-full bg-purple-100 px-1.5 py-0.1 text-[9px] font-bold text-purple-800">
-                                            💎 VIP
+                                        {comment.author?.roleBadge === 'member' && (
+                                          <span className="inline-flex items-center rounded-full bg-purple-100 px-1.5 py-0.2 text-[9px] font-bold text-purple-800">
+                                            💎 VIP Member
                                           </span>
                                         )}
-                                        {reply.author?.roleBadge === 'supporter' && (
-                                          <span className="inline-flex items-center rounded-full bg-orange-100 px-1.5 py-0.1 text-[9px] font-bold text-orange-800">
+                                        {comment.author?.roleBadge === 'supporter' && (
+                                          <span className="inline-flex items-center rounded-full bg-orange-100 px-1.5 py-0.2 text-[9px] font-bold text-orange-800">
                                             ☕ Supporter
                                           </span>
                                         )}
+
                                         <span className="text-[10px] text-[var(--muted-foreground)]">
-                                          {new Date(reply.createdAt).toLocaleDateString(
-                                            'en-IN',
-                                            {
-                                              month: 'short',
-                                              day: 'numeric',
-                                            }
-                                          )}
+                                          {new Date(comment.createdAt).toLocaleDateString('en-IN', {
+                                            month: 'short',
+                                            day: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                          })}
                                         </span>
                                       </div>
-
-                                      {reply.canDelete && (
-                                        <button
-                                          type="button"
-                                          disabled={deletingCommentId === reply.id}
-                                          onClick={() =>
-                                            handleDeleteComment(post.id, reply.id, comment.id)
-                                          }
-                                          className="text-slate-400 hover:text-rose-600 transition"
-                                          title="Delete reply"
-                                        >
-                                          <Trash2 size={11} />
-                                        </button>
-                                      )}
                                     </div>
-                                    <p className="text-xs text-[var(--foreground)] pl-6 whitespace-pre-wrap">
-                                      {reply.content}
-                                    </p>
+
+                                    {comment.canDelete && (
+                                      <button
+                                        type="button"
+                                        disabled={deletingCommentId === comment.id}
+                                        onClick={() => handleDeleteComment(post.id, comment.id)}
+                                        className="text-slate-400 hover:text-rose-600 transition p-1"
+                                        title="Delete comment"
+                                      >
+                                        {deletingCommentId === comment.id ? (
+                                          <Loader2 size={12} className="animate-spin text-rose-600" />
+                                        ) : (
+                                          <Trash2 size={12} />
+                                        )}
+                                      </button>
+                                    )}
                                   </div>
-                                ))}
-                              </div>
-                            )}
+
+                                  {/* Comment content */}
+                                  <p className="text-xs leading-relaxed text-[var(--foreground)] pl-8 whitespace-pre-wrap">
+                                    {comment.content}
+                                  </p>
+
+                                  {/* Reply button & form */}
+                                  <div className="pl-8">
+                                    {replyingToId === comment.id ? (
+                                      <div className="mt-2 space-y-2 rounded-lg bg-[var(--muted)]/40 p-2.5 border border-[var(--border)]">
+                                        <div className="flex items-center justify-between text-[10px] font-semibold text-[var(--muted-foreground)]">
+                                          <span className="flex items-center gap-1">
+                                            <CornerDownRight size={11} /> Replying to{' '}
+                                            {comment.author?.name}
+                                          </span>
+                                          <button
+                                            type="button"
+                                            onClick={() => {
+                                              setReplyingToId(null)
+                                              setReplyInputs((prev) => ({
+                                                ...prev,
+                                                [comment.id]: '',
+                                              }))
+                                            }}
+                                            className="text-slate-400 hover:text-slate-600"
+                                          >
+                                            <X size={12} />
+                                          </button>
+                                        </div>
+                                        <textarea
+                                          rows={2}
+                                          value={replyInputs[comment.id] || ''}
+                                          onChange={(e) =>
+                                            setReplyInputs((prev) => ({
+                                              ...prev,
+                                              [comment.id]: e.target.value,
+                                            }))
+                                          }
+                                          placeholder="Write a reply..."
+                                          maxLength={1000}
+                                          className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] p-2 text-xs text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
+                                        />
+                                        <div className="flex justify-end gap-2">
+                                          <button
+                                            type="button"
+                                            onClick={() => setReplyingToId(null)}
+                                            className="rounded-md px-2 py-1 text-[11px] text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
+                                          >
+                                            Cancel
+                                          </button>
+                                          <button
+                                            type="button"
+                                            disabled={
+                                              !(replyInputs[comment.id] || '').trim() ||
+                                              submittingReply[comment.id]
+                                            }
+                                            onClick={() => handleAddReply(post.id, comment.id)}
+                                            className="inline-flex items-center gap-1 rounded-md bg-[var(--primary)] px-2.5 py-1 text-[11px] font-semibold text-white disabled:opacity-50"
+                                          >
+                                            {submittingReply[comment.id] && (
+                                              <Loader2 size={10} className="animate-spin" />
+                                            )}
+                                            <span>Reply</span>
+                                          </button>
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setReplyingToId(comment.id)
+                                          setReplyInputs((prev) => ({
+                                            ...prev,
+                                            [comment.id]: '',
+                                          }))
+                                        }}
+                                        className="text-[11px] font-semibold text-[var(--muted-foreground)] hover:text-[var(--primary)] transition flex items-center gap-1"
+                                      >
+                                        <CornerDownRight size={11} />
+                                        <span>Reply</span>
+                                      </button>
+                                    )}
+                                  </div>
+
+                                  {/* Nested replies */}
+                                  {comment.replies && comment.replies.length > 0 && (
+                                    <div className="ml-6 mt-2 pl-3 border-l-2 border-[var(--border)] space-y-2.5">
+                                      {comment.replies.map((reply) => (
+                                        <div key={reply.id} className="space-y-1 pt-1.5">
+                                          <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-1.5">
+                                              {reply.author?.profileUrl ? (
+                                                <img
+                                                  src={reply.author.profileUrl}
+                                                  alt=""
+                                                  className="h-5 w-5 rounded-full object-cover"
+                                                />
+                                              ) : (
+                                                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-700 text-white font-bold text-[9px]">
+                                                  {reply.author?.name?.charAt(0) || 'U'}
+                                                </div>
+                                              )}
+                                              <span className="font-semibold text-[11px] text-[var(--foreground)]">
+                                                {reply.author?.name}
+                                              </span>
+                                              {reply.author?.roleBadge === 'creator' && (
+                                                <span className="inline-flex items-center rounded-full bg-amber-100 px-1.5 py-0.1 text-[9px] font-bold text-amber-800">
+                                                  👑 Creator
+                                                </span>
+                                              )}
+                                              {reply.author?.roleBadge === 'member' && (
+                                                <span className="inline-flex items-center rounded-full bg-purple-100 px-1.5 py-0.1 text-[9px] font-bold text-purple-800">
+                                                  💎 VIP
+                                                </span>
+                                              )}
+                                              {reply.author?.roleBadge === 'supporter' && (
+                                                <span className="inline-flex items-center rounded-full bg-orange-100 px-1.5 py-0.1 text-[9px] font-bold text-orange-800">
+                                                  ☕ Supporter
+                                                </span>
+                                              )}
+                                              <span className="text-[10px] text-[var(--muted-foreground)]">
+                                                {new Date(reply.createdAt).toLocaleDateString(
+                                                  'en-IN',
+                                                  {
+                                                    month: 'short',
+                                                    day: 'numeric',
+                                                  }
+                                                )}
+                                              </span>
+                                            </div>
+
+                                            {reply.canDelete && (
+                                              <button
+                                                type="button"
+                                                disabled={deletingCommentId === reply.id}
+                                                onClick={() =>
+                                                  handleDeleteComment(post.id, reply.id, comment.id)
+                                                }
+                                                className="text-slate-400 hover:text-rose-600 transition"
+                                                title="Delete reply"
+                                              >
+                                                <Trash2 size={11} />
+                                              </button>
+                                            )}
+                                          </div>
+                                          <p className="text-xs text-[var(--foreground)] pl-6 whitespace-pre-wrap">
+                                            {reply.content}
+                                          </p>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
                           </div>
-                        ))}
-                      </div>
+                        )
+                      })()
                     ) : (
                       <div className="py-4 text-center text-xs text-[var(--muted-foreground)]">
                         No comments yet. Start the conversation with your community!

@@ -26,9 +26,10 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
+.env*.local
 .env.local
-.env.example
 .env
+*.env.local
 CLERK_SETUP.md
 AUTH_MIGRATION.md
 # vercel

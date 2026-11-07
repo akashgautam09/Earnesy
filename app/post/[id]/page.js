@@ -38,6 +38,7 @@ export default function SinglePostPage() {
   const [comments, setComments] = useState([])
   const [commentsCount, setCommentsCount] = useState(0)
   const [loadingComments, setLoadingComments] = useState(false)
+  const [showAllComments, setShowAllComments] = useState(false)
   const [commentInput, setCommentInput] = useState('')
   const [submittingComment, setSubmittingComment] = useState(false)
   const [replyingToId, setReplyingToId] = useState(null)
@@ -693,8 +694,28 @@ export default function SinglePostPage() {
                   Loading discussion...
                 </div>
               ) : comments.length > 0 ? (
-                <div className="space-y-5 pt-2 divide-y divide-slate-100">
-                  {comments.map((comment) => (
+                (() => {
+                  const displayedComments = showAllComments || comments.length <= 3 ? comments : comments.slice(-3)
+                  return (
+                    <div className="space-y-4 pt-2">
+                      {comments.length > 3 && (
+                        <div className="flex items-center justify-between pb-2 border-b border-[var(--border)]/60">
+                          <button
+                            type="button"
+                            onClick={() => setShowAllComments(!showAllComments)}
+                            className="text-xs font-semibold text-[var(--primary)] hover:underline inline-flex items-center gap-1"
+                          >
+                            {showAllComments
+                              ? 'Show fewer comments'
+                              : `View all ${comments.length} comments`}
+                          </button>
+                          <span className="text-[11px] text-[var(--muted-foreground)]">
+                            Showing {showAllComments ? `all ${comments.length}` : `latest ${displayedComments.length}`}
+                          </span>
+                        </div>
+                      )}
+                      <div className="space-y-5 divide-y divide-slate-100">
+                        {displayedComments.map((comment) => (
                     <div key={comment.id} className="pt-4 first:pt-0 space-y-3">
                       {/* Comment Header */}
                       <div className="flex items-start justify-between gap-2">
@@ -886,7 +907,10 @@ export default function SinglePostPage() {
                       )}
                     </div>
                   ))}
-                </div>
+                      </div>
+                    </div>
+                  )
+                })()
               ) : (
                 <div className="py-8 text-center text-xs text-slate-400">
                   No comments yet. Be the first to start the discussion!
