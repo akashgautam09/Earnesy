@@ -49,16 +49,21 @@ export const initiate = async (amount, to_user, paymentform) => {
             return { error: 'You cannot pay yourself or purchase your own membership tier.' }
         }
 
-        const keyId = user.razorpayId?.trim()
-        const keySecret = user.razorpaySecret?.trim()
+        const keyId = (process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || user.razorpayId)?.trim()
+        const keySecret = (process.env.RAZORPAY_KEY_SECRET || user.razorpaySecret)?.trim()
 
         if (!keyId || !keySecret) {
-            return { error: 'This user has not connected Razorpay yet.' }
+            return { error: 'Payment gateway is not configured yet. Please try again later.' }
         }
 
+        // 2% Platform Fee Calculation (integer paise)
+        const feePercentage = 2
+        const platformFee = Math.round(amountInPaise * (feePercentage / 100))
+        const creatorAmount = amountInPaise - platformFee
+
         const instance = new Razorpay({
-            key_id: keyId.trim(),
-            key_secret: keySecret.trim(),
+            key_id: keyId,
+            key_secret: keySecret,
         })
 
         const options = {
@@ -77,6 +82,10 @@ export const initiate = async (amount, to_user, paymentform) => {
             supporter_id: currentUser._id,
             from_user: paymentform.name.trim(),
             amount: amountInPaise,
+            platformFee,
+            creatorAmount,
+            feePercentage,
+            payoutStatus: 'unpaid',
             to_user: user.username,
             creator_id: user._id,
             order_id: x.id,
@@ -86,7 +95,12 @@ export const initiate = async (amount, to_user, paymentform) => {
             tier_role_id: tierRoleId,
         })
 
-        return x
+        return {
+            id: x.id,
+            keyId: keyId,
+            amount: x.amount,
+            currency: x.currency,
+        }
     } catch (error) {
         console.error('Payment Error:', error)
         return { error: error.message || 'Payment failed. Please try again.' }
@@ -117,6 +131,10 @@ export const fetchUserPage = async (username) => {
                  currentUser.email?.toLowerCase() === user.email?.toLowerCase())
             )
 
+            const hasCentralGateway = Boolean(process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID)
+            const hasPayoutConfigured = Boolean(user.payoutUpiId?.trim() || user.payoutAccountNumber?.trim())
+            const paymentsEnabled = Boolean(hasCentralGateway || (razorpayId && razorpaySecret) || hasPayoutConfigured)
+
             return {
                 id: user._id.toString(),
                 name: user.name,
@@ -127,7 +145,9 @@ export const fetchUserPage = async (username) => {
                 profileUrl: user.profileUrl,
                 coverUrl: user.coverUrl,
                 razorpayId,
-                paymentsEnabled: Boolean(razorpayId && razorpaySecret),
+                paymentsEnabled,
+                payoutUpiId: user.payoutUpiId || '',
+                payoutMethod: user.payoutMethod || 'upi',
                 hasDiscordRewards: Boolean(user.discordServerId && user.discordRoleId),
                 discordInviteUrl: user.discordInviteUrl || '',
                 isOwner,

@@ -34,9 +34,16 @@ export default function Dashboard() {
     discordRoleId: '',
     discordInviteUrl: '',
     discordUserId: '',
+    payoutMethod: 'upi',
+    payoutUpiId: '',
+    payoutAccountName: '',
+    payoutAccountNumber: '',
+    payoutIfsc: '',
     razorpayId: '',
     razorpaySecret: '',
   })
+
+  const [showAdvancedGateway, setShowAdvancedGateway] = useState(false)
 
   const [testingDiscord, setTestingDiscord] = useState(false)
   const [discordTestResult, setDiscordTestResult] = useState(null)
@@ -96,6 +103,11 @@ export default function Dashboard() {
           discordRoleId: user.discordRoleId || '',
           discordInviteUrl: user.discordInviteUrl || '',
           discordUserId: user.discordUserId || '',
+          payoutMethod: user.payoutMethod || 'upi',
+          payoutUpiId: user.payoutUpiId || '',
+          payoutAccountName: user.payoutAccountName || '',
+          payoutAccountNumber: user.payoutAccountNumber || '',
+          payoutIfsc: user.payoutIfsc || '',
           razorpayId: user.razorpayId || '',
           // Secrets are write-only in the dashboard and must not be loaded into browser state.
           razorpaySecret: '',
@@ -271,6 +283,11 @@ export default function Dashboard() {
           discordRoleId: formData.discordRoleId,
           discordInviteUrl: formData.discordInviteUrl,
           discordUserId: formData.discordUserId,
+          payoutMethod: formData.payoutMethod,
+          payoutUpiId: formData.payoutUpiId,
+          payoutAccountName: formData.payoutAccountName,
+          payoutAccountNumber: formData.payoutAccountNumber,
+          payoutIfsc: formData.payoutIfsc,
           razorpayId: formData.razorpayId,
           razorpaySecret: formData.razorpaySecret,
           profileUrl: finalProfileUrl,
@@ -739,33 +756,120 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
-              <div className="mb-4">
-                <h2 className="text-sm font-medium uppercase tracking-[0.18em] text-slate-700">Payment setup</h2>
+            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 sm:p-5 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3">
+                <div>
+                  <h2 className="text-sm font-bold text-slate-900">Payout & Earnings Setup</h2>
+                  <p className="text-xs text-slate-500">Where you receive your 98% creator earnings (Earnesy takes only a 2% cut)</p>
+                </div>
+
+                <div className="flex items-center gap-1.5 bg-white rounded-lg p-1 border border-slate-200 text-xs font-semibold">
+                  <button
+                    type="button"
+                    onClick={() => setFormData((prev) => ({ ...prev, payoutMethod: 'upi' }))}
+                    className={`px-3 py-1 rounded-md transition ${formData.payoutMethod === 'upi' ? 'bg-[var(--primary)] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'}`}
+                  >
+                    ⚡ UPI ID
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData((prev) => ({ ...prev, payoutMethod: 'bank' }))}
+                    className={`px-3 py-1 rounded-md transition ${formData.payoutMethod === 'bank' ? 'bg-[var(--primary)] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'}`}
+                  >
+                    🏦 Bank Transfer
+                  </button>
+                </div>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-2">
+              {formData.payoutMethod === 'upi' ? (
                 <div>
-                  <label className="mb-2 block text-sm text-slate-700">Razorpay ID</label>
+                  <label className="mb-1.5 block text-xs font-bold text-slate-700">Your UPI ID (Google Pay / PhonePe / Paytm / BHIM)</label>
                   <input
                     type="text"
-                    name="razorpayId"
-                    value={formData.razorpayId}
+                    name="payoutUpiId"
+                    value={formData.payoutUpiId || ''}
                     onChange={handleInputChange}
-                    className="w-full border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-500 focus:border-amber-600"
+                    placeholder="e.g. yourname@okhdfcbank or 9876543210@paytm"
+                    className="w-full border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-[var(--primary)] rounded-lg"
                   />
+                  <p className="mt-1 text-[11px] text-slate-500">
+                    Fan payments (coffees & tiers) will be credited to this UPI ID upon payout request.
+                  </p>
                 </div>
+              ) : (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="sm:col-span-2">
+                    <label className="mb-1 block text-xs font-bold text-slate-700">Account Holder Name</label>
+                    <input
+                      type="text"
+                      name="payoutAccountName"
+                      value={formData.payoutAccountName || ''}
+                      onChange={handleInputChange}
+                      placeholder="Name as registered with your bank"
+                      className="w-full border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none rounded-lg"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-xs font-bold text-slate-700">Bank Account Number</label>
+                    <input
+                      type="text"
+                      name="payoutAccountNumber"
+                      value={formData.payoutAccountNumber || ''}
+                      onChange={handleInputChange}
+                      placeholder="e.g. 123456789012"
+                      className="w-full border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none rounded-lg"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-xs font-bold text-slate-700">IFSC Code</label>
+                    <input
+                      type="text"
+                      name="payoutIfsc"
+                      value={formData.payoutIfsc || ''}
+                      onChange={handleInputChange}
+                      placeholder="e.g. HDFC0001234"
+                      className="w-full border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none uppercase rounded-lg"
+                    />
+                  </div>
+                </div>
+              )}
 
-                <div>
-                  <label className="mb-2 block text-sm text-slate-700">Razorpay Secret</label>
-                  <input
-                    type="password"
-                    name="razorpaySecret"
-                    value={formData.razorpaySecret}
-                    onChange={handleInputChange}
-                    className="w-full border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-500 focus:border-amber-600"
-                  />
-                </div>
+              {/* Advanced custom gateway toggle (optional for creators with existing Razorpay merchant accounts) */}
+              <div className="pt-2 border-t border-slate-200/80">
+                <button
+                  type="button"
+                  onClick={() => setShowAdvancedGateway(!showAdvancedGateway)}
+                  className="text-xs font-semibold text-slate-500 hover:text-slate-800 transition underline inline-flex items-center gap-1"
+                >
+                  <span>{showAdvancedGateway ? 'Hide custom Razorpay credentials' : 'Advanced: Connect custom Razorpay account (Optional)'}</span>
+                </button>
+
+                {showAdvancedGateway && (
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2 bg-white p-3.5 rounded-lg border border-slate-200">
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-slate-700">Custom Razorpay Key ID</label>
+                      <input
+                        type="text"
+                        name="razorpayId"
+                        value={formData.razorpayId}
+                        onChange={handleInputChange}
+                        placeholder="rzp_live_..."
+                        className="w-full border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 outline-none rounded-md"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-slate-700">Custom Razorpay Key Secret</label>
+                      <input
+                        type="password"
+                        name="razorpaySecret"
+                        value={formData.razorpaySecret}
+                        onChange={handleInputChange}
+                        placeholder="Leave blank to keep current"
+                        className="w-full border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 outline-none rounded-md"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

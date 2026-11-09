@@ -60,6 +60,33 @@ const paymentSchema = new mongoose.Schema({
         type: String,
         trim: true,
         default: '',
+    },
+    platformFee: {
+        type: Number,
+        default: 0, // in paise (2% cut)
+    },
+    creatorAmount: {
+        type: Number,
+        default: 0, // in paise (98% net creator earning)
+    },
+    feePercentage: {
+        type: Number,
+        default: 2, // 2%
+    },
+    payoutStatus: {
+        type: String,
+        enum: ['unpaid', 'requested', 'paid'],
+        default: 'unpaid',
+        index: true,
+    },
+    payoutRequestId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'PayoutRequest',
+        default: null,
+    },
+    paidAt: {
+        type: Date,
+        default: null,
     }
 });
 

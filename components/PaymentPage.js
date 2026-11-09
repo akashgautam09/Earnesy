@@ -197,7 +197,7 @@ export const PaymentPage = ({ username }) => {
             const callbackUrl = new URL('/api/razorpay', window.location.origin).toString()
 
             const options = {
-                key: currentUser.razorpayId,
+                key: x.keyId || currentUser.razorpayId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
                 amount: amountInPaise,
                 currency: "INR",
                 name: "Earnesy",
@@ -284,7 +284,7 @@ export const PaymentPage = ({ username }) => {
             const callbackUrl = new URL('/api/razorpay', window.location.origin).toString()
 
             const options = {
-                key: currentUser.razorpayId,
+                key: x.keyId || currentUser.razorpayId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
                 amount: amountInPaise,
                 currency: "INR",
                 name: "Earnesy Membership",

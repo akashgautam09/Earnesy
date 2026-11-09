@@ -56,6 +56,11 @@ export async function GET(req) {
         discordRoleId: user.discordRoleId || '',
         discordInviteUrl: user.discordInviteUrl || '',
         discordUserId: user.discordUserId || '',
+        payoutMethod: user.payoutMethod || 'upi',
+        payoutUpiId: user.payoutUpiId || '',
+        payoutAccountName: user.payoutAccountName || '',
+        payoutAccountNumber: user.payoutAccountNumber || '',
+        payoutIfsc: user.payoutIfsc || '',
         razorpayId,
         hasRazorpayCredentials,
         stats,
@@ -98,6 +103,11 @@ export async function POST(req) {
       discordRoleId,
       discordInviteUrl,
       discordUserId,
+      payoutMethod,
+      payoutUpiId,
+      payoutAccountName,
+      payoutAccountNumber,
+      payoutIfsc,
     } = body
 
     const normalizedName = typeof name === 'string' ? name.trim() : ''
@@ -142,6 +152,11 @@ export async function POST(req) {
       discordRoleId: typeof discordRoleId === 'string' ? discordRoleId.trim() : '',
       discordInviteUrl: typeof discordInviteUrl === 'string' ? discordInviteUrl.trim() : '',
       discordUserId: typeof discordUserId === 'string' ? discordUserId.trim() : '',
+      payoutMethod: payoutMethod === 'bank' ? 'bank' : 'upi',
+      payoutUpiId: typeof payoutUpiId === 'string' ? payoutUpiId.trim() : '',
+      payoutAccountName: typeof payoutAccountName === 'string' ? payoutAccountName.trim() : '',
+      payoutAccountNumber: typeof payoutAccountNumber === 'string' ? payoutAccountNumber.trim() : '',
+      payoutIfsc: typeof payoutIfsc === 'string' ? payoutIfsc.trim().toUpperCase() : '',
       updatedAt: new Date(),
     }
 

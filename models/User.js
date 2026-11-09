@@ -61,6 +61,31 @@ const userSchema = new mongoose.Schema({
     set: (value) => value ? encrypt(value) : value,
     get: (value) => value ? decrypt(value) : value,
   },
+  payoutMethod: {
+    type: String,
+    enum: ['upi', 'bank'],
+    default: 'upi',
+  },
+  payoutUpiId: {
+    type: String,
+    trim: true,
+    default: '',
+  },
+  payoutAccountName: {
+    type: String,
+    trim: true,
+    default: '',
+  },
+  payoutAccountNumber: {
+    type: String,
+    trim: true,
+    default: '',
+  },
+  payoutIfsc: {
+    type: String,
+    trim: true,
+    default: '',
+  },
   discordServerId: {
     type: String,
     trim: true,

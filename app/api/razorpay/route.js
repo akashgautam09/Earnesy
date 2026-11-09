@@ -37,17 +37,41 @@ export const POST = async (request) => {
         if (!user) {
             return NextResponse.json({ error: "Recipient user not found" }, { status: 404 })
         }
-        // Verify the payment signature
-        const isPaymentValid = validatePaymentVerification({
-            "order_id": body.razorpay_order_id,
-            "payment_id": body.razorpay_payment_id
-        }, body.razorpay_signature, user.razorpaySecret)
+        // Verify the payment signature with central secret (or creator secret fallback)
+        const secretToUse = process.env.RAZORPAY_KEY_SECRET || user.razorpaySecret
+        let isPaymentValid = false
+
+        try {
+            isPaymentValid = validatePaymentVerification({
+                "order_id": body.razorpay_order_id,
+                "payment_id": body.razorpay_payment_id
+            }, body.razorpay_signature, secretToUse)
+        } catch {
+            if (user.razorpaySecret && user.razorpaySecret !== secretToUse) {
+                try {
+                    isPaymentValid = validatePaymentVerification({
+                        "order_id": body.razorpay_order_id,
+                        "payment_id": body.razorpay_payment_id
+                    }, body.razorpay_signature, user.razorpaySecret)
+                } catch {
+                    isPaymentValid = false
+                }
+            }
+        }
 
         if (isPaymentValid) {
+            const platformFee = paymentDetails.platformFee || Math.round((paymentDetails.amount || 0) * 0.02)
+            const creatorAmount = paymentDetails.creatorAmount || ((paymentDetails.amount || 0) - platformFee)
+
             // Update payment status to completed
             const updatedDetails = await Payment.findOneAndUpdate(
                 { order_id: body.razorpay_order_id },
-                { done: true, payment_id: body.razorpay_payment_id },
+                {
+                    done: true,
+                    payment_id: body.razorpay_payment_id,
+                    platformFee,
+                    creatorAmount,
+                },
                 { new: true }
             )
 

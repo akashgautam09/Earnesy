@@ -101,7 +101,7 @@ export default async function Home() {
 
           {/* Subtitle speaking to both */}
           <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto">
-            Accept direct tips, launch monthly memberships, and automate Discord VIP roles with 0% platform take. Fans unlock exclusive content and join private creator communities.
+            Accept direct tips, launch monthly memberships, and automate Discord VIP roles with a minimal 2% fee — keep 98% of your earnings. Fans unlock exclusive content and join private creator communities.
           </p>
 
           {/* Interactive Claim Username Box */}
@@ -134,11 +134,7 @@ export default async function Home() {
       {/* 2. PLATFORM TRUST & METRICS STRIP */}
       {/* ========================================================= */}
       <section className="border-y border-slate-200/80 bg-white/80 py-6 px-4">
-        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          <div className="space-y-1">
-            <p className="text-xl sm:text-2xl font-black text-slate-900">100% Direct</p>
-            <p className="text-xs text-slate-500 font-medium">Payouts via UPI & Cards</p>
-          </div>
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
           <div className="space-y-1">
             <p className="text-xl sm:text-2xl font-black text-[var(--primary)]">Monthly Tiers</p>
             <p className="text-xs text-slate-500 font-medium">Predictable recurring income</p>
@@ -184,7 +180,7 @@ export default async function Home() {
                     Instant One-Time Tips & Coffees
                   </h3>
                   <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                    <strong className="text-slate-800">For Creators:</strong> Receive direct deposits straight to your account with zero platform delay. Keep 100% of what supporters tip.
+                    <strong className="text-slate-800">For Creators:</strong> Receive payouts directly to your saved UPI or bank account with an industry-low 2% platform fee. Keep 98% of what supporters tip.
                   </p>
                   <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                     <strong className="text-slate-800">For Supporters:</strong> Support your favorite creator in under 15 seconds via Google Pay, PhonePe, Paytm, or Cards with heartfelt cheer messages.
@@ -628,7 +624,7 @@ export default async function Home() {
               </div>
               <h3 className="text-lg font-bold text-slate-900">Get Direct Payouts & Perks</h3>
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Funds settle straight to your bank with 0% platform take. Fans get instant Discord VIP roles, backer badges, and exclusive content.
+                Funds are paid out directly to your UPI ID with only a 2% platform fee. Fans get instant Discord VIP roles, backer badges, and exclusive content.
               </p>
             </div>
           </div>

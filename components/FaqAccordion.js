@@ -10,7 +10,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'How do payouts work, and does Earnesy take a commission fee?',
-    a: 'Earnesy charges 0% platform commission on your earnings. When a supporter buys a coffee or joins a tier, the payment is processed directly into your own connected Razorpay merchant account and auto-settled straight to your bank account (standard T+2 days). Earnesy never holds your funds.',
+    a: 'Earnesy takes an industry-low 2% platform fee on earnings to maintain servers, Discord bots, and community tools. You keep 98% of all supporter contributions. Payouts can be requested directly to your saved UPI ID or bank account anytime your balance reaches ₹100.',
   },
   {
     q: 'How does the automated Discord VIP bot work?',
