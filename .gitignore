@@ -30,6 +30,7 @@ yarn-error.log*
 .env.local
 .env
 *.env.local
+.env.example
 CLERK_SETUP.md
 AUTH_MIGRATION.md
 # vercel

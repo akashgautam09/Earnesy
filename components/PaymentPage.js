@@ -177,7 +177,7 @@ export const PaymentPage = ({ username }) => {
                 toast.error("This creator has not connected Razorpay yet.")
                 return
             }
-
+             
             const payerName = paymentform.name.trim() || user?.fullName || user?.username || ''
             if (!payerName) {
                 toast.error("Please enter your name")
