@@ -40,7 +40,7 @@ export async function GET(request) {
 
     // Fetch creators
     const users = await User.find(filter)
-      .select('_id name username title bio category profileUrl coverUrl createdAt paymentsEnabled razorpayId discordServerId')
+      .select('_id name username title bio category profileUrl coverUrl createdAt razorpayId razorpaySecret discordServerId')
       .sort({ createdAt: -1 })
       .limit(30)
       .lean()
@@ -90,7 +90,7 @@ export async function GET(request) {
         minTierPrice: minPrice,
         supportersCount: supporterMap.get(uId) || 0,
         hasDiscord: Boolean(u.discordServerId),
-        paymentsEnabled: Boolean(u.razorpayId),
+        paymentsEnabled: Boolean(u.razorpayId && u.razorpaySecret),
       }
     })
 

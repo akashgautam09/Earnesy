@@ -25,35 +25,73 @@ export const initiate = async (amount, to_user, paymentform) => {
             return { error: 'Please log in before making a payment.' }
         }
 
-        const amountInPaise = Number(amount)
-        if (!Number.isInteger(amountInPaise) || amountInPaise < 100 || amountInPaise > 100000000) {
-            return { error: 'Payment amount must be between ₹1 and ₹1,000,000.' }
-        }
-
         if (!paymentform?.name?.trim()) {
             return { error: 'Your name is required.' }
         }
 
         await ensureDb()
-        const user = await User.findOne({ username: to_user?.trim().toLowerCase() })
-        if (!user) {
-            return { error: 'Recipient user not found.' }
+        // Resolve the actual page owner/creator strictly from the target username
+        const recipientCreator = await User.findOne({ username: to_user?.trim().toLowerCase() })
+        if (!recipientCreator) {
+            return { error: 'Recipient creator not found.' }
         }
 
         // Prevent self-payment (creator paying themselves or purchasing own tier)
         if (
-            currentUser._id.toString() === user._id.toString() ||
-            currentUser.username?.toLowerCase() === user.username?.toLowerCase() ||
-            currentUser.email?.toLowerCase() === user.email?.toLowerCase()
+            currentUser._id.toString() === recipientCreator._id.toString() ||
+            currentUser.username?.toLowerCase() === recipientCreator.username?.toLowerCase() ||
+            currentUser.email?.toLowerCase() === recipientCreator.email?.toLowerCase()
         ) {
             return { error: 'You cannot pay yourself or purchase your own membership tier.' }
         }
 
-        const keyId = (process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || user.razorpayId)?.trim()
-        const keySecret = (process.env.RAZORPAY_KEY_SECRET || user.razorpaySecret)?.trim()
+        // Creator-specific credential resolution — NEVER use supporter credentials,
+        // NEVER use another creator's credentials, and NEVER fall back to global environment.
+        let creatorKeyId = ''
+        let creatorKeySecret = ''
+        try {
+            creatorKeyId = recipientCreator.razorpayId?.trim() || ''
+            creatorKeySecret = recipientCreator.razorpaySecret?.trim() || ''
+        } catch (decryptErr) {
+            console.error('Error decrypting creator credentials:', decryptErr)
+            return { error: 'This creator has not configured their payment gateway yet. Payments are currently unavailable.' }
+        }
 
-        if (!keyId || !keySecret) {
-            return { error: 'Payment gateway is not configured yet. Please try again later.' }
+        if (!creatorKeyId || !creatorKeySecret) {
+            return { error: 'This creator has not configured their payment gateway yet. Payments are currently unavailable.' }
+        }
+
+        let amountInPaise = Number(amount)
+        let tierId = null
+        let tierTitle = ''
+        let tierRoleId = ''
+
+        // Server-side validation for membership tiers: NEVER trust client price or role IDs
+        if (paymentform?.tierId) {
+            if (!mongoose.Types.ObjectId.isValid(paymentform.tierId)) {
+                return { error: 'Invalid membership tier.' }
+            }
+
+            const tier = await Tier.findOne({
+                _id: paymentform.tierId,
+                creatorId: recipientCreator._id,
+                isActive: true,
+            })
+
+            if (!tier) {
+                return { error: 'Selected membership tier is not available or does not belong to this creator.' }
+            }
+
+            // Enforce price and tier details strictly from the database
+            amountInPaise = Math.round(Number(tier.price) * 100)
+            tierId = tier._id
+            tierTitle = tier.title || ''
+            tierRoleId = tier.discordRoleId || ''
+        } else {
+            // Validate standard donation/tip amount (₹1 to ₹1,000,000)
+            if (!Number.isInteger(amountInPaise) || amountInPaise < 100 || amountInPaise > 100000000) {
+                return { error: 'Payment amount must be between ₹1 and ₹1,000,000.' }
+            }
         }
 
         // 2% Platform Fee Calculation (integer paise)
@@ -61,9 +99,10 @@ export const initiate = async (amount, to_user, paymentform) => {
         const platformFee = Math.round(amountInPaise * (feePercentage / 100))
         const creatorAmount = amountInPaise - platformFee
 
+        // Initialize Razorpay SDK strictly with the target creator's credentials
         const instance = new Razorpay({
-            key_id: keyId,
-            key_secret: keySecret,
+            key_id: creatorKeyId,
+            key_secret: creatorKeySecret,
         })
 
         const options = {
@@ -74,9 +113,6 @@ export const initiate = async (amount, to_user, paymentform) => {
         const x = await instance.orders.create(options)
 
         const supporterDiscordId = paymentform?.discordUserId?.trim() || currentUser.discordUserId || ''
-        const tierId = paymentform?.tierId && mongoose.Types.ObjectId.isValid(paymentform.tierId) ? paymentform.tierId : null
-        const tierTitle = typeof paymentform?.tierTitle === 'string' ? paymentform.tierTitle.trim() : ''
-        const tierRoleId = typeof paymentform?.tierRoleId === 'string' ? paymentform.tierRoleId.trim() : ''
 
         await Payment.create({
             supporter_id: currentUser._id,
@@ -86,8 +122,8 @@ export const initiate = async (amount, to_user, paymentform) => {
             creatorAmount,
             feePercentage,
             payoutStatus: 'unpaid',
-            to_user: user.username,
-            creator_id: user._id,
+            to_user: recipientCreator.username,
+            creator_id: recipientCreator._id,
             order_id: x.id,
             supporter_discord_id: supporterDiscordId,
             tier_id: tierId,
@@ -95,9 +131,10 @@ export const initiate = async (amount, to_user, paymentform) => {
             tier_role_id: tierRoleId,
         })
 
+        // Send ONLY public Key ID and order info to client. Secret is kept exclusively on backend.
         return {
             id: x.id,
-            keyId: keyId,
+            keyId: creatorKeyId,
             amount: x.amount,
             currency: x.currency,
         }
@@ -107,7 +144,7 @@ export const initiate = async (amount, to_user, paymentform) => {
     }
 }
 
-// Return only safe public fields. Never return the Razorpay secret.
+// Return only safe public fields. Never return Razorpay secrets or credentials.
 export const fetchUserPage = async (username) => {
     try {
         await ensureDb()
@@ -131,9 +168,8 @@ export const fetchUserPage = async (username) => {
                  currentUser.email?.toLowerCase() === user.email?.toLowerCase())
             )
 
-            const hasCentralGateway = Boolean(process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID)
-            const hasPayoutConfigured = Boolean(user.payoutUpiId?.trim() || user.payoutAccountNumber?.trim())
-            const paymentsEnabled = Boolean(hasCentralGateway || (razorpayId && razorpaySecret) || hasPayoutConfigured)
+            // Payments are strictly enabled ONLY if the creator has valid independent credentials
+            const paymentsEnabled = Boolean(razorpayId && razorpaySecret)
 
             return {
                 id: user._id.toString(),
@@ -144,7 +180,6 @@ export const fetchUserPage = async (username) => {
                 bio: user.bio || '',
                 profileUrl: user.profileUrl,
                 coverUrl: user.coverUrl,
-                razorpayId,
                 paymentsEnabled,
                 payoutUpiId: user.payoutUpiId || '',
                 payoutMethod: user.payoutMethod || 'upi',

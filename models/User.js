@@ -53,13 +53,27 @@ const userSchema = new mongoose.Schema({
     type: String,
     // Store encrypted in database
     set: (value) => value ? encrypt(value) : value,
-    get: (value) => value ? decrypt(value) : value,
+    get: (value) => {
+      if (!value) return value;
+      try {
+        return decrypt(value);
+      } catch {
+        return value;
+      }
+    },
   },
   razorpaySecret:{
     type: String,
     // Store encrypted in database
     set: (value) => value ? encrypt(value) : value,
-    get: (value) => value ? decrypt(value) : value,
+    get: (value) => {
+      if (!value) return value;
+      try {
+        return decrypt(value);
+      } catch {
+        return value;
+      }
+    },
   },
   payoutMethod: {
     type: String,

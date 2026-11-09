@@ -25,7 +25,9 @@ const paymentSchema = new mongoose.Schema({
     },
     order_id: {
         type: String,
-        required: true
+        required: true,
+        unique: true,
+        index: true,
     },
     payment_id: {
         type: String,
@@ -95,7 +97,7 @@ paymentSchema.index({ to_user: 1, done: 1, createdAt: -1 });
 paymentSchema.index({ to_user: 1, done: 1, amount: -1 });
 paymentSchema.index({ creator_id: 1, done: 1 });
 paymentSchema.index({ supporter_id: 1, done: 1 });
-paymentSchema.index({ order_id: 1 });
+paymentSchema.index({ order_id: 1 }, { unique: true });
 
 if (process.env.NODE_ENV !== 'production') {
     delete mongoose.models.Payment;

@@ -174,7 +174,7 @@ export const PaymentPage = ({ username }) => {
             }
 
             if (!currentUser?.paymentsEnabled) {
-                toast.error("This creator has not connected Razorpay yet.")
+                toast.error("This creator has not connected their payment gateway yet. Payments are temporarily unavailable.")
                 return
             }
              
@@ -194,12 +194,17 @@ export const PaymentPage = ({ username }) => {
                 return
             }
 
+            if (!x?.keyId) {
+                toast.error("Payment configuration is unavailable for this creator.")
+                return
+            }
+
             const callbackUrl = new URL('/api/razorpay', window.location.origin).toString()
 
             const options = {
-                key: x.keyId || currentUser.razorpayId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-                amount: amountInPaise,
-                currency: "INR",
+                key: x.keyId,
+                amount: x.amount || amountInPaise,
+                currency: x.currency || "INR",
                 name: "Earnesy",
                 description: `Support for @${username}`,
                 image: currentUser.profileUrl || "/tea.gif",
@@ -242,7 +247,7 @@ export const PaymentPage = ({ username }) => {
         }
 
         if (!currentUser?.paymentsEnabled) {
-            toast.error("This creator has not connected Razorpay yet.")
+            toast.error("This creator has not connected their payment gateway yet. Payments are temporarily unavailable.")
             return
         }
 
@@ -281,12 +286,17 @@ export const PaymentPage = ({ username }) => {
                 return
             }
 
+            if (!x?.keyId) {
+                toast.error("Payment configuration is unavailable for this creator.")
+                return
+            }
+
             const callbackUrl = new URL('/api/razorpay', window.location.origin).toString()
 
             const options = {
-                key: x.keyId || currentUser.razorpayId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-                amount: amountInPaise,
-                currency: "INR",
+                key: x.keyId,
+                amount: x.amount || amountInPaise,
+                currency: x.currency || "INR",
                 name: "Earnesy Membership",
                 description: `${selectedTier.title} - @${username}`,
                 image: currentUser.profileUrl || "/tea.gif",
@@ -1506,6 +1516,14 @@ export const PaymentPage = ({ username }) => {
                                                 <span>Manage Tier (Owner)</span>
                                                 <ArrowRight size={13} />
                                             </Link>
+                                        ) : !currentUser?.paymentsEnabled ? (
+                                            <button
+                                                type="button"
+                                                disabled
+                                                className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl bg-slate-100 py-2.5 text-xs font-semibold text-slate-400 cursor-not-allowed border border-slate-200"
+                                            >
+                                                <span>Payments Unavailable</span>
+                                            </button>
                                         ) : (
                                             <button
                                                 type="button"
