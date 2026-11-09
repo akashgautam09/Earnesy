@@ -13,7 +13,7 @@ export default function NotFound() {
         </span>
       </div>
 
-      <h1 className="text-3xl font-extrabold tracking-tight text-[var(--foreground)] sm:text-4xl">
+      <h1 className="text-3xl   tracking-tight text-[var(--foreground)] sm:text-4xl">
         Page Not Found
       </h1>
       <p className="mt-3 max-w-md text-sm text-[var(--muted-foreground)] sm:text-base leading-relaxed">

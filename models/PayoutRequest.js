@@ -16,7 +16,7 @@ const payoutRequestSchema = new mongoose.Schema(
     amount: {
       type: Number,
       required: true, // in paise
-      min: 10000, // minimum ₹100
+      min: 100, // at least ₹1 (dynamic minimum limit enforced at API layer)
     },
     payoutMethod: {
       type: String,

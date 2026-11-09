@@ -53,8 +53,9 @@ export default function PayoutsPage() {
   }, [])
 
   const handleRequestPayout = async () => {
+    const minPayout = data?.minPayoutAmountPaise || 10000
     const available = data?.stats?.availableBalance || 0
-    if (available < 10000) return
+    if (available < minPayout) return
 
     setRequestingPayout(true)
     setPayoutMsg('')
@@ -105,8 +106,8 @@ export default function PayoutsPage() {
     filter === 'coffee'
       ? coffeePayments
       : filter === 'tier'
-      ? tierPayments
-      : payments
+        ? tierPayments
+        : payments
 
   const totalGross = data?.stats?.grossEarnings || data?.stats?.totalEarnings || 0
   const platformFee = data?.stats?.platformFees || Math.round(totalGross * 0.02)
@@ -143,7 +144,7 @@ export default function PayoutsPage() {
                 <Wallet size={15} />
                 <span>Available to Withdraw</span>
               </span>
-              <h2 className="text-3xl sm:text-4xl font-black text-slate-900">
+              <h2 className="text-3xl sm:text-4xl font-[650] text-slate-900">
                 {formatAmount(availableBalance)}
               </h2>
               <p className="text-xs text-slate-500">
@@ -163,7 +164,7 @@ export default function PayoutsPage() {
               <button
                 type="button"
                 onClick={handleRequestPayout}
-                disabled={requestingPayout || availableBalance < 10000 || !hasPayoutAccount}
+                disabled={requestingPayout || availableBalance < (data?.minPayoutAmountPaise || 10000) || !hasPayoutAccount}
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--primary)] hover:opacity-90 px-6 py-3 text-xs sm:text-sm font-bold text-white shadow-xs transition disabled:opacity-40 disabled:cursor-not-allowed active:scale-95"
               >
                 {requestingPayout ? (
@@ -179,7 +180,7 @@ export default function PayoutsPage() {
                 )}
               </button>
               <span className="text-[11px] text-slate-400">
-                Minimum payout: ₹100.00 • Direct transfer
+                Minimum payout: {formatAmount(data?.minPayoutAmountPaise || 10000)} • Direct transfer
               </span>
             </div>
           </div>
@@ -236,22 +237,20 @@ export default function PayoutsPage() {
               <button
                 type="button"
                 onClick={() => setFilter('all')}
-                className={`rounded-md px-3 py-1.5 transition ${
-                  filter === 'all'
+                className={`rounded-md px-3 py-1.5 transition ${filter === 'all'
                     ? 'bg-[var(--card)] text-[var(--foreground)] shadow-xs'
                     : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
-                }`}
+                  }`}
               >
                 All ({payments.length})
               </button>
               <button
                 type="button"
                 onClick={() => setFilter('coffee')}
-                className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 transition ${
-                  filter === 'coffee'
+                className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 transition ${filter === 'coffee'
                     ? 'bg-[var(--card)] text-amber-700 shadow-xs'
                     : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
-                }`}
+                  }`}
               >
                 <Coffee size={13} />
                 <span>Coffees ({coffeePayments.length})</span>
@@ -259,11 +258,10 @@ export default function PayoutsPage() {
               <button
                 type="button"
                 onClick={() => setFilter('tier')}
-                className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 transition ${
-                  filter === 'tier'
+                className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 transition ${filter === 'tier'
                     ? 'bg-[var(--card)] text-purple-700 shadow-xs'
                     : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
-                }`}
+                  }`}
               >
                 <Sparkles size={13} />
                 <span>Memberships ({tierPayments.length})</span>
@@ -271,11 +269,10 @@ export default function PayoutsPage() {
               <button
                 type="button"
                 onClick={() => setFilter('payouts')}
-                className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 transition ${
-                  filter === 'payouts'
+                className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 transition ${filter === 'payouts'
                     ? 'bg-[var(--card)] text-emerald-700 shadow-xs'
                     : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
-                }`}
+                  }`}
               >
                 <Wallet size={13} />
                 <span>Payouts ({payoutRequests.length})</span>
@@ -296,13 +293,12 @@ export default function PayoutsPage() {
                       <div className="space-y-0.5">
                         <div className="flex items-center gap-2">
                           <span className="font-bold text-slate-900 text-sm">Payout to {request.payoutMethod === 'bank' ? 'Bank Account' : 'UPI'}</span>
-                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                            request.status === 'completed'
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${request.status === 'completed'
                               ? 'bg-emerald-100 text-emerald-800'
                               : request.status === 'rejected'
-                              ? 'bg-rose-100 text-rose-800'
-                              : 'bg-amber-100 text-amber-800'
-                          }`}>
+                                ? 'bg-rose-100 text-rose-800'
+                                : 'bg-amber-100 text-amber-800'
+                            }`}>
                             {request.status === 'completed' ? <CheckCircle2 size={11} /> : <Clock size={11} />}
                             <span className="capitalize">{request.status}</span>
                           </span>
@@ -340,11 +336,10 @@ export default function PayoutsPage() {
                   <div className="flex items-start gap-3.5">
                     {/* Icon Bubble */}
                     <div
-                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-base ${
-                        payment.isTier
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-base ${payment.isTier
                           ? 'border border-purple-200 bg-purple-50 text-purple-700'
                           : 'border border-amber-200 bg-amber-50 text-amber-700'
-                      }`}
+                        }`}
                     >
                       {payment.isTier ? <Sparkles size={18} /> : <Coffee size={18} />}
                     </div>

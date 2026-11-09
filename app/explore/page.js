@@ -85,7 +85,7 @@ export default function ExplorePage() {
             <Compass size={14} />
             <span>Discover Creators</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-3xl sm:text-4xl   text-slate-900 tracking-tight">
             Explore Independent Creators
           </h1>
           <p className="text-sm sm:text-base text-slate-600">
@@ -132,11 +132,10 @@ export default function ExplorePage() {
               key={cat}
               type="button"
               onClick={() => setSelectedCategory(cat)}
-              className={`rounded-xl px-3.5 py-1.5 font-medium transition ${
-                selectedCategory === cat
-                  ? 'bg-slate-900 text-white shadow-xs'
-                  : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
-              }`}
+              className={`rounded-xl px-3.5 py-1.5 font-medium transition ${selectedCategory === cat
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                }`}
             >
               {cat}
             </button>

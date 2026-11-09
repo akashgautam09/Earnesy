@@ -509,11 +509,10 @@ export default function MembershipsPage() {
         {/* Global Notifications */}
         {notification && (
           <div
-            className={`flex items-center justify-between rounded-xl p-4 text-sm font-medium shadow-xs transition ${
-              notification.type === 'success'
-                ? 'border border-emerald-200 bg-emerald-50 text-emerald-800'
-                : 'border border-red-200 bg-red-50 text-red-800'
-            }`}
+            className={`flex items-center justify-between rounded-xl p-4 text-sm font-medium shadow-xs transition ${notification.type === 'success'
+              ? 'border border-emerald-200 bg-emerald-50 text-emerald-800'
+              : 'border border-red-200 bg-red-50 text-red-800'
+              }`}
           >
             <div className="flex items-center gap-2">
               {notification.type === 'success' ? (
@@ -538,11 +537,10 @@ export default function MembershipsPage() {
           <button
             type="button"
             onClick={() => setActiveTab('tiers')}
-            className={`relative flex items-center gap-2 border-b-2 px-5 py-3 text-sm font-semibold transition ${
-              activeTab === 'tiers'
-                ? 'border-[var(--primary)] text-[var(--primary)]'
-                : 'border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
-            }`}
+            className={`relative flex items-center gap-2 border-b-2 px-5 py-3 text-sm font-semibold transition ${activeTab === 'tiers'
+              ? 'border-[var(--primary)] text-[var(--primary)]'
+              : 'border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
+              }`}
           >
             <Sparkles size={16} />
             <span>Membership Tiers</span>
@@ -557,11 +555,10 @@ export default function MembershipsPage() {
               setActiveTab('members')
               loadMembers()
             }}
-            className={`relative flex items-center gap-2 border-b-2 px-5 py-3 text-sm font-semibold transition ${
-              activeTab === 'members'
-                ? 'border-[var(--primary)] text-[var(--primary)]'
-                : 'border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
-            }`}
+            className={`relative flex items-center gap-2 border-b-2 px-5 py-3 text-sm font-semibold transition ${activeTab === 'members'
+              ? 'border-[var(--primary)] text-[var(--primary)]'
+              : 'border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
+              }`}
           >
             <UsersRound size={16} />
             <span>Members & Subscribers</span>
@@ -738,11 +735,10 @@ export default function MembershipsPage() {
                               key={p}
                               type="button"
                               onClick={() => setFormData((prev) => ({ ...prev, price: p }))}
-                              className={`rounded-md px-2 py-0.5 text-xs font-medium transition ${
-                                Number(formData.price) === p
-                                  ? 'bg-[var(--primary)] text-white'
-                                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                              }`}
+                              className={`rounded-md px-2 py-0.5 text-xs font-medium transition ${Number(formData.price) === p
+                                ? 'bg-[var(--primary)] text-white'
+                                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                                }`}
                             >
                               ₹{p}
                             </button>
@@ -871,14 +867,12 @@ export default function MembershipsPage() {
                                     : prev.discordRoleId,
                               }))
                             }
-                            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                              formData.discordPerk ? 'bg-[#5865F2]' : 'bg-slate-300'
-                            }`}
+                            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${formData.discordPerk ? 'bg-[#5865F2]' : 'bg-slate-300'
+                              }`}
                           >
                             <span
-                              className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
-                                formData.discordPerk ? 'translate-x-5' : 'translate-x-0'
-                              }`}
+                              className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${formData.discordPerk ? 'translate-x-5' : 'translate-x-0'
+                                }`}
                             />
                           </button>
                         </div>
@@ -944,11 +938,10 @@ export default function MembershipsPage() {
 
                                 {discordTestResult && (
                                   <div
-                                    className={`rounded-lg p-2.5 text-[11px] ${
-                                      discordTestResult.success
-                                        ? 'border border-emerald-200 bg-emerald-50 text-emerald-800'
-                                        : 'border border-red-200 bg-red-50 text-red-800'
-                                    }`}
+                                    className={`rounded-lg p-2.5 text-[11px] ${discordTestResult.success
+                                      ? 'border border-emerald-200 bg-emerald-50 text-emerald-800'
+                                      : 'border border-red-200 bg-red-50 text-red-800'
+                                      }`}
                                   >
                                     {discordTestResult.success ? (
                                       <span className="flex items-center gap-1 font-medium">
@@ -1058,7 +1051,7 @@ export default function MembershipsPage() {
                           <div>
                             <div className="flex items-center justify-between">
                               <span className="text-xs font-bold text-slate-900">{preset.title}</span>
-                              <span className="text-xs font-extrabold text-[var(--primary)]">
+                              <span className="text-xs   text-[var(--primary)]">
                                 ₹{preset.price}/mo
                               </span>
                             </div>
@@ -1099,11 +1092,10 @@ export default function MembershipsPage() {
                   {tiers.map((tier) => (
                     <div
                       key={tier.id}
-                      className={`flex flex-col justify-between rounded-2xl border bg-white p-5 shadow-xs transition hover:shadow-md ${
-                        tier.isActive
-                          ? 'border-slate-200'
-                          : 'border-slate-200/60 bg-slate-50/50 opacity-80'
-                      }`}
+                      className={`flex flex-col justify-between rounded-2xl border bg-white p-5 shadow-xs transition hover:shadow-md ${tier.isActive
+                        ? 'border-slate-200'
+                        : 'border-slate-200/60 bg-slate-50/50 opacity-80'
+                        }`}
                     >
                       <div>
                         {/* Header: Title and Status */}
@@ -1111,18 +1103,17 @@ export default function MembershipsPage() {
                           <div>
                             <h3 className="text-base font-bold text-slate-900">{tier.title}</h3>
                             <div className="mt-1 flex items-baseline gap-1">
-                              <span className="text-2xl font-black text-[var(--foreground)]">
+                              <span className="text-2xl font-[650] text-[var(--foreground)]">
                                 ₹{tier.price}
                               </span>
                               <span className="text-xs font-medium text-slate-400">/ month</span>
                             </div>
                           </div>
                           <span
-                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
-                              tier.isActive
-                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                : 'bg-slate-100 text-slate-600 border border-slate-200'
-                            }`}
+                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${tier.isActive
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              : 'bg-slate-100 text-slate-600 border border-slate-200'
+                              }`}
                           >
                             {tier.isActive ? 'Active' : 'Draft'}
                           </span>
@@ -1317,11 +1308,10 @@ export default function MembershipsPage() {
                   <button
                     type="button"
                     onClick={() => setTierFilter('all')}
-                    className={`rounded-lg px-2.5 py-1 font-medium transition ${
-                      tierFilter === 'all'
-                        ? 'bg-[var(--primary)] text-white'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                    }`}
+                    className={`rounded-lg px-2.5 py-1 font-medium transition ${tierFilter === 'all'
+                      ? 'bg-[var(--primary)] text-white'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      }`}
                   >
                     All ({members.length})
                   </button>
@@ -1330,11 +1320,10 @@ export default function MembershipsPage() {
                       key={t.id}
                       type="button"
                       onClick={() => setTierFilter(t.title)}
-                      className={`rounded-lg px-2.5 py-1 font-medium transition ${
-                        tierFilter.toLowerCase() === t.title.toLowerCase()
-                          ? 'bg-purple-600 text-white'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}
+                      className={`rounded-lg px-2.5 py-1 font-medium transition ${tierFilter.toLowerCase() === t.title.toLowerCase()
+                        ? 'bg-purple-600 text-white'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        }`}
                     >
                       {t.title}
                     </button>
@@ -1346,33 +1335,30 @@ export default function MembershipsPage() {
                   <button
                     type="button"
                     onClick={() => setDiscordFilter('all')}
-                    className={`rounded-lg px-2.5 py-1 font-medium transition ${
-                      discordFilter === 'all'
-                        ? 'bg-slate-800 text-white'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                    }`}
+                    className={`rounded-lg px-2.5 py-1 font-medium transition ${discordFilter === 'all'
+                      ? 'bg-slate-800 text-white'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      }`}
                   >
                     All
                   </button>
                   <button
                     type="button"
                     onClick={() => setDiscordFilter('synced')}
-                    className={`rounded-lg px-2.5 py-1 font-medium transition ${
-                      discordFilter === 'synced'
-                        ? 'bg-emerald-700 text-white'
-                        : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100'
-                    }`}
+                    className={`rounded-lg px-2.5 py-1 font-medium transition ${discordFilter === 'synced'
+                      ? 'bg-emerald-700 text-white'
+                      : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100'
+                      }`}
                   >
                     Synced ✅
                   </button>
                   <button
                     type="button"
                     onClick={() => setDiscordFilter('pending')}
-                    className={`rounded-lg px-2.5 py-1 font-medium transition ${
-                      discordFilter === 'pending'
-                        ? 'bg-amber-700 text-white'
-                        : 'bg-amber-50 text-amber-800 hover:bg-amber-100'
-                    }`}
+                    className={`rounded-lg px-2.5 py-1 font-medium transition ${discordFilter === 'pending'
+                      ? 'bg-amber-700 text-white'
+                      : 'bg-amber-50 text-amber-800 hover:bg-amber-100'
+                      }`}
                   >
                     Pending / No ID
                   </button>

@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 import Payment from '@/models/Payment'
 import PayoutRequest from '@/models/PayoutRequest'
+import { getPlatformSettings } from '@/models/PlatformSettings'
 import { getCurrentUser } from '@/lib/auth/server'
 import { getCreatorStats } from '@/lib/data/creator'
 
@@ -51,8 +52,12 @@ export async function GET() {
     const netEarnings = stats.netEarnings || 0
     const availableBalance = Math.max(0, netEarnings - totalPaidOut - totalPendingPayout)
 
+    const settings = await getPlatformSettings()
+    const minPayoutAmountPaise = settings?.minPayoutAmountPaise || 10000
+
     return Response.json({
       success: true,
+      minPayoutAmountPaise,
       stats: {
         ...stats,
         totalPaidOut,
@@ -113,8 +118,12 @@ export async function POST(request) {
     const body = await request.json().catch(() => ({}))
     const amountInPaise = Number(body.amount)
 
-    if (!amountInPaise || !Number.isInteger(amountInPaise) || amountInPaise < 10000) {
-      return Response.json({ error: 'Minimum payout amount is ₹100' }, { status: 400 })
+    const settings = await getPlatformSettings()
+    const minPayoutAmountPaise = settings?.minPayoutAmountPaise || 10000
+    const minPayoutRupees = Math.round(minPayoutAmountPaise / 100)
+
+    if (!amountInPaise || !Number.isInteger(amountInPaise) || amountInPaise < minPayoutAmountPaise) {
+      return Response.json({ error: `Minimum payout amount is ₹${minPayoutRupees}` }, { status: 400 })
     }
 
     // Verify creator has payout details configured

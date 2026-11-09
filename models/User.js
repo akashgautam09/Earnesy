@@ -120,6 +120,22 @@ const userSchema = new mongoose.Schema({
     trim: true,
     default: '',
   },
+  status: {
+    type: String,
+    enum: ['active', 'suspended'],
+    default: 'active',
+    index: true,
+  },
+  canAcceptTips: {
+    type: Boolean,
+    default: true,
+  },
+  customPlatformFee: {
+    type: Number,
+    min: 0,
+    max: 100,
+    default: null,
+  },
   createdAt: {
     type: Date,
     default: Date.now

@@ -7,6 +7,7 @@ import Payment from "@/models/Payment"
 import Post from "@/models/Post"
 import Like from "@/models/Like"
 import Tier from "@/models/Tier"
+import { getPlatformSettings } from "@/models/PlatformSettings"
 import { getCurrentUser } from "@/lib/auth/server"
 
 const ensureDb = async () => {
@@ -30,10 +31,25 @@ export const initiate = async (amount, to_user, paymentform) => {
         }
 
         await ensureDb()
+
+        // Emergency Maintenance Mode check
+        const settings = await getPlatformSettings()
+        if (settings?.maintenanceMode) {
+            return { error: 'Platform checkouts are temporarily paused for scheduled maintenance. Please try again shortly.' }
+        }
+
         // Resolve the actual page owner/creator strictly from the target username
         const recipientCreator = await User.findOne({ username: to_user?.trim().toLowerCase() })
         if (!recipientCreator) {
             return { error: 'Recipient creator not found.' }
+        }
+
+        // Account moderation check
+        if (recipientCreator.status === 'suspended') {
+            return { error: 'This creator account is currently suspended. Contributions are temporarily paused.' }
+        }
+        if (recipientCreator.canAcceptTips === false) {
+            return { error: 'This creator is currently not accepting contributions.' }
         }
 
         // Prevent self-payment (creator paying themselves or purchasing own tier)
@@ -94,8 +110,11 @@ export const initiate = async (amount, to_user, paymentform) => {
             }
         }
 
-        // 2% Platform Fee Calculation (integer paise)
-        const feePercentage = 2
+        // Platform Fee Calculation (integer paise): use creator's customPlatformFee if set, else global platform fee
+        const globalFee = settings?.globalFeePercentage ?? 2
+        const feePercentage = typeof recipientCreator.customPlatformFee === 'number' && recipientCreator.customPlatformFee >= 0
+            ? recipientCreator.customPlatformFee
+            : globalFee
         const platformFee = Math.round(amountInPaise * (feePercentage / 100))
         const creatorAmount = amountInPaise - platformFee
 
@@ -168,8 +187,11 @@ export const fetchUserPage = async (username) => {
                  currentUser.email?.toLowerCase() === user.email?.toLowerCase())
             )
 
-            // Payments are strictly enabled ONLY if the creator has valid independent credentials
-            const paymentsEnabled = Boolean(razorpayId && razorpaySecret)
+            // Payments are enabled ONLY if creator has valid gateway AND is active AND can accept tips
+            const isSuspended = user.status === 'suspended'
+            const canAcceptTips = user.canAcceptTips !== false
+            const hasGateway = Boolean(razorpayId && razorpaySecret)
+            const paymentsEnabled = Boolean(hasGateway && !isSuspended && canAcceptTips)
 
             return {
                 id: user._id.toString(),
@@ -181,6 +203,9 @@ export const fetchUserPage = async (username) => {
                 profileUrl: user.profileUrl,
                 coverUrl: user.coverUrl,
                 paymentsEnabled,
+                hasGateway,
+                isSuspended,
+                canAcceptTips,
                 payoutUpiId: user.payoutUpiId || '',
                 payoutMethod: user.payoutMethod || 'upi',
                 hasDiscordRewards: Boolean(user.discordServerId && user.discordRoleId),

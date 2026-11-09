@@ -95,13 +95,13 @@ export default async function Home() {
           </div>
 
           {/* Main Headline */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 leading-[1.15] tracking-tight">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl text-slate-900 leading-[1.15] tracking-tight">
             Turn Your Creative Passion Into <span className="text-[var(--primary)]">Direct Income</span>
           </h1>
 
           {/* Subtitle speaking to both */}
           <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto">
-            Accept direct tips, launch monthly memberships, and automate Discord VIP roles with a minimal 2% fee — keep 98% of your earnings. Fans unlock exclusive content and join private creator communities.
+            Accept direct tips, launch monthly memberships, automated Discord VIP roles and fans can unlock exclusive content and join private creator communities.
           </p>
 
           {/* Interactive Claim Username Box */}
@@ -136,15 +136,15 @@ export default async function Home() {
       <section className="border-y border-slate-200/80 bg-white/80 py-6 px-4">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
           <div className="space-y-1">
-            <p className="text-xl sm:text-2xl font-black text-[var(--primary)]">Monthly Tiers</p>
+            <p className="text-xl sm:text-2xl font-[650] text-[var(--primary)]">Monthly Tiers</p>
             <p className="text-xs text-slate-500 font-medium">Predictable recurring income</p>
           </div>
           <div className="space-y-1">
-            <p className="text-xl sm:text-2xl font-black text-indigo-600">Discord Sync</p>
+            <p className="text-xl sm:text-2xl font-[650] text-indigo-600">Discord Sync</p>
             <p className="text-xs text-slate-500 font-medium">Automated VIP backer roles</p>
           </div>
           <div className="space-y-1">
-            <p className="text-xl sm:text-2xl font-black text-slate-900">0 Algorithms</p>
+            <p className="text-xl sm:text-2xl font-[650] text-slate-900">0 Algorithms</p>
             <p className="text-xs text-slate-500 font-medium">You own 100% of your audience</p>
           </div>
         </div>
@@ -160,7 +160,7 @@ export default async function Home() {
               <Zap size={13} />
               <span>Built for Creators & Their Supporters</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-[650] text-slate-900 tracking-tight">
               Everything You Need to Monetize & Grow
             </h2>
             <p className="text-slate-600 text-sm sm:text-base">
@@ -195,7 +195,7 @@ export default async function Home() {
                     <Coffee size={14} className="text-amber-500" />
                     <span>Support Akash with a coffee</span>
                   </span>
-                  <span className="text-[var(--primary)] font-extrabold">₹150</span>
+                  <span className="text-[var(--primary)]  ">₹150</span>
                 </div>
                 <div className="flex gap-2">
                   <div className="flex-1 py-1.5 text-center text-xs font-bold rounded-lg border border-slate-200 bg-white text-slate-700">₹50</div>
@@ -234,7 +234,7 @@ export default async function Home() {
                     <Crown size={14} className="text-purple-600" />
                     <span>💎 VIP Backer Tier</span>
                   </span>
-                  <span className="text-xs font-black text-slate-900">₹299<span className="text-[10px] text-slate-500 font-normal">/mo</span></span>
+                  <span className="text-xs font-[650] text-slate-900">₹299<span className="text-[10px] text-slate-500 font-normal">/mo</span></span>
                 </div>
                 <div className="space-y-1.5 text-[11px] text-slate-700">
                   <div className="flex items-center gap-1.5">
@@ -338,7 +338,7 @@ export default async function Home() {
       <section className="py-16 sm:py-20 px-4 bg-white/70 border-y border-slate-200/80">
         <div className="max-w-6xl mx-auto space-y-12">
           <div className="text-center space-y-2">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-[650] text-slate-900 tracking-tight">
               A Platform Built For Both Sides of the Creative Economy
             </h2>
             <p className="text-slate-600 text-xs sm:text-sm max-w-xl mx-auto">
@@ -449,7 +449,7 @@ export default async function Home() {
                 <Sparkles size={14} />
                 <span>Featured Creators</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl   text-slate-900 tracking-tight">
                 Meet Creators Building on Earnesy
               </h2>
               <p className="text-slate-600 text-xs sm:text-sm mt-1 max-w-xl">
@@ -580,7 +580,7 @@ export default async function Home() {
             <span className="text-xs font-bold uppercase tracking-wider text-[var(--primary)] bg-rose-50 px-3 py-1 rounded-full border border-rose-100">
               ⚡ Effortless Setup
             </span>
-            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-3xl sm:text-4xl font-[650] text-slate-900 tracking-tight">
               Start Earning in 3 Simple Steps
             </h2>
             <p className="text-slate-600 text-xs sm:text-sm">
@@ -590,7 +590,7 @@ export default async function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
             <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-7 shadow-xs space-y-3 relative overflow-hidden">
-              <span className="text-3xl sm:text-4xl font-black text-rose-100 absolute top-4 right-5 select-none">
+              <span className="text-3xl sm:text-4xl font-[650] text-rose-100 absolute top-4 right-5 select-none">
                 01
               </span>
               <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-rose-50 text-[var(--primary)] font-bold text-sm">
@@ -603,7 +603,7 @@ export default async function Home() {
             </div>
 
             <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-7 shadow-xs space-y-3 relative overflow-hidden">
-              <span className="text-3xl sm:text-4xl font-black text-amber-100 absolute top-4 right-5 select-none">
+              <span className="text-3xl sm:text-4xl font-[650] text-amber-100 absolute top-4 right-5 select-none">
                 02
               </span>
               <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-600 font-bold text-sm">
@@ -616,7 +616,7 @@ export default async function Home() {
             </div>
 
             <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-7 shadow-xs space-y-3 relative overflow-hidden">
-              <span className="text-3xl sm:text-4xl font-black text-purple-100 absolute top-4 right-5 select-none">
+              <span className="text-3xl sm:text-4xl font-[650] text-purple-100 absolute top-4 right-5 select-none">
                 03
               </span>
               <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-purple-50 text-purple-600 font-bold text-sm">
@@ -640,7 +640,7 @@ export default async function Home() {
             <span className="text-xs font-bold uppercase tracking-wider text-[var(--primary)] bg-rose-50 px-3 py-1 rounded-full border border-rose-100">
               Frequently Asked Questions
             </span>
-            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-3xl sm:text-4xl font-[650] text-slate-900 tracking-tight">
               Everything You Need to Know
             </h2>
             <p className="text-slate-600 text-xs sm:text-sm max-w-lg mx-auto">
@@ -666,7 +666,7 @@ export default async function Home() {
               <span>Ready to Get Started?</span>
             </span>
 
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-[650] text-white tracking-tight leading-tight">
               Build Your Creator Future on Earnesy
             </h2>
 

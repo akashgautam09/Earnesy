@@ -15,7 +15,7 @@ export default function GlobalError({ error, reset }) {
         <AlertTriangle size={36} />
       </div>
 
-      <h1 className="text-2xl font-extrabold tracking-tight text-[var(--foreground)] sm:text-3xl">
+      <h1 className="text-2xl   tracking-tight text-[var(--foreground)] sm:text-3xl">
         Something went wrong
       </h1>
       <p className="mt-2 max-w-md text-sm text-[var(--muted-foreground)] leading-relaxed">

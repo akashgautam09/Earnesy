@@ -1,7 +1,17 @@
+"use client";
+
 import React from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 const Footer = () => {
+  const pathname = usePathname();
+
+  // Hide public marketing footer on the admin back-office operations console
+  if (pathname === '/admin' || pathname?.startsWith('/admin/')) {
+    return null;
+  }
+
   return (
     <footer id="contact" className="border-t border-[var(--border)] bg-[var(--muted)]">
       <div className="mx-auto max-w-7xl px-5 py-16 sm:px-6 lg:px-8">
